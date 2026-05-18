@@ -1,6 +1,7 @@
 import unittest
 
 from virtual_society import Simulation
+from virtual_society.interventions import Intervention
 from virtual_society.social_evaluation import assess_social_dynamics
 
 
@@ -16,6 +17,25 @@ class SocialEvaluationTests(unittest.TestCase):
         self.assertTrue(all(agent.reflections for agent in simulation.world.agents))
         self.assertTrue(any(event.kind == "dialogue" for event in simulation.world.event_log))
         self.assertTrue(any(finding.code == "social_loop_active" for finding in findings))
+
+    def test_generative_alpha_traces_disaster_into_later_behavior(self) -> None:
+        simulation = Simulation(seed=7, world_preset="generative_alpha")
+
+        simulation.run(
+            30,
+            interventions=[
+                Intervention(
+                    day=15,
+                    kind="disaster",
+                    params={"name": "river storm", "severity": 0.42},
+                )
+            ],
+        )
+        findings = assess_social_dynamics(simulation.world)
+
+        self.assertTrue(
+            any(finding.code == "shock_trace_active" for finding in findings)
+        )
 
 
 if __name__ == "__main__":

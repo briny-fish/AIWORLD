@@ -7,9 +7,21 @@ from dataclasses import asdict
 from typing import Iterable
 
 from .cognition import CognitionProvider, RuleBasedCognition
-from .generative_memory import build_reflection, memory_from_event
+from .generative_memory import CRITICAL_EVENT_KINDS, build_reflection, memory_from_event
 from .interventions import Intervention, group_interventions
-from .model import Action, Agent, AgentProfile, Event, Location, Metrics, Needs, Organization, Plan, WorldState
+from .model import (
+    Action,
+    Agent,
+    AgentProfile,
+    Event,
+    Location,
+    MemoryItem,
+    Metrics,
+    Needs,
+    Organization,
+    Plan,
+    WorldState,
+)
 
 
 class Simulation:
@@ -1597,18 +1609,68 @@ class Simulation:
 
     def _compose_social_dialogue(self, agent: Agent, partner: Agent) -> str:
         shared_orgs = sorted(set(agent.organization_ids) & set(partner.organization_ids))
-        shared_goal = agent.profile.long_term_goals[0] if agent.profile.long_term_goals else "stay useful"
+        shared_goal = (
+            agent.profile.long_term_goals[0]
+            if agent.profile.long_term_goals
+            else "stay useful"
+        )
         partner_value = partner.profile.values[0] if partner.profile.values else "stability"
+        salient_memory = self._salient_dialogue_memory(agent, partner)
+        trust = (
+            agent.relationships.get(partner.id, 0.50)
+            + partner.relationships.get(agent.id, 0.50)
+        ) / 2
+        relation = "with fragile trust"
+        if trust >= 0.66:
+            relation = "as trusted partners"
+        elif trust >= 0.52:
+            relation = "with workable trust"
+
+        evidence = ""
+        if salient_memory is not None:
+            evidence = (
+                f" They grounded the talk in day {salient_memory.day}: "
+                f"{salient_memory.text.rstrip('.')}."
+            )
         if shared_orgs:
             return (
-                f"{agent.name} and {partner.name} discussed {shared_orgs[0]}: "
-                f"{agent.name} wants to {shared_goal}; "
-                f"{partner.name} answered from a concern for {partner_value}."
+                f"{agent.name} and {partner.name} discussed {shared_orgs[0]} "
+                f"{relation}.{evidence} {agent.name} connected it to {shared_goal}; "
+                f"{partner.name} weighed it against {partner_value}."
             )
         return (
-            f"{agent.name} asked {partner.name} what the settlement needs next; "
-            f"{partner.name} answered from a concern for {partner_value}."
+            f"{agent.name} asked {partner.name} what the settlement needs next "
+            f"{relation}.{evidence} {partner.name} answered from a concern "
+            f"for {partner_value}."
         )
+
+    def _salient_dialogue_memory(self, agent: Agent, partner: Agent) -> MemoryItem | None:
+        candidates = [
+            memory
+            for memory in [*agent.memory_stream[-14:], *partner.memory_stream[-14:]]
+            if self.world.day - memory.day <= 21
+        ]
+        if not candidates:
+            return None
+
+        routine_kinds = {"dialogue", "plan", "rest", "social"}
+        preferred = [
+            memory
+            for memory in candidates
+            if memory.kind not in routine_kinds or memory.importance >= 0.75
+        ]
+        search_space = preferred or candidates
+        scored = [
+            (
+                1 if memory.kind in CRITICAL_EVENT_KINDS else 0,
+                memory.importance,
+                memory.day,
+                -index,
+                memory,
+            )
+            for index, memory in enumerate(search_space)
+        ]
+        return max(scored, key=lambda item: item[:4])[-1]
 
     def _pick_partner(self, agent: Agent) -> Agent | None:
         candidates = [other for other in self.world.agents if other.id != agent.id]

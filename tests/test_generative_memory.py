@@ -2,6 +2,7 @@ import unittest
 
 from virtual_society import Simulation
 from virtual_society.generative_memory import retrieve_memories
+from virtual_society.interventions import Intervention
 from virtual_society.model import Action, Plan
 
 
@@ -70,6 +71,27 @@ class GenerativeMemoryTests(unittest.TestCase):
             if first_dialogue.description in [memory.text for memory in agent.memory_stream]
         ]
         self.assertGreaterEqual(len(participants), 2)
+
+    def test_social_dialogue_references_recent_shock_memory(self) -> None:
+        simulation = Simulation(seed=7, cognition=SocialCognition())
+
+        simulation.run(
+            1,
+            interventions=[
+                Intervention(
+                    day=1,
+                    kind="disaster",
+                    params={"name": "test storm", "severity": 0.3},
+                )
+            ],
+        )
+
+        dialogue = next(
+            event.description
+            for event in simulation.world.event_log
+            if event.kind == "dialogue"
+        )
+        self.assertIn("test storm", dialogue)
 
 
 if __name__ == "__main__":

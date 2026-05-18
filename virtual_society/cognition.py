@@ -27,6 +27,7 @@ class RuleBasedCognition:
 
         self._score_needs(agent, world, scores, reasons)
         self._score_role_bias(agent, scores, reasons)
+        self._score_profile_context(agent, scores, reasons)
         self._score_memory_bias(agent, world, scores, reasons)
         self._score_social_context(agent, scores, reasons)
         self._score_institutional_context(agent, world, scores, reasons)
@@ -132,6 +133,84 @@ class RuleBasedCognition:
             return
         scores[action] += 0.10
         reasons[action].append(f"role bias: {agent.role}")
+
+    def _score_profile_context(
+        self,
+        agent: Agent,
+        scores: dict[Action, float],
+        reasons: dict[Action, list[str]],
+    ) -> None:
+        context = " ".join(
+            [
+                agent.profile.background,
+                " ".join(agent.profile.values),
+                " ".join(agent.profile.long_term_goals),
+                " ".join(agent.reflections[-3:]),
+            ]
+        ).lower()
+        if not context.strip():
+            return
+
+        profile_biases = [
+            (
+                ("food", "granaries", "meals", "hospitality"),
+                Action.FARM,
+                0.08,
+                "profile prioritizes food security",
+            ),
+            (
+                ("food", "distribution", "fairness"),
+                Action.HAUL,
+                0.06,
+                "profile prioritizes food distribution",
+            ),
+            (
+                ("maintenance", "shelter", "repair", "tools"),
+                Action.REPAIR,
+                0.09,
+                "profile prioritizes repair and maintenance",
+            ),
+            (
+                ("routes", "exchange", "reciprocity", "mobility", "bargains"),
+                Action.HAUL,
+                0.09,
+                "profile prioritizes exchange routes",
+            ),
+            (
+                ("care", "clinic", "vulnerable", "suffering"),
+                Action.SOCIALIZE,
+                0.08,
+                "profile prioritizes care relationships",
+            ),
+            (
+                ("trust", "coordination", "legitimacy", "factions", "responsive"),
+                Action.SOCIALIZE,
+                0.09,
+                "profile prioritizes social coordination",
+            ),
+            (
+                ("learning", "craft", "usefulness", "recognition"),
+                Action.GATHER,
+                0.06,
+                "profile prioritizes practical learning",
+            ),
+            (
+                ("warning", "shortages", "scarcity", "maps"),
+                Action.HAUL,
+                0.06,
+                "profile prioritizes early warning and logistics",
+            ),
+        ]
+        for keywords, action, weight, reason in profile_biases:
+            if any(keyword in context for keyword in keywords):
+                scores[action] += weight
+                reasons[action].append(reason)
+
+        if any(term in context for term in ("crisis", "shock", "storm", "damaged")):
+            scores[Action.REPAIR] += 0.12
+            scores[Action.HAUL] += 0.06
+            reasons[Action.REPAIR].append("reflection keeps recent shock salient")
+            reasons[Action.HAUL].append("reflection keeps recent shock salient")
 
     def _score_memory_bias(
         self,

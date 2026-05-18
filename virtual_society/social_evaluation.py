@@ -1,9 +1,81 @@
 from __future__ import annotations
 
+import re
 from dataclasses import asdict, dataclass
 from statistics import pstdev
 
 from .model import WorldState
+
+
+SHOCK_EVENT_KINDS = {
+    "disaster",
+    "hunger_crisis",
+    "safety_crisis",
+    "institutional_crisis",
+}
+
+RESPONSE_TERMS_BY_KIND = {
+    "disaster": {
+        "damage",
+        "damaged",
+        "disaster",
+        "gather",
+        "gathering",
+        "haul",
+        "hauling",
+        "materials",
+        "repair",
+        "shelter",
+        "shock",
+        "storm",
+    },
+    "hunger_crisis": {
+        "distribution",
+        "farm",
+        "farming",
+        "food",
+        "haul",
+        "hauling",
+        "hunger",
+        "rationing",
+        "scarcity",
+    },
+    "safety_crisis": {
+        "belonging",
+        "crisis",
+        "repair",
+        "safety",
+        "shelter",
+        "socialize",
+        "trust",
+    },
+    "institutional_crisis": {
+        "belonging",
+        "cohesion",
+        "coordination",
+        "institutional",
+        "legitimacy",
+        "organization",
+        "socialize",
+        "trust",
+    },
+}
+
+STOP_TERMS = {
+    "about",
+    "after",
+    "and",
+    "day",
+    "for",
+    "from",
+    "into",
+    "society",
+    "the",
+    "their",
+    "they",
+    "this",
+    "with",
+}
 
 
 @dataclass(frozen=True)
@@ -109,6 +181,10 @@ def assess_social_dynamics(world: WorldState) -> list[SocialFinding]:
             )
         )
 
+    shock_finding = _assess_shock_trace(world, population)
+    if shock_finding is not None:
+        findings.append(shock_finding)
+
     if not findings:
         findings.append(
             SocialFinding(
@@ -121,3 +197,98 @@ def assess_social_dynamics(world: WorldState) -> list[SocialFinding]:
         )
 
     return findings
+
+
+def _assess_shock_trace(
+    world: WorldState,
+    population: int,
+) -> SocialFinding | None:
+    shock = next(
+        (
+            event
+            for event in reversed(world.event_log)
+            if event.kind in SHOCK_EVENT_KINDS
+        ),
+        None,
+    )
+    if shock is None:
+        return None
+
+    trace_window_days = 21
+    if world.day - shock.day > trace_window_days:
+        return None
+
+    response_terms = RESPONSE_TERMS_BY_KIND.get(shock.kind, set())
+    shock_terms = (_terms(shock.description) - STOP_TERMS) | response_terms
+    memory_hits = 0
+    reflection_hits = 0
+    plan_hits = 0
+
+    for agent in world.agents:
+        if any(
+            memory.day == shock.day
+            and memory.kind == shock.kind
+            and memory.text == shock.description
+            for memory in agent.memory_stream
+        ):
+            memory_hits += 1
+
+        if any(
+            _has_term_overlap(reflection, shock_terms)
+            for reflection in agent.reflections
+            if _entry_day(reflection) >= shock.day
+        ):
+            reflection_hits += 1
+
+        if any(
+            _has_term_overlap(plan, shock_terms)
+            for plan in agent.plan_history
+            if shock.day < _entry_day(plan) <= shock.day + trace_window_days
+        ):
+            plan_hits += 1
+
+    memory_coverage = memory_hits / population
+    reflection_coverage = reflection_hits / population
+    plan_coverage = plan_hits / population
+    behavior_signal = max(reflection_coverage, plan_coverage)
+    trace_score = (memory_coverage + behavior_signal) / 2
+
+    if memory_coverage >= 0.60 and behavior_signal >= 0.20:
+        return SocialFinding(
+            code="shock_trace_active",
+            severity="info",
+            day=world.day,
+            description=(
+                f"Latest {shock.kind} on day {shock.day} is traceable: "
+                f"memory {memory_coverage:.0%}, reflection {reflection_coverage:.0%}, "
+                f"plan response {plan_coverage:.0%}."
+            ),
+            value=round(trace_score, 3),
+        )
+
+    return SocialFinding(
+        code="shock_trace_weak",
+        severity="warning",
+        day=world.day,
+        description=(
+            f"Latest {shock.kind} on day {shock.day} is weakly traceable: "
+            f"memory {memory_coverage:.0%}, reflection {reflection_coverage:.0%}, "
+            f"plan response {plan_coverage:.0%}."
+        ),
+        value=round(trace_score, 3),
+    )
+
+
+def _entry_day(text: str) -> int:
+    match = re.search(r"\bday\s+(\d+)\b", text.lower())
+    if match is None:
+        return 0
+    return int(match.group(1))
+
+
+def _has_term_overlap(text: str, terms: set[str]) -> bool:
+    return bool(_terms(text) & terms)
+
+
+def _terms(text: str) -> set[str]:
+    return {term for term in re.findall(r"[a-zA-Z0-9_]+", text.lower()) if len(term) > 1}

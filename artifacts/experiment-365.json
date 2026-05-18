@@ -1,0 +1,146 @@
+{
+  "kind": "experiment",
+  "generated_at": "2026-05-13T16:15:59+00:00",
+  "reports": [
+    {
+      "seed": 1,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 2.06,
+        "materials": 3.39,
+        "shelter": 13.59,
+        "average_need": 0.407,
+        "average_trust": 0.876,
+        "crisis_events": 2
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 365,
+          "description": "Average need is strained at 0.407."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 365,
+          "description": "2 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 1.01,
+        "materials": 6.6,
+        "shelter": 7.69,
+        "average_need": 0.41,
+        "average_trust": 0.891,
+        "crisis_events": 8
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 365,
+          "description": "Average need is strained at 0.410."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 365,
+          "description": "8 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 1.66,
+        "materials": 7.97,
+        "shelter": 6.61,
+        "average_need": 0.405,
+        "average_trust": 0.901,
+        "crisis_events": 10
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 365,
+          "description": "Average need is strained at 0.405."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 365,
+          "description": "10 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 1.78,
+        "materials": 5.96,
+        "shelter": 7.93,
+        "average_need": 0.411,
+        "average_trust": 0.852,
+        "crisis_events": 3
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 365,
+          "description": "Average need is strained at 0.411."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 365,
+          "description": "3 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 5,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 1.33,
+        "materials": 4.2,
+        "shelter": 10.86,
+        "average_need": 0.418,
+        "average_trust": 0.874,
+        "crisis_events": 4
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 365,
+          "description": "Average need is strained at 0.418."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 365,
+          "description": "4 crisis events were recorded."
+        }
+      ]
+    }
+  ]
+}

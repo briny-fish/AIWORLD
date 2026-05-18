@@ -1,0 +1,126 @@
+{
+  "kind": "experiment",
+  "generated_at": "2026-05-13T16:32:25+00:00",
+  "reports": [
+    {
+      "seed": 1,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 4.3,
+        "materials": 18.36,
+        "shelter": 21.49,
+        "average_need": 0.759,
+        "average_trust": 0.857,
+        "average_reputation": 1.0,
+        "institutional_cohesion": 1.0,
+        "crisis_events": 0
+      },
+      "findings": [
+        {
+          "code": "stable",
+          "severity": "info",
+          "day": 365,
+          "description": "No collapse or major instability detected."
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 0.65,
+        "materials": 16.28,
+        "shelter": 18.47,
+        "average_need": 0.763,
+        "average_trust": 0.838,
+        "average_reputation": 1.0,
+        "institutional_cohesion": 1.0,
+        "crisis_events": 0
+      },
+      "findings": [
+        {
+          "code": "stable",
+          "severity": "info",
+          "day": 365,
+          "description": "No collapse or major instability detected."
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 1.43,
+        "materials": 14.86,
+        "shelter": 11.14,
+        "average_need": 0.788,
+        "average_trust": 0.85,
+        "average_reputation": 1.0,
+        "institutional_cohesion": 1.0,
+        "crisis_events": 0
+      },
+      "findings": [
+        {
+          "code": "stable",
+          "severity": "info",
+          "day": 365,
+          "description": "No collapse or major instability detected."
+        }
+      ]
+    },
+    {
+      "seed": 4,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 0.77,
+        "materials": 15.12,
+        "shelter": 13.62,
+        "average_need": 0.785,
+        "average_trust": 0.804,
+        "average_reputation": 1.0,
+        "institutional_cohesion": 1.0,
+        "crisis_events": 0
+      },
+      "findings": [
+        {
+          "code": "stable",
+          "severity": "info",
+          "day": 365,
+          "description": "No collapse or major instability detected."
+        }
+      ]
+    },
+    {
+      "seed": 5,
+      "days": 365,
+      "final_metrics": {
+        "day": 365,
+        "population": 6,
+        "food": 2.05,
+        "materials": 24.08,
+        "shelter": 19.89,
+        "average_need": 0.775,
+        "average_trust": 0.819,
+        "average_reputation": 1.0,
+        "institutional_cohesion": 1.0,
+        "crisis_events": 0
+      },
+      "findings": [
+        {
+          "code": "stable",
+          "severity": "info",
+          "day": 365,
+          "description": "No collapse or major instability detected."
+        }
+      ]
+    }
+  ]
+}

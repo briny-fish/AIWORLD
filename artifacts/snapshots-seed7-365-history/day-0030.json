@@ -1,0 +1,100 @@
+{
+  "seed": 7,
+  "day": 30,
+  "summary": "Day 30: population 6, average need 0.680 (improving), trust 0.598, institutional cohesion 0.619, no crisis events.",
+  "metrics": {
+    "day": 30,
+    "population": 6,
+    "food": 1.85,
+    "materials": 10.06,
+    "shelter": 5.44,
+    "average_need": 0.68,
+    "average_trust": 0.598,
+    "average_reputation": 0.564,
+    "institutional_cohesion": 0.619,
+    "crisis_events": 0
+  },
+  "trends": {
+    "average_need": 0.035,
+    "average_trust": 0.043,
+    "average_reputation": 0.061,
+    "institutional_cohesion": 0.055,
+    "food": -6.25,
+    "materials": 1.36,
+    "shelter": 0.96,
+    "crisis_events": 0.0
+  },
+  "resources": {
+    "food": 1.849,
+    "materials": 10.064,
+    "shelter": 5.442
+  },
+  "event_counts": {
+    "cooperation": 22,
+    "plan": 149,
+    "plan_blocked": 11,
+    "rest": 79,
+    "scarcity_pressure": 8,
+    "social": 17,
+    "work": 78
+  },
+  "plan_counts": {
+    "farm": 2,
+    "rest": 4
+  },
+  "low_need_agents": [],
+  "organizations": [
+    {
+      "id": "household_north",
+      "name": "North Household",
+      "kind": "household",
+      "members": [
+        "a1",
+        "a2",
+        "a3"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.637,
+      "reputation": 0.564
+    },
+    {
+      "id": "household_south",
+      "name": "South Household",
+      "kind": "household",
+      "members": [
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.637,
+      "reputation": 0.564
+    },
+    {
+      "id": "common_council",
+      "name": "Common Council",
+      "kind": "council",
+      "members": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "work_contribution",
+        "repair_common_shelter"
+      ],
+      "cohesion": 0.582,
+      "reputation": 0.564
+    }
+  ],
+  "significant_events": []
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "day": 15,
+    "kind": "disaster",
+    "reason": "alpha stress test: storm breaks routine and tests memory propagation",
+    "params": {
+      "name": "river storm",
+      "severity": 0.42
+    }
+  },
+  {
+    "day": 16,
+    "kind": "broadcast",
+    "reason": "observer tests whether public information becomes social memory",
+    "params": {
+      "tone": "hope",
+      "strength": 0.07,
+      "message": "repair routes first, keep food distribution public, and check on the clinic"
+    }
+  },
+  {
+    "day": 18,
+    "kind": "resource",
+    "reason": "limited relief shipment, enough to help but not erase consequences",
+    "params": {
+      "resource": "materials",
+      "amount": 5,
+      "location_id": "river_pier"
+    }
+  },
+  {
+    "day": 20,
+    "kind": "resource",
+    "reason": "limited food relief after the storm",
+    "params": {
+      "resource": "food",
+      "amount": 8,
+      "location_id": "commons"
+    }
+  }
+]

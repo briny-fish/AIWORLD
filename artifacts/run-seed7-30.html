@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Society Run | seed 7 | day 30</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f4f1ea;
+  --ink: #18201f;
+  --muted: #5d6865;
+  --line: #c9c1b4;
+  --panel: #fffdf8;
+  --good: #23785f;
+  --warn: #a15c12;
+  --bad: #a33232;
+  --blue: #2f5d86;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  line-height: 1.45;
+}
+.shell { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 16px;
+}
+h1, h2 { margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1; }
+h2 { font-size: 18px; margin-bottom: 12px; }
+p { margin: 8px 0 0; color: var(--muted); }
+.status {
+  min-width: 220px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--blue);
+}
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 80px;
+}
+.metric label { display: block; color: var(--muted); font-size: 12px; }
+.metric strong { display: block; font-size: 28px; margin-top: 6px; }
+.band {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.split { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr); gap: 12px; }
+.finding-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #faf6ec;
+  font-size: 13px;
+}
+.critical { color: var(--bad); border-color: var(--bad); }
+.warning { color: var(--warn); border-color: var(--warn); }
+.info { color: var(--good); border-color: var(--good); }
+.chart { width: 100%; height: 260px; display: block; border: 1px solid var(--line); background: #fbf8f0; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.swatch { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: var(--muted); font-size: 12px; font-weight: 700; }
+.bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--blue); }
+@media (max-width: 900px) {
+  .topbar { display: block; }
+  .status { text-align: left; margin-top: 10px; }
+  .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Virtual Society Run</h1>
+        <p>seed 7 · day 30 · generated 2026-05-13T16:14:27+00:00</p>
+      </div>
+      <div class="status">Stable</div>
+    </header>
+    <section class="metric-strip">
+      <div class="metric"><label>Population</label><strong>6</strong></div>
+      <div class="metric"><label>Food</label><strong>2.01</strong></div>
+      <div class="metric"><label>Materials</label><strong>9.83</strong></div>
+      <div class="metric"><label>Shelter</label><strong>4.48</strong></div>
+      <div class="metric"><label>Avg Need</label><strong>0.484</strong></div>
+      <div class="metric"><label>Avg Trust</label><strong>0.588</strong></div>
+    </section>
+    <section class="band">
+      <h2>Health</h2>
+      <div class="finding-row"><span class="badge info">stable: No collapse or major instability detected.</span></div>
+    </section>
+    <section class="band">
+      <h2>Metrics</h2>
+      
+<svg class="chart" viewBox="0 0 1100 240" role="img" aria-label="Metrics over time">
+  <line x1="24" y1="216" x2="1076" y2="216" stroke="#c9c1b4" />
+  <line x1="24" y1="24" x2="24" y2="216" stroke="#c9c1b4" />
+  <polyline fill="none" stroke="#23785f" stroke-width="3" points="24.0,92.7 60.3,90.8 96.6,97.5 132.8,99.8 169.1,101.0 205.4,101.6 241.7,103.3 277.9,105.6 314.2,106.6 350.5,107.7 386.8,108.9 423.0,111.7 459.3,111.6 495.6,111.6 531.9,111.2 568.1,111.6 604.4,113.5 640.7,116.5 677.0,116.2 713.2,116.5 749.5,117.7 785.8,119.2 822.1,120.8 858.3,119.8 894.6,120.6 930.9,120.2 967.2,121.0 1003.4,120.8 1039.7,121.5 1076.0,123.1" />
+  <polyline fill="none" stroke="#2f5d86" stroke-width="3" points="24.0,109.4 60.3,108.3 96.6,107.9 132.8,107.7 169.1,107.5 205.4,107.3 241.7,107.1 277.9,107.1 314.2,107.1 350.5,107.1 386.8,107.1 423.0,106.9 459.3,106.8 495.6,106.0 531.9,106.0 568.1,106.0 604.4,106.0 640.7,105.8 677.0,105.6 713.2,105.6 749.5,105.6 785.8,105.2 822.1,104.8 858.3,104.6 894.6,104.3 930.9,104.3 967.2,103.7 1003.4,103.7 1039.7,103.3 1076.0,103.1" />
+  <polyline fill="none" stroke="#a15c12" stroke-width="3" points="24.0,24.0 60.3,177.3 96.6,140.5 132.8,153.9 169.1,157.8 205.4,161.9 241.7,167.0 277.9,169.9 314.2,174.7 350.5,181.1 386.8,184.0 423.0,147.5 459.3,161.0 495.6,166.4 531.9,173.4 568.1,175.0 604.4,182.4 640.7,156.2 677.0,166.4 713.2,178.6 749.5,184.3 785.8,184.0 822.1,159.4 858.3,164.2 894.6,169.3 930.9,178.9 967.2,177.3 1003.4,174.7 1039.7,184.6 1076.0,151.7" />
+</svg>
+<div class="legend">
+  <span><i class="swatch" style="background:#23785f"></i>average need</span>
+  <span><i class="swatch" style="background:#2f5d86"></i>average trust</span>
+  <span><i class="swatch" style="background:#a15c12"></i>food scaled to run max</span>
+</div>
+    </section>
+    <section class="split">
+      <div class="band">
+        <h2>Agents</h2>
+        <table><thead><tr><th>Name</th><th>Role</th><th>Need</th><th>Trust</th><th>Plan</th></tr></thead><tbody><tr><td>Ari</td><td>farmer</td><td>0.482</td><td>0.561</td><td>farm</td></tr><tr><td>Bo</td><td>builder</td><td>0.429</td><td>0.531</td><td>farm</td></tr><tr><td>Chen</td><td>mediator</td><td>0.581</td><td>0.641</td><td>farm</td></tr><tr><td>Dina</td><td>forager</td><td>0.423</td><td>0.61</td><td>farm</td></tr><tr><td>Eli</td><td>caretaker</td><td>0.514</td><td>0.591</td><td>farm</td></tr><tr><td>Faye</td><td>maker</td><td>0.474</td><td>0.597</td><td>farm</td></tr></tbody></table>
+      </div>
+      <div class="band">
+        <h2>Recent Events</h2>
+        <table><thead><tr><th>Day</th><th>Kind</th><th>Actor</th><th>Description</th></tr></thead><tbody><tr><td>30</td><td>cooperation</td><td>society</td><td>6 agents coordinated on farm.</td></tr><tr><td>30</td><td>work</td><td>a1</td><td>Ari farmed food.</td></tr><tr><td>30</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>30</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>30</td><td>plan</td><td>a6</td><td>Faye planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>30</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>30</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>30</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>29</td><td>scarcity_pressure</td><td>society</td><td>Food scarcity slightly weakened safety and trust.</td></tr><tr><td>29</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>29</td><td>social</td><td>a6</td><td>Faye strengthened ties with Chen.</td></tr><tr><td>29</td><td>plan</td><td>a6</td><td>Faye planned to socialize: belonging need is low</td></tr><tr><td>29</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>29</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>29</td><td>work</td><td>a1</td><td>Ari farmed food.</td></tr><tr><td>29</td><td>plan</td><td>a1</td><td>Ari planned to farm: shared food stores are low; role bias: farmer; recent memory includes hunger or scarcity</td></tr><tr><td>29</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>29</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>28</td><td>scarcity_pressure</td><td>society</td><td>Food scarcity slightly weakened safety and trust.</td></tr><tr><td>28</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>28</td><td>rest</td><td>a1</td><td>Ari rested.</td></tr><tr><td>28</td><td>plan</td><td>a1</td><td>Ari planned to rest: energy is low</td></tr><tr><td>28</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>28</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>28</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>28</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>28</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>27</td><td>scarcity_pressure</td><td>society</td><td>Food scarcity slightly weakened safety and trust.</td></tr><tr><td>27</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>27</td><td>social</td><td>a1</td><td>Ari strengthened ties with Chen.</td></tr><tr><td>27</td><td>plan</td><td>a1</td><td>Ari planned to socialize: belonging need is low</td></tr><tr><td>27</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>27</td><td>plan</td><td>a4</td><td>Dina planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>27</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>27</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>27</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>27</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>26</td><td>scarcity_pressure</td><td>society</td><td>Food scarcity slightly weakened safety and trust.</td></tr><tr><td>26</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>26</td><td>rest</td><td>a4</td><td>Dina rested.</td></tr><tr><td>26</td><td>plan</td><td>a4</td><td>Dina planned to rest: energy is low</td></tr><tr><td>26</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>26</td><td>plan</td><td>a3</td><td>Chen planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>26</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>26</td><td>plan</td><td>a6</td><td>Faye planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>26</td><td>work</td><td>a1</td><td>Ari farmed food.</td></tr><tr><td>26</td><td>plan</td><td>a1</td><td>Ari planned to farm: shared food stores are low; role bias: farmer; recent memory includes hunger or scarcity</td></tr><tr><td>26</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>26</td><td>plan</td><td>a2</td><td>Bo planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>26</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>26</td><td>plan</td><td>a5</td><td>Eli planned to farm: shared food stores are low; recent memory includes hunger or scarcity</td></tr><tr><td>25</td><td>scarcity_pressure</td><td>society</td><td>Food scarcity slightly weakened safety and trust.</td></tr><tr><td>25</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>25</td><td>social</td><td>a4</td><td>Dina strengthened ties with Chen.</td></tr><tr><td>25</td><td>plan</td><td>a4</td><td>Dina planned to socialize: belonging need is low</td></tr><tr><td>25</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>25</td><td>work</td><td>a1</td><td>Ari farmed food.</td></tr><tr><td>25</td><td>plan</td><td>a1</td><td>Ari planned to farm: shared food stores are low; role bias: farmer</td></tr><tr><td>25</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>25</td><td>plan</td><td>a5</td><td>Eli planned to farm: shared food stores are low</td></tr><tr><td>25</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>25</td><td>plan</td><td>a3</td><td>Chen planned to farm: shared food stores are low</td></tr><tr><td>25</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>25</td><td>plan</td><td>a6</td><td>Faye planned to farm: shared food stores are low</td></tr><tr><td>24</td><td>cooperation</td><td>society</td><td>5 agents coordinated on farm.</td></tr><tr><td>24</td><td>rest</td><td>a1</td><td>Ari rested.</td></tr><tr><td>24</td><td>plan</td><td>a1</td><td>Ari planned to rest: energy is low</td></tr><tr><td>24</td><td>work</td><td>a2</td><td>Bo farmed food.</td></tr><tr><td>24</td><td>plan</td><td>a2</td><td>Bo planned to farm: shared food stores are low</td></tr><tr><td>24</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>24</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>24</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>24</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>23</td><td>cooperation</td><td>society</td><td>6 agents coordinated on farm.</td></tr><tr><td>23</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>23</td><td>work</td><td>a5</td><td>Eli farmed food.</td></tr><tr><td>23</td><td>work</td><td>a3</td><td>Chen farmed food.</td></tr><tr><td>23</td><td>work</td><td>a4</td><td>Dina farmed food.</td></tr><tr><td>23</td><td>work</td><td>a1</td><td>Ari farmed food.</td></tr><tr><td>23</td><td>plan</td><td>a1</td><td>Ari planned to farm: shared food stores are low; role bias: farmer; recent memory includes hunger or scarcity</td></tr></tbody></table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

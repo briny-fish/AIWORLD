@@ -1,0 +1,25 @@
+[
+  {
+    "day": 10,
+    "kind": "organization",
+    "reason": "specialized maintenance group",
+    "params": {
+      "id": "water_circle",
+      "name": "Water Circle",
+      "kind": "guild",
+      "members": ["a1", "a4", "a6"],
+      "norms": ["maintain_wells", "share_water_reports"],
+      "cohesion": 0.62
+    }
+  },
+  {
+    "day": 14,
+    "kind": "broadcast",
+    "reason": "public recognition",
+    "params": {
+      "message": "The Water Circle will report reserves and repairs each week.",
+      "tone": "hope",
+      "strength": 0.06
+    }
+  }
+]

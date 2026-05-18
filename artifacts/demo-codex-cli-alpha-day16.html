@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Society Run | seed 7 | day 16</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7f7;
+  --ink: #17201f;
+  --muted: #596867;
+  --line: #c8d1cf;
+  --panel: #ffffff;
+  --good: #23785f;
+  --warn: #a15c12;
+  --bad: #a33232;
+  --blue: #2f5d86;
+  --violet: #6e5792;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  line-height: 1.45;
+}
+.shell { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 16px;
+}
+h1, h2 { margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1; }
+h2 { font-size: 18px; margin-bottom: 12px; }
+p { margin: 8px 0 0; color: var(--muted); }
+.status {
+  min-width: 220px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--blue);
+}
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 80px;
+}
+.metric label { display: block; color: var(--muted); font-size: 12px; }
+.metric strong { display: block; font-size: 28px; margin-top: 6px; }
+.band {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.split { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr); gap: 12px; }
+.finding-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f8fbfa;
+  font-size: 13px;
+}
+.critical { color: var(--bad); border-color: var(--bad); }
+.warning { color: var(--warn); border-color: var(--warn); }
+.info { color: var(--good); border-color: var(--good); }
+.chart { width: 100%; height: 260px; display: block; border: 1px solid var(--line); background: #fbfdfc; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.swatch { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: var(--muted); font-size: 12px; font-weight: 700; }
+.bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--blue); }
+@media (max-width: 900px) {
+  .topbar { display: block; }
+  .status { text-align: left; margin-top: 10px; }
+  .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Virtual Society Run</h1>
+        <p>seed 7 · day 16 · generated 2026-05-16T14:43:29+00:00</p>
+      </div>
+      <div class="status">Stable</div>
+    </header>
+    <section class="metric-strip">
+      <div class="metric"><label>Population</label><strong>12</strong></div>
+      <div class="metric"><label>Food</label><strong>2.06</strong></div>
+      <div class="metric"><label>Materials</label><strong>4.29</strong></div>
+      <div class="metric"><label>Shelter</label><strong>8.95</strong></div>
+      <div class="metric"><label>Avg Need</label><strong>0.652</strong></div>
+      <div class="metric"><label>Avg Trust</label><strong>0.586</strong></div>
+      <div class="metric"><label>Avg Reputation</label><strong>0.526</strong></div>
+      <div class="metric"><label>Org Cohesion</label><strong>0.584</strong></div>
+    </section>
+    <section class="band">
+      <h2>Health</h2>
+      <div class="finding-row"><span class="badge info">stable: No collapse or major instability detected.</span></div>
+    </section>
+    <section class="band">
+      <h2>Social Evaluation</h2>
+      <div class="finding-row"><span class="badge info">social_loop_active: Memory, reflection, dialogue, and organization participation are active.</span></div>
+    </section>
+    <section class="band"><h2>History</h2><p>Day 1 to 16; population 12 -&gt; 12; average need 0.629 -&gt; 0.652; trust 0.561 -&gt; 0.586; institutional cohesion 0.558 -&gt; 0.584; new crisis events 0; rationing events 0; organizations observed 8; average location condition 0.681.</p><table><thead><tr><th>Day</th><th>Need</th><th>Trust</th><th>Rep</th><th>Cohesion</th><th>Notable</th><th>Summary</th></tr></thead><tbody><tr><td>1</td><td>0.629</td><td>0.561</td><td>0.503</td><td>0.558</td><td>0</td><td>Day 1: population 12, average need 0.629 (steady), trust 0.561, institutional cohesion 0.558, no crisis events.</td></tr><tr><td>4</td><td>0.656</td><td>0.57</td><td>0.509</td><td>0.565</td><td>0</td><td>Day 4: population 12, average need 0.656 (improving), trust 0.570, institutional cohesion 0.565, no crisis events.</td></tr><tr><td>8</td><td>0.667</td><td>0.575</td><td>0.514</td><td>0.571</td><td>0</td><td>Day 8: population 12, average need 0.667 (steady), trust 0.575, institutional cohesion 0.571, no crisis events.</td></tr><tr><td>12</td><td>0.66</td><td>0.581</td><td>0.52</td><td>0.578</td><td>0</td><td>Day 12: population 12, average need 0.660 (steady), trust 0.581, institutional cohesion 0.578, no crisis events.</td></tr><tr><td>16</td><td>0.652</td><td>0.586</td><td>0.526</td><td>0.584</td><td>1</td><td>Day 16: population 12, average need 0.652 (steady), trust 0.586, institutional cohesion 0.584, no crisis events.</td></tr></tbody></table></section>
+    <section class="band">
+      <h2>Metrics</h2>
+      
+<svg class="chart" viewBox="0 0 1100 240" role="img" aria-label="Metrics over time">
+  <line x1="24" y1="216" x2="1076" y2="216" stroke="#c9c1b4" />
+  <line x1="24" y1="24" x2="24" y2="216" stroke="#c9c1b4" />
+  <polyline fill="none" stroke="#23785f" stroke-width="3" points="24.0,95.2 94.1,92.4 164.3,89.9 234.4,90.0 304.5,89.5 374.7,86.8 444.8,89.3 514.9,87.9 585.1,89.3 655.2,89.5 725.3,89.7 795.5,89.3 865.6,89.3 935.7,89.3 1005.9,95.0 1076.0,90.8" />
+  <polyline fill="none" stroke="#2f5d86" stroke-width="3" points="24.0,108.3 94.1,107.7 164.3,106.9 234.4,106.6 304.5,106.4 374.7,106.4 444.8,106.0 514.9,105.6 585.1,105.2 655.2,105.0 725.3,104.8 795.5,104.4 865.6,104.1 935.7,103.9 1005.9,103.7 1076.0,103.5" />
+  <polyline fill="none" stroke="#6e5792" stroke-width="3" points="24.0,119.4 94.1,119.0 164.3,118.7 234.4,118.3 304.5,118.1 374.7,117.9 444.8,117.5 514.9,117.3 585.1,116.9 655.2,116.7 725.3,116.4 795.5,116.2 865.6,115.8 935.7,115.6 1005.9,115.2 1076.0,115.0" />
+  <polyline fill="none" stroke="#a33232" stroke-width="3" points="24.0,108.9 94.1,108.3 164.3,107.9 234.4,107.5 304.5,107.3 374.7,107.1 444.8,106.6 514.9,106.4 585.1,106.0 655.2,105.6 725.3,105.4 795.5,105.0 865.6,104.8 935.7,104.6 1005.9,104.3 1076.0,103.9" />
+  <polyline fill="none" stroke="#a15c12" stroke-width="3" points="24.0,24.0 94.1,122.7 164.3,169.8 234.4,183.8 304.5,191.9 374.7,193.0 444.8,153.3 514.9,166.7 585.1,180.4 655.2,184.4 725.3,191.8 795.5,157.7 865.6,174.6 935.7,145.4 1005.9,170.9 1076.0,186.8" />
+</svg>
+<div class="legend">
+  <span><i class="swatch" style="background:#23785f"></i>average need</span>
+  <span><i class="swatch" style="background:#2f5d86"></i>average trust</span>
+  <span><i class="swatch" style="background:#6e5792"></i>average reputation</span>
+  <span><i class="swatch" style="background:#a33232"></i>institutional cohesion</span>
+  <span><i class="swatch" style="background:#a15c12"></i>food scaled to run max</span>
+</div>
+    </section>
+    <section class="band">
+      <h2>Organizations</h2>
+      <table><thead><tr><th>Name</th><th>Kind</th><th>Home</th><th>Cohesion</th><th>Rep</th><th>Targets</th><th>Members</th><th>Norms</th></tr></thead><tbody><tr><td>North Household</td><td>household</td><td>north_field</td><td>0.601</td><td>0.526</td><td>food:2.4, materials:0.3</td><td>a1, a2, a3</td><td>share_food, care_for_members</td></tr><tr><td>South Household</td><td>household</td><td>shelter_house</td><td>0.607</td><td>0.525</td><td>food:2.2, materials:0.8, shelter:2.5</td><td>a4, a5, a6</td><td>share_food, care_for_members</td></tr><tr><td>Common Council</td><td>council</td><td>commons</td><td>0.558</td><td>0.528</td><td>food:6.6, materials:2.0, shelter:1.0</td><td>a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12</td><td>work_contribution, repair_common_shelter</td></tr><tr><td>Maker Guild</td><td>guild</td><td>workshop</td><td>0.576</td><td>0.534</td><td>food:0.8, materials:2.2, shelter:0.5</td><td>a2, a6</td><td>maintain_tools, trade_materials</td></tr><tr><td>East Household</td><td>household</td><td>east_orchard</td><td>0.584</td><td>0.527</td><td>food:3.2, materials:0.7, shelter:0.4</td><td>a7, a8, a9</td><td>share_food, warn_about_scarcity</td></tr><tr><td>River Cooperative</td><td>cooperative</td><td>river_pier</td><td>0.578</td><td>0.526</td><td>food:1.6, materials:2.8, shelter:0.4</td><td>a10, a11, a12</td><td>maintain_routes, honor_exchange</td></tr><tr><td>Care Circle</td><td>care</td><td>clinic</td><td>0.596</td><td>0.527</td><td>food:2.4, materials:1.0, shelter:1.4</td><td>a5, a8, a9, a11</td><td>protect_vulnerable, share_warnings</td></tr><tr><td>Route Keepers</td><td>guild</td><td>river_pier</td><td>0.569</td><td>0.525</td><td>food:1.2, materials:3.0, shelter:0.3</td><td>a2, a7, a10, a12</td><td>repair_routes, keep_loads_visible</td></tr></tbody></table>
+    </section>
+    <section class="band">
+      <h2>Locations</h2>
+      <table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th></tr></thead><tbody><tr><td>Commons</td><td>civic</td><td><div class="bar"><span style="width:65%"></span></div>0.658</td><td>18</td><td>food:0.527, shelter:1.0</td><td>social:1.15</td><td>0.9</td><td>north_field, woodlot, workshop, shelter_house, east_orchard, river_pier, clinic</td></tr><tr><td>North Field</td><td>farm</td><td><div class="bar"><span style="width:68%"></span></div>0.685</td><td>8</td><td>materials:0.5</td><td>food:1.18</td><td>1.15</td><td>commons, woodlot, east_orchard</td></tr><tr><td>Woodlot</td><td>wildland</td><td><div class="bar"><span style="width:64%"></span></div>0.646</td><td>6</td><td>materials:0.057</td><td>food:0.35, materials:1.22</td><td>0.75</td><td>commons, north_field, workshop, river_pier</td></tr><tr><td>Workshop</td><td>production</td><td><div class="bar"><span style="width:69%"></span></div>0.693</td><td>8</td><td>materials:2.16, shelter:0.5</td><td>materials:0.9, shelter:1.16</td><td>1.25</td><td>commons, woodlot, shelter_house</td></tr><tr><td>Shelter House</td><td>dwelling</td><td><div class="bar"><span style="width:71%"></span></div>0.715</td><td>10</td><td>food:1.53, shelter:5.686</td><td>shelter:1.0</td><td>1.05</td><td>commons, workshop, clinic</td></tr><tr><td>East Orchard</td><td>farm</td><td><div class="bar"><span style="width:67%"></span></div>0.676</td><td>7</td><td>materials:0.8, shelter:0.36</td><td>food:1.08, social:0.65</td><td>1.05</td><td>commons, north_field, river_pier</td></tr><tr><td>River Pier</td><td>logistics</td><td><div class="bar"><span style="width:69%"></span></div>0.694</td><td>7</td><td>materials:0.707, shelter:0.2</td><td>food:0.42, materials:1.05</td><td>1.2</td><td>commons, woodlot, east_orchard, clinic</td></tr><tr><td>Clinic</td><td>care</td><td><div class="bar"><span style="width:67%"></span></div>0.679</td><td>6</td><td>materials:0.068, shelter:1.2</td><td>shelter:0.55, social:1.1</td><td>1.1</td><td>commons, shelter_house, river_pier</td></tr></tbody></table>
+    </section>
+    <section class="split">
+      <div class="band">
+        <h2>Agents</h2>
+        <table><thead><tr><th>Name</th><th>Role</th><th>Need</th><th>Trust</th><th>Rep</th><th>Location</th><th>Orgs</th><th>Plan</th><th>Latest Reflection</th></tr></thead><tbody><tr><td>Ari</td><td>farmer</td><td>0.672</td><td>0.551</td><td>0.523</td><td>shelter_house</td><td>household_north, common_council</td><td>rest</td><td>day 14: Ari reflects that 2 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Ari strengthened ties with Jules.</td></tr><tr><td>Bo</td><td>builder</td><td>0.581</td><td>0.577</td><td>0.526</td><td>river_pier</td><td>household_north, common_council, maker_guild, route_keepers</td><td>gather</td><td>day 14: Bo reflects that 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Jules and Bo discussed common_council: Jules wants to make cross-household exchange predictable; Bo answered from a concern for maintenance.</td></tr><tr><td>Chen</td><td>mediator</td><td>0.711</td><td>0.61</td><td>0.529</td><td>commons</td><td>household_north, common_council</td><td>haul</td><td>day 14: Chen reflects that 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Chen strengthened ties with Ivo.</td></tr><tr><td>Dina</td><td>forager</td><td>0.636</td><td>0.595</td><td>0.523</td><td>shelter_house</td><td>household_south, common_council</td><td>rest</td><td>day 14: Dina reflects that 1 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Hana and Dina discussed common_council: Hana wants to keep food distribution legitimate; Dina answered from a concern for adaptability.</td></tr><tr><td>Eli</td><td>caretaker</td><td>0.722</td><td>0.565</td><td>0.525</td><td>shelter_house</td><td>household_south, common_council, care_circle</td><td>rest</td><td>day 14: Eli reflects that 4 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Eli strengthened ties with Lio.</td></tr><tr><td>Faye</td><td>maker</td><td>0.575</td><td>0.609</td><td>0.526</td><td>commons</td><td>household_south, common_council, maker_guild</td><td>haul</td><td>day 14: Faye reflects that 3 work memories show where effort has been spent; most salient memory: Faye farmed food.</td></tr><tr><td>Gale</td><td>scout</td><td>0.599</td><td>0.601</td><td>0.526</td><td>shelter_house</td><td>common_council, household_east, route_keepers</td><td>rest</td><td>day 14: Gale reflects that 1 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Ivo and Gale discussed common_council: Ivo wants to prevent silent suffering; Gale answered from a concern for warning.</td></tr><tr><td>Hana</td><td>cook</td><td>0.563</td><td>0.607</td><td>0.528</td><td>east_orchard</td><td>common_council, household_east, care_circle</td><td>farm</td><td>day 14: Hana reflects that 2 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Hana strengthened ties with Dina.</td></tr><tr><td>Ivo</td><td>healer</td><td>0.714</td><td>0.597</td><td>0.527</td><td>workshop</td><td>common_council, household_east, care_circle</td><td>haul</td><td>day 14: Ivo reflects that 4 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Chen and Ivo discussed common_council: Chen wants to prevent factions from hardening; Ivo answered from a concern for care.</td></tr><tr><td>Jules</td><td>trader</td><td>0.695</td><td>0.594</td><td>0.525</td><td>shelter_house</td><td>common_council, river_coop, route_keepers</td><td>rest</td><td>day 14: Jules reflects that 3 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Jules strengthened ties with Bo.</td></tr><tr><td>Kira</td><td>organizer</td><td>0.693</td><td>0.561</td><td>0.527</td><td>north_field</td><td>common_council, river_coop, care_circle</td><td>farm</td><td>day 14: Kira reflects that 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Eli and Kira discussed care_circle: Eli wants to keep vulnerable residents connected; Kira answered from a concern for coordination.</td></tr><tr><td>Lio</td><td>apprentice</td><td>0.66</td><td>0.565</td><td>0.525</td><td>shelter_house</td><td>common_council, river_coop, route_keepers</td><td>rest</td><td>day 14: Lio reflects that 3 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Eli and Lio discussed common_council: Eli wants to keep vulnerable residents connected; Lio answered from a concern for learning.</td></tr></tbody></table>
+      </div>
+      <div class="band">
+        <h2>Recent Events</h2>
+        <table><thead><tr><th>Day</th><th>Kind</th><th>Actor</th><th>Description</th></tr></thead><tbody><tr><td>16</td><td>route_strain</td><td>common_council</td><td>1 routes were strained by heavy traffic.</td></tr><tr><td>16</td><td>maintenance</td><td>common_council</td><td>Common maintenance repaired 3 locations.</td></tr><tr><td>16</td><td>market</td><td>common_council</td><td>Organizations completed 5 exchange routes.</td></tr><tr><td>16</td><td>exchange</td><td>maker_guild</td><td>Maker Guild exchanged materials with Common Council via Workshop -&gt; Commons.</td></tr><tr><td>16</td><td>exchange</td><td>maker_guild</td><td>Maker Guild exchanged materials with Route Keepers via Workshop -&gt; River Pier.</td></tr><tr><td>16</td><td>exchange</td><td>maker_guild</td><td>Maker Guild exchanged materials with River Cooperative via Workshop -&gt; River Pier.</td></tr><tr><td>16</td><td>exchange</td><td>maker_guild</td><td>Maker Guild exchanged materials with Care Circle via Workshop -&gt; Clinic.</td></tr><tr><td>16</td><td>exchange</td><td>common_council</td><td>Common Council exchanged food with South Household via Commons -&gt; Shelter House.</td></tr><tr><td>16</td><td>cooperation</td><td>society</td><td>3 agents coordinated on haul.</td></tr><tr><td>16</td><td>cooperation</td><td>society</td><td>2 agents coordinated on farm.</td></tr><tr><td>16</td><td>transport</td><td>a9</td><td>Ivo hauled materials from Shelter House to Workshop.</td></tr><tr><td>16</td><td>plan</td><td>a9</td><td>Ivo planned to haul: materials need hauling to the workshop</td></tr><tr><td>16</td><td>transport</td><td>a6</td><td>Faye hauled food from North Field to Commons.</td></tr><tr><td>16</td><td>plan</td><td>a6</td><td>Faye planned to haul: materials need hauling to the workshop</td></tr><tr><td>16</td><td>rest</td><td>a4</td><td>Dina rested.</td></tr><tr><td>16</td><td>plan</td><td>a4</td><td>Dina planned to rest: energy is low</td></tr><tr><td>16</td><td>rest</td><td>a1</td><td>Ari rested.</td></tr><tr><td>16</td><td>plan</td><td>a1</td><td>Ari planned to rest: Energy remains low after recent work and storm disruption, so recovery is the most reliable next step before contributing again.</td></tr><tr><td>16</td><td>rest</td><td>a5</td><td>Eli rested.</td></tr><tr><td>16</td><td>plan</td><td>a5</td><td>Eli planned to rest: energy is low</td></tr><tr><td>16</td><td>work</td><td>a2</td><td>Bo gathered materials.</td></tr><tr><td>16</td><td>plan</td><td>a2</td><td>Bo planned to gather: materials are depleted</td></tr><tr><td>16</td><td>transport</td><td>a3</td><td>Chen hauled food from East Orchard to Commons.</td></tr><tr><td>16</td><td>rest</td><td>a7</td><td>Gale rested.</td></tr><tr><td>16</td><td>plan</td><td>a7</td><td>Gale planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>16</td><td>plan_blocked</td><td>a7</td><td>Gale&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>16</td><td>rest</td><td>a12</td><td>Lio rested.</td></tr><tr><td>16</td><td>plan</td><td>a12</td><td>Lio planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>16</td><td>plan_blocked</td><td>a12</td><td>Lio&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>16</td><td>work</td><td>a8</td><td>Hana farmed food.</td></tr><tr><td>16</td><td>plan</td><td>a8</td><td>Hana planned to farm: shared food stores are low</td></tr><tr><td>16</td><td>work</td><td>a11</td><td>Kira farmed food.</td></tr><tr><td>16</td><td>plan</td><td>a11</td><td>Kira planned to farm: shared food stores are low</td></tr><tr><td>16</td><td>rest</td><td>a10</td><td>Jules rested.</td></tr><tr><td>16</td><td>plan</td><td>a10</td><td>Jules planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>16</td><td>plan_blocked</td><td>a10</td><td>Jules&#x27;s plan to farm was blocked; now plans to rest.</td></tr><tr><td>16</td><td>broadcast</td><td>observer</td><td>observer broadcast hope message: repair routes first, keep food distribution public, and check on the clinic</td></tr><tr><td>15</td><td>route_strain</td><td>common_council</td><td>2 routes were strained by heavy traffic.</td></tr><tr><td>15</td><td>maintenance</td><td>common_council</td><td>Common maintenance repaired 3 locations.</td></tr><tr><td>15</td><td>market</td><td>common_council</td><td>Organizations completed 1 exchange routes.</td></tr><tr><td>15</td><td>exchange</td><td>common_council</td><td>Common Council exchanged food with South Household via Commons -&gt; Shelter House.</td></tr><tr><td>15</td><td>cooperation</td><td>society</td><td>5 agents coordinated on haul.</td></tr><tr><td>15</td><td>cooperation</td><td>society</td><td>3 agents coordinated on farm.</td></tr><tr><td>15</td><td>rest</td><td>a9</td><td>Ivo rested.</td></tr><tr><td>15</td><td>plan</td><td>a9</td><td>Ivo planned to rest: energy is low</td></tr><tr><td>15</td><td>rest</td><td>a11</td><td>Kira rested.</td></tr><tr><td>15</td><td>plan</td><td>a11</td><td>Kira planned to rest: energy is low</td></tr><tr><td>15</td><td>transport</td><td>a5</td><td>Eli hauled materials from Clinic to Workshop.</td></tr><tr><td>15</td><td>plan</td><td>a5</td><td>Eli planned to haul: materials need hauling to the workshop</td></tr><tr><td>15</td><td>transport</td><td>a4</td><td>Dina hauled materials from River Pier to Workshop.</td></tr><tr><td>15</td><td>plan</td><td>a4</td><td>Dina planned to haul: materials need hauling to the workshop</td></tr><tr><td>15</td><td>transport</td><td>a10</td><td>Jules hauled food from North Field to Commons.</td></tr><tr><td>15</td><td>plan</td><td>a10</td><td>Jules planned to haul: food needs hauling to shared depots; materials need hauling to the workshop; role bias: trader</td></tr><tr><td>15</td><td>rest</td><td>a1</td><td>Ari rested.</td></tr><tr><td>15</td><td>plan</td><td>a1</td><td>Ari planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>15</td><td>plan_blocked</td><td>a1</td><td>Ari&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>15</td><td>work</td><td>a12</td><td>Lio farmed food.</td></tr><tr><td>15</td><td>plan</td><td>a12</td><td>Lio planned to farm: shared food stores are low</td></tr><tr><td>15</td><td>transport</td><td>a2</td><td>Bo hauled food from North Field to Commons.</td></tr><tr><td>15</td><td>plan</td><td>a2</td><td>Bo planned to haul: food needs hauling to shared depots; materials need hauling to the workshop</td></tr><tr><td>15</td><td>rest</td><td>a8</td><td>Hana rested.</td></tr><tr><td>15</td><td>plan</td><td>a8</td><td>Hana planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>15</td><td>plan_blocked</td><td>a8</td><td>Hana&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>15</td><td>work</td><td>a6</td><td>Faye farmed food.</td></tr><tr><td>15</td><td>plan</td><td>a6</td><td>Faye planned to farm: shared food stores are low</td></tr><tr><td>15</td><td>transport</td><td>a3</td><td>Chen hauled food from East Orchard to Commons.</td></tr><tr><td>15</td><td>plan</td><td>a3</td><td>Chen planned to haul: food needs hauling to shared depots; materials need hauling to the workshop</td></tr><tr><td>15</td><td>work</td><td>a7</td><td>Gale farmed food.</td></tr><tr><td>15</td><td>plan</td><td>a7</td><td>Gale planned to farm: shared food stores are low</td></tr><tr><td>15</td><td>disaster</td><td>observer</td><td>river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.</td></tr><tr><td>14</td><td>reflection</td><td>a12</td><td>Lio reflects that 3 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Eli and Lio discussed common_council: Eli wants to keep vulnerable residents connected; Lio answered from a concern for learning.</td></tr><tr><td>14</td><td>reflection</td><td>a11</td><td>Kira reflects that 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Eli and Kira discussed care_circle: Eli wants to keep vulnerable residents connected; Kira answered from a concern for coordination.</td></tr><tr><td>14</td><td>reflection</td><td>a10</td><td>Jules reflects that 3 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Jules strengthened ties with Bo.</td></tr><tr><td>14</td><td>reflection</td><td>a9</td><td>Ivo reflects that 4 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Chen and Ivo discussed common_council: Chen wants to prevent factions from hardening; Ivo answered from a concern for care.</td></tr><tr><td>14</td><td>reflection</td><td>a8</td><td>Hana reflects that 2 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Hana strengthened ties with Dina.</td></tr><tr><td>14</td><td>reflection</td><td>a7</td><td>Gale reflects that 1 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Ivo and Gale discussed common_council: Ivo wants to prevent silent suffering; Gale answered from a concern for warning.</td></tr><tr><td>14</td><td>reflection</td><td>a6</td><td>Faye reflects that 3 work memories show where effort has been spent; most salient memory: Faye farmed food.</td></tr><tr><td>14</td><td>reflection</td><td>a5</td><td>Eli reflects that 4 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Eli strengthened ties with Lio.</td></tr><tr><td>14</td><td>reflection</td><td>a4</td><td>Dina reflects that 1 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Hana and Dina discussed common_council: Hana wants to keep food distribution legitimate; Dina answered from a concern for adaptability.</td></tr><tr><td>14</td><td>reflection</td><td>a3</td><td>Chen reflects that 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Chen strengthened ties with Ivo.</td></tr></tbody></table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

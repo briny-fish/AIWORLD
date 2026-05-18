@@ -1,0 +1,10 @@
+[project]
+name = "virtual-society"
+version = "0.1.0"
+description = "A deterministic simulation core for a long-running virtual society."
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

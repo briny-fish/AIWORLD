@@ -1,0 +1,100 @@
+{
+  "seed": 7,
+  "day": 120,
+  "summary": "Day 120: population 6, average need 0.762 (improving), trust 0.689, institutional cohesion 0.776, no crisis events.",
+  "metrics": {
+    "day": 120,
+    "population": 6,
+    "food": 1.74,
+    "materials": 7.3,
+    "shelter": 10.49,
+    "average_need": 0.762,
+    "average_trust": 0.689,
+    "average_reputation": 0.749,
+    "institutional_cohesion": 0.776,
+    "crisis_events": 0
+  },
+  "trends": {
+    "average_need": 0.049,
+    "average_trust": 0.017,
+    "average_reputation": 0.03,
+    "institutional_cohesion": 0.025,
+    "food": -2.7,
+    "materials": -0.45,
+    "shelter": 0.48,
+    "crisis_events": 0.0
+  },
+  "resources": {
+    "food": 1.745,
+    "materials": 7.3,
+    "shelter": 10.493
+  },
+  "event_counts": {
+    "cooperation": 11,
+    "plan": 79,
+    "plan_blocked": 6,
+    "rest": 44,
+    "scarcity_pressure": 3,
+    "social": 7,
+    "work": 39
+  },
+  "plan_counts": {
+    "farm": 1,
+    "rest": 5
+  },
+  "low_need_agents": [],
+  "organizations": [
+    {
+      "id": "household_north",
+      "name": "North Household",
+      "kind": "household",
+      "members": [
+        "a1",
+        "a2",
+        "a3"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.792,
+      "reputation": 0.75
+    },
+    {
+      "id": "household_south",
+      "name": "South Household",
+      "kind": "household",
+      "members": [
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.784,
+      "reputation": 0.747
+    },
+    {
+      "id": "common_council",
+      "name": "Common Council",
+      "kind": "council",
+      "members": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "work_contribution",
+        "repair_common_shelter"
+      ],
+      "cohesion": 0.751,
+      "reputation": 0.749
+    }
+  ],
+  "significant_events": []
+}

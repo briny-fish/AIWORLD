@@ -1,0 +1,100 @@
+{
+  "seed": 7,
+  "day": 180,
+  "summary": "Day 180: population 6, average need 0.767 (improving), trust 0.741, institutional cohesion 0.875, no crisis events.",
+  "metrics": {
+    "day": 180,
+    "population": 6,
+    "food": 1.77,
+    "materials": 12.49,
+    "shelter": 10.73,
+    "average_need": 0.767,
+    "average_trust": 0.741,
+    "average_reputation": 0.871,
+    "institutional_cohesion": 0.875,
+    "crisis_events": 0
+  },
+  "trends": {
+    "average_need": 0.043,
+    "average_trust": 0.028,
+    "average_reputation": 0.06,
+    "institutional_cohesion": 0.048,
+    "food": -2.59,
+    "materials": -1.8,
+    "shelter": 1.92,
+    "crisis_events": 0.0
+  },
+  "resources": {
+    "food": 1.77,
+    "materials": 12.485,
+    "shelter": 10.729
+  },
+  "event_counts": {
+    "cooperation": 23,
+    "plan": 156,
+    "plan_blocked": 17,
+    "rest": 88,
+    "scarcity_pressure": 4,
+    "social": 10,
+    "work": 82
+  },
+  "plan_counts": {
+    "farm": 3,
+    "rest": 3
+  },
+  "low_need_agents": [],
+  "organizations": [
+    {
+      "id": "household_north",
+      "name": "North Household",
+      "kind": "household",
+      "members": [
+        "a1",
+        "a2",
+        "a3"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.887,
+      "reputation": 0.869
+    },
+    {
+      "id": "household_south",
+      "name": "South Household",
+      "kind": "household",
+      "members": [
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "share_food",
+        "care_for_members"
+      ],
+      "cohesion": 0.893,
+      "reputation": 0.872
+    },
+    {
+      "id": "common_council",
+      "name": "Common Council",
+      "kind": "council",
+      "members": [
+        "a1",
+        "a2",
+        "a3",
+        "a4",
+        "a5",
+        "a6"
+      ],
+      "norms": [
+        "work_contribution",
+        "repair_common_shelter"
+      ],
+      "cohesion": 0.844,
+      "reputation": 0.871
+    }
+  ],
+  "significant_events": []
+}

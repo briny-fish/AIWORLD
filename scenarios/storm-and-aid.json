@@ -1,0 +1,31 @@
+[
+  {
+    "day": 20,
+    "kind": "disaster",
+    "reason": "seasonal storm stress test",
+    "params": {
+      "name": "early-season storm",
+      "severity": 0.45
+    }
+  },
+  {
+    "day": 25,
+    "kind": "resource",
+    "reason": "observer relief shipment",
+    "params": {
+      "resource": "food",
+      "amount": 8
+    }
+  },
+  {
+    "day": 40,
+    "kind": "broadcast",
+    "reason": "observer morale intervention",
+    "params": {
+      "tone": "hope",
+      "strength": 0.08,
+      "message": "the community can recover together"
+    }
+  }
+]
+

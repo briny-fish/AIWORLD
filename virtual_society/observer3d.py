@@ -1,0 +1,678 @@
+from __future__ import annotations
+
+
+def render_observer3d_html() -> str:
+    return """<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Society 3D Observer</title>
+  <style>
+:root {
+  color-scheme: dark;
+  --bg: #111716;
+  --ink: #eef5f2;
+  --muted: #a9b8b4;
+  --line: rgba(226, 238, 234, 0.22);
+  --panel: rgba(17, 23, 22, 0.78);
+  --green: #4fb58f;
+  --blue: #6aa3d8;
+  --amber: #d49b4a;
+  --red: #d16d6d;
+}
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+}
+#scene {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+}
+.hud {
+  position: fixed;
+  z-index: 10;
+  pointer-events: none;
+}
+.hud-panel {
+  pointer-events: auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  border-radius: 6px;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.26);
+}
+.top-left { left: 16px; top: 14px; width: min(520px, calc(100vw - 32px)); padding: 14px; }
+.top-right { right: 16px; top: 14px; width: 300px; max-width: calc(100vw - 32px); padding: 14px; }
+.bottom-left { left: 16px; bottom: 16px; width: min(560px, calc(100vw - 32px)); padding: 12px; }
+.bottom-right { right: 16px; bottom: 16px; width: min(420px, calc(100vw - 32px)); padding: 12px; }
+h1 { margin: 0 0 6px; font-size: 20px; letter-spacing: 0; }
+h2 { margin: 0 0 10px; font-size: 14px; color: var(--muted); letter-spacing: 0; }
+.status { color: var(--muted); font-size: 13px; }
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(92px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.metric {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+  min-height: 62px;
+}
+.metric label { display: block; color: var(--muted); font-size: 11px; }
+.metric strong { display: block; margin-top: 4px; font-size: 20px; }
+.controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+button {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+}
+button:hover { border-color: var(--blue); color: var(--blue); }
+button.danger:hover { border-color: var(--red); color: var(--red); }
+.list { display: grid; gap: 7px; max-height: 190px; overflow: auto; }
+.row {
+  display: grid;
+  grid-template-columns: 46px 92px 1fr;
+  gap: 8px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 7px;
+}
+.row span, .detail span { overflow-wrap: anywhere; }
+.detail {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+.detail strong { font-size: 17px; }
+.hint { margin-top: 8px; color: var(--muted); font-size: 12px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 10px; }
+.dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+@media (max-width: 900px) {
+  .top-right { top: auto; bottom: 16px; right: 16px; }
+  .bottom-left, .bottom-right { display: none; }
+  .metrics { grid-template-columns: repeat(2, minmax(92px, 1fr)); }
+}
+  </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.164.1/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.164.1/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <canvas id="scene" aria-label="3D virtual society observer"></canvas>
+  <section class="hud top-left hud-panel">
+    <h1>Virtual Society 3D Observer</h1>
+    <div id="status" class="status">Connecting</div>
+    <div id="metrics" class="metrics"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:#4fb58f"></i>healthy</span>
+      <span><i class="dot" style="background:#d49b4a"></i>strained</span>
+      <span><i class="dot" style="background:#d16d6d"></i>crisis</span>
+      <span><i class="dot" style="background:#6aa3d8"></i>organization ring</span>
+    </div>
+  </section>
+  <section class="hud top-right hud-panel">
+    <h2>Controls</h2>
+    <div class="controls">
+      <button id="step1">1 Day</button>
+      <button id="step7">7 Days</button>
+      <button id="food">Food</button>
+      <button id="hope">Broadcast</button>
+      <button id="storm" class="danger">Storm</button>
+      <button id="reset" class="danger">Reset</button>
+    </div>
+    <div class="hint">Click an agent in the scene to inspect current needs, plan, reputation, and organizations.</div>
+  </section>
+  <section class="hud bottom-left hud-panel">
+    <h2>Recent Events</h2>
+    <div id="events" class="list"></div>
+  </section>
+  <section class="hud bottom-right hud-panel">
+    <h2>Selection</h2>
+    <div id="detail" class="detail"><span class="status">No agent selected.</span></div>
+  </section>
+  <script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const canvas = document.getElementById("scene");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111716);
+scene.fog = new THREE.Fog(0x111716, 28, 82);
+
+const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 120);
+camera.position.set(16, 13, 18);
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.target.set(0, 1.5, 0);
+controls.maxPolarAngle = Math.PI * 0.48;
+controls.minDistance = 9;
+controls.maxDistance = 42;
+
+const root = new THREE.Group();
+scene.add(root);
+const locationGroup = new THREE.Group();
+const routeGroup = new THREE.Group();
+const agentGroup = new THREE.Group();
+const resourceGroup = new THREE.Group();
+const organizationGroup = new THREE.Group();
+const eventGroup = new THREE.Group();
+root.add(locationGroup, routeGroup, agentGroup, resourceGroup, organizationGroup, eventGroup);
+
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+const agentObjects = new Map();
+let selectedAgentId = null;
+let latestSnapshot = null;
+let latestEvents = [];
+let busy = false;
+
+const ambient = new THREE.HemisphereLight(0xddeee8, 0x1a2422, 1.7);
+scene.add(ambient);
+const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+sun.position.set(11, 18, 8);
+sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024);
+scene.add(sun);
+
+const ground = new THREE.Mesh(
+  new THREE.CircleGeometry(15, 96),
+  new THREE.MeshStandardMaterial({ color: 0x1c2a27, roughness: 0.92, metalness: 0.02 })
+);
+ground.rotation.x = -Math.PI / 2;
+ground.receiveShadow = true;
+root.add(ground);
+
+const grid = new THREE.GridHelper(34, 34, 0x35534d, 0x263b37);
+grid.position.y = 0.012;
+root.add(grid);
+
+const center = new THREE.Mesh(
+  new THREE.CylinderGeometry(2.1, 2.4, 0.3, 48),
+  new THREE.MeshStandardMaterial({ color: 0x2f5d86, roughness: 0.72, metalness: 0.03 })
+);
+center.position.y = 0.15;
+center.receiveShadow = true;
+center.castShadow = true;
+root.add(center);
+
+const centerBeacon = new THREE.Mesh(
+  new THREE.ConeGeometry(0.7, 2.4, 32),
+  new THREE.MeshStandardMaterial({ color: 0x6aa3d8, emissive: 0x13334c, roughness: 0.45 })
+);
+centerBeacon.position.y = 1.55;
+centerBeacon.castShadow = true;
+root.add(centerBeacon);
+
+function makeLabel(text) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 384;
+  canvas.height = 96;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.fillStyle = "rgba(17,23,22,0.82)";
+  context.fillRect(0, 0, canvas.width, canvas.height);
+  context.strokeStyle = "rgba(238,245,242,0.35)";
+  context.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+  context.fillStyle = "#eef5f2";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  let fontSize = 24;
+  const maxWidth = canvas.width - 24;
+  do {
+    context.font = `700 ${fontSize}px Segoe UI, Arial`;
+    fontSize -= 1;
+  } while (fontSize >= 13 && context.measureText(text).width > maxWidth);
+  context.fillText(text, canvas.width / 2, canvas.height / 2);
+  const texture = new THREE.CanvasTexture(canvas);
+  const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+  const sprite = new THREE.Sprite(material);
+  sprite.scale.set(3.4, 0.92, 1);
+  return sprite;
+}
+
+async function api(path, options = {}) {
+  const response = await fetch(path, {
+    headers: { "content-type": "application/json" },
+    ...options
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+async function refresh() {
+  const [snapshot, metrics, events] = await Promise.all([
+    api("/state"),
+    api("/metrics"),
+    api("/events?limit=42")
+  ]);
+  latestSnapshot = snapshot;
+  latestEvents = events.events;
+  renderHud(snapshot, metrics, events);
+  renderScene(snapshot, metrics, events);
+}
+
+async function act(task) {
+  if (busy) return;
+  busy = true;
+  setStatus("Working");
+  try {
+    await task();
+    await refresh();
+  } catch (error) {
+    console.error(error);
+    setStatus("Error");
+  } finally {
+    busy = false;
+  }
+}
+
+function renderHud(snapshot, metricsPayload, eventsPayload) {
+  const final = metricsPayload.final_metrics || snapshot.metrics;
+  setStatus(`Day ${snapshot.world.day} | seed ${snapshot.seed}`);
+  document.getElementById("metrics").innerHTML = [
+    tile("Population", final.population),
+    tile("Food", final.food),
+    tile("Materials", final.materials),
+    tile("Shelter", final.shelter),
+    tile("Avg Need", final.average_need),
+    tile("Trust", final.average_trust),
+    tile("Reputation", final.average_reputation),
+    tile("Cohesion", final.institutional_cohesion)
+  ].join("");
+  document.getElementById("events").innerHTML = eventsPayload.events.slice().reverse().map((event) => `
+    <div class="row">
+      <span>${event.day}</span>
+      <span>${escapeHtml(event.kind)}</span>
+      <span>${escapeHtml(event.description)}</span>
+    </div>
+  `).join("");
+  renderDetail();
+}
+
+function renderScene(snapshot) {
+  clearGroup(agentGroup);
+  clearGroup(locationGroup);
+  clearGroup(routeGroup);
+  clearGroup(resourceGroup);
+  clearGroup(organizationGroup);
+  clearGroup(eventGroup);
+  agentObjects.clear();
+
+  const agents = snapshot.world.agents;
+  const organizations = snapshot.world.organizations || [];
+  const locationPositions = renderLocations3d(snapshot.world.locations || []);
+  renderRoutes3d(snapshot.world.locations || [], locationPositions, snapshot.world.route_loads || {});
+  const locationBuckets = new Map();
+  const locationCounts = new Map();
+  agents.forEach((agent) => {
+    const locationId = agent.location_id || "commons";
+    locationCounts.set(locationId, (locationCounts.get(locationId) || 0) + 1);
+  });
+  agents.forEach((agent, index) => {
+    const locationId = agent.location_id || "commons";
+    const bucketIndex = locationBuckets.get(locationId) || 0;
+    locationBuckets.set(locationId, bucketIndex + 1);
+    const bucketCount = Math.max(1, locationCounts.get(locationId) || 1);
+    const base = locationPositions.get(locationId) || locationPositions.get("commons") || new THREE.Vector3(0, 0, 0);
+    const angle = (Math.PI * 2 * bucketIndex) / bucketCount - Math.PI / 2;
+    const offsetRadius = (locationId === "commons" ? 2.7 : 1.35) + Math.min(1.2, Math.max(0, bucketCount - 2) * 0.28);
+    const position = base.clone().add(new THREE.Vector3(Math.cos(angle) * offsetRadius, 0, Math.sin(angle) * offsetRadius));
+    const need = averageNeed(agent.needs);
+    const material = new THREE.MeshStandardMaterial({
+      color: colorForNeed(need),
+      roughness: 0.58,
+      metalness: 0.05,
+      emissive: selectedAgentId === agent.id ? 0x244461 : 0x000000,
+      emissiveIntensity: selectedAgentId === agent.id ? 0.55 : 0
+    });
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.52, 1.5, 24), material);
+    body.position.copy(position).add(new THREE.Vector3(0, 0.95, 0));
+    body.castShadow = true;
+    body.userData.agentId = agent.id;
+    body.userData.kind = "agent";
+    agentGroup.add(body);
+
+    const head = new THREE.Mesh(
+      new THREE.SphereGeometry(0.36, 24, 16),
+      new THREE.MeshStandardMaterial({ color: 0xeef5f2, roughness: 0.5 })
+    );
+    head.position.copy(position).add(new THREE.Vector3(0, 1.95, 0));
+    head.castShadow = true;
+    head.userData.agentId = agent.id;
+    head.userData.kind = "agent";
+    agentGroup.add(head);
+
+    const platform = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.72, 0.72, 0.12, 32),
+      new THREE.MeshStandardMaterial({ color: 0x263b37, roughness: 0.9 })
+    );
+    platform.position.copy(position).add(new THREE.Vector3(0, 0.06, 0));
+    platform.receiveShadow = true;
+    agentGroup.add(platform);
+
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(0.8 + agent.reputation * 0.22, 0.035, 8, 36),
+      new THREE.MeshStandardMaterial({ color: 0x6aa3d8, roughness: 0.5, emissive: 0x0c2539, emissiveIntensity: 0.25 })
+    );
+    ring.position.copy(position).add(new THREE.Vector3(0, 0.22, 0));
+    ring.rotation.x = Math.PI / 2;
+    agentGroup.add(ring);
+
+    const label = makeLabel(agent.name);
+    label.position.copy(position).add(new THREE.Vector3(0, 2.65 + (bucketIndex % 2) * 0.25, 0));
+    agentGroup.add(label);
+    agentObjects.set(agent.id, { body, head, ring, label, agent, angle, baseY: body.position.y });
+  });
+
+  renderOrganizations3d(organizations);
+  renderResources(snapshot.world.resources);
+  renderEventMarkers(latestEvents);
+}
+
+function renderLocations3d(locations) {
+  const fallback = [
+    { id: "commons", name: "Commons", kind: "civic", condition: 0.66 },
+    { id: "north_field", name: "North Field", kind: "farm", condition: 0.62 },
+    { id: "woodlot", name: "Woodlot", kind: "wildland", condition: 0.58 },
+    { id: "workshop", name: "Workshop", kind: "production", condition: 0.60 },
+    { id: "shelter_house", name: "Shelter House", kind: "dwelling", condition: 0.64 }
+  ];
+  const items = locations.length ? locations : fallback;
+  const positions = new Map([
+    ["commons", new THREE.Vector3(0, 0, 0)],
+    ["north_field", new THREE.Vector3(-8.4, 0, -5.8)],
+    ["woodlot", new THREE.Vector3(8.4, 0, -5.6)],
+    ["workshop", new THREE.Vector3(-7.6, 0, 6.6)],
+    ["shelter_house", new THREE.Vector3(7.6, 0, 6.8)]
+  ]);
+  items.forEach((location, index) => {
+    const position = positions.get(location.id) || new THREE.Vector3(Math.cos(index) * 10, 0, Math.sin(index) * 10);
+    positions.set(location.id, position);
+    const condition = Number(location.condition ?? 0.6);
+    const marker = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.55, 1.8, 0.18 + condition * 0.24, 48),
+      new THREE.MeshStandardMaterial({
+        color: colorForLocation(location.kind),
+        roughness: 0.78,
+        transparent: true,
+        opacity: 0.42 + condition * 0.25,
+        emissive: 0x0c2539,
+        emissiveIntensity: 0.08
+      })
+    );
+    marker.position.copy(position).add(new THREE.Vector3(0, 0.12, 0));
+    marker.receiveShadow = true;
+    locationGroup.add(marker);
+    const resources = location.resources || {};
+    const production = location.production || {};
+    const specialty = Object.entries(production).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
+    const specialtyText = specialty ? ` ${specialty[0]}x${Number(specialty[1]).toFixed(1)}` : "";
+    const label = makeLabel(`${location.name || location.id}${specialtyText} F${Number(resources.food || 0).toFixed(1)} M${Number(resources.materials || 0).toFixed(1)}`);
+    label.position.copy(position).add(new THREE.Vector3(0, 0.85, 0));
+    locationGroup.add(label);
+  });
+  return positions;
+}
+
+function renderRoutes3d(locations, positions, routeLoads) {
+  const seen = new Set();
+  locations.forEach((location) => {
+    (location.connected_location_ids || []).forEach((targetId) => {
+      const sourceId = location.id;
+      const key = routeKey(sourceId, targetId);
+      if (seen.has(key)) return;
+      seen.add(key);
+      const start = positions.get(sourceId);
+      const end = positions.get(targetId);
+      if (!start || !end) return;
+      const load = Number(routeLoads[key] || 0);
+      const radius = 0.035 + Math.min(load, 7) * 0.012;
+      const color = load > 4 ? 0xd49b4a : 0x436f76;
+      const material = new THREE.MeshStandardMaterial({
+        color,
+        roughness: 0.74,
+        transparent: true,
+        opacity: 0.34 + Math.min(load, 6) * 0.06,
+        emissive: load > 4 ? 0x3a2106 : 0x071b1d,
+        emissiveIntensity: load > 4 ? 0.22 : 0.08
+      });
+      const from = start.clone().add(new THREE.Vector3(0, 0.1, 0));
+      const to = end.clone().add(new THREE.Vector3(0, 0.1, 0));
+      const midpoint = from.clone().add(to).multiplyScalar(0.5);
+      const direction = to.clone().sub(from);
+      const length = direction.length();
+      const route = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 12), material);
+      route.position.copy(midpoint);
+      route.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+      routeGroup.add(route);
+    });
+  });
+}
+
+function routeKey(firstLocationId, secondLocationId) {
+  return [firstLocationId, secondLocationId].sort().join("|");
+}
+
+function renderOrganizations3d(organizations) {
+  organizations.forEach((organization, index) => {
+    const radius = 4.2 + index * 2.1;
+    const ring = new THREE.Mesh(
+      new THREE.TorusGeometry(radius, 0.035 + organization.cohesion * 0.035, 8, 96),
+      new THREE.MeshStandardMaterial({
+        color: 0x6aa3d8,
+        roughness: 0.55,
+        transparent: true,
+        opacity: 0.28 + organization.cohesion * 0.18,
+        emissive: 0x0c2539,
+        emissiveIntensity: 0.2
+      })
+    );
+    ring.position.y = 0.08 + index * 0.035;
+    ring.rotation.x = Math.PI / 2;
+    organizationGroup.add(ring);
+  });
+}
+
+function renderResources(resources) {
+  const specs = [
+    ["food", resources.food, -4.0, 0x4fb58f],
+    ["materials", resources.materials, 0.0, 0xd49b4a],
+    ["shelter", resources.shelter, 4.0, 0x6aa3d8]
+  ];
+  specs.forEach(([name, value, x, color]) => {
+    const height = Math.max(0.35, Math.min(5.2, Number(value) / 5));
+    const tower = new THREE.Mesh(
+      new THREE.BoxGeometry(0.9, height, 0.9),
+      new THREE.MeshStandardMaterial({ color, roughness: 0.52, metalness: 0.05 })
+    );
+    tower.position.set(x, height / 2, -12.2);
+    tower.castShadow = true;
+    resourceGroup.add(tower);
+    const label = makeLabel(`${name} ${Number(value).toFixed(1)}`);
+    label.position.set(x, height + 0.95, -12.2);
+    resourceGroup.add(label);
+  });
+}
+
+function renderEventMarkers(events) {
+  const important = events.filter((event) => ["disaster", "hunger_crisis", "institutional_crisis", "organization", "broadcast", "intervention"].includes(event.kind)).slice(-10);
+  important.forEach((event, index) => {
+    const angle = (Math.PI * 2 * index) / Math.max(important.length, 1);
+    const marker = new THREE.Mesh(
+      new THREE.IcosahedronGeometry(0.24, 1),
+      new THREE.MeshStandardMaterial({ color: colorForEvent(event.kind), roughness: 0.4, emissive: colorForEvent(event.kind), emissiveIntensity: 0.18 })
+    );
+    marker.position.set(Math.cos(angle) * 12.4, 0.8 + index * 0.04, Math.sin(angle) * 12.4);
+    marker.castShadow = true;
+    eventGroup.add(marker);
+  });
+}
+
+function renderDetail() {
+  const detail = document.getElementById("detail");
+  if (!latestSnapshot || !selectedAgentId) {
+    detail.innerHTML = `<span class="status">No agent selected.</span>`;
+    return;
+  }
+  const agent = latestSnapshot.world.agents.find((item) => item.id === selectedAgentId);
+  if (!agent) {
+    detail.innerHTML = `<span class="status">No agent selected.</span>`;
+    return;
+  }
+  const plan = agent.active_plan ? `${agent.active_plan.action}: ${agent.active_plan.reason}` : "none";
+  const profile = agent.profile || {};
+  const reflection = latestReflection(agent);
+  detail.innerHTML = `
+    <strong>${escapeHtml(agent.name)}</strong>
+    <span>${escapeHtml(agent.role)} | ${escapeHtml(agent.id)}</span>
+    <span>Need ${averageNeed(agent.needs).toFixed(3)} | Reputation ${Number(agent.reputation).toFixed(3)}</span>
+    <span>Food ${Number(agent.needs.food).toFixed(3)} | Energy ${Number(agent.needs.energy).toFixed(3)} | Safety ${Number(agent.needs.safety).toFixed(3)}</span>
+    <span>Belonging ${Number(agent.needs.belonging).toFixed(3)} | Meaning ${Number(agent.needs.meaning).toFixed(3)}</span>
+    <span>Goals ${escapeHtml((profile.long_term_goals || []).join("; "))}</span>
+    <span>Plan ${escapeHtml(plan)}</span>
+    <span>Reflection ${escapeHtml(reflection)}</span>
+    <span>Organizations ${escapeHtml((agent.organization_ids || []).join(", "))}</span>
+  `;
+}
+
+function onPointerDown(event) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+  pointer.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+  raycaster.setFromCamera(pointer, camera);
+  const hits = raycaster.intersectObjects(agentGroup.children, false);
+  const hit = hits.find((item) => item.object.userData.kind === "agent");
+  if (hit) {
+    selectedAgentId = hit.object.userData.agentId;
+    renderScene(latestSnapshot);
+    renderDetail();
+  }
+}
+
+function tile(label, value) {
+  return `<div class="metric"><label>${escapeHtml(label)}</label><strong>${escapeHtml(String(value))}</strong></div>`;
+}
+
+function averageNeed(needs) {
+  return (needs.food + needs.energy + needs.safety + needs.belonging + needs.meaning) / 5;
+}
+
+function latestReflection(agent) {
+  const reflections = agent.reflections || [];
+  if (reflections.length) return reflections[reflections.length - 1];
+  const memories = agent.memory_stream || [];
+  if (memories.length) return memories[memories.length - 1].text || "";
+  return "";
+}
+
+function colorForNeed(need) {
+  if (need < 0.42) return 0xd16d6d;
+  if (need < 0.62) return 0xd49b4a;
+  return 0x4fb58f;
+}
+
+function colorForEvent(kind) {
+  if (kind === "disaster" || kind.includes("crisis")) return 0xd16d6d;
+  if (kind === "organization") return 0x6aa3d8;
+  if (kind === "broadcast") return 0x4fb58f;
+  return 0xd49b4a;
+}
+
+function colorForLocation(kind) {
+  if (kind === "farm") return 0x4f8f5f;
+  if (kind === "wildland") return 0x6f8c56;
+  if (kind === "production") return 0xd49b4a;
+  if (kind === "dwelling") return 0x6aa3d8;
+  return 0x5b7f78;
+}
+
+function clearGroup(group) {
+  while (group.children.length) {
+    const child = group.children.pop();
+    child.traverse?.((object) => {
+      if (object.geometry) object.geometry.dispose();
+      if (object.material) {
+        if (object.material.map) object.material.map.dispose();
+        object.material.dispose();
+      }
+    });
+  }
+}
+
+function setStatus(text) {
+  document.getElementById("status").textContent = text;
+}
+
+function resize() {
+  const width = window.innerWidth;
+  const height = window.innerHeight;
+  renderer.setSize(width, height, false);
+  camera.aspect = width / height;
+  camera.updateProjectionMatrix();
+}
+
+function animate(time) {
+  requestAnimationFrame(animate);
+  const t = time * 0.001;
+  centerBeacon.rotation.y = t * 0.45;
+  for (const item of agentObjects.values()) {
+    const pulse = Math.sin(t * 2.2 + item.angle * 3) * 0.045;
+    item.body.position.y = item.baseY + pulse;
+    item.head.position.y = item.baseY + 1.0 + pulse;
+    item.ring.rotation.z = t * 0.35;
+    item.label.position.y = item.baseY + 1.7 + pulse;
+  }
+  eventGroup.rotation.y = t * 0.08;
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[char]));
+}
+
+document.getElementById("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
+document.getElementById("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
+document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", reason: "3D observer food aid", params: { resource: "food", amount: 5 } }] }) })));
+document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", reason: "3D observer encouragement", params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
+document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", reason: "3D observer stress test", params: { name: "storm", severity: 0.35 } }] }) })));
+document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7 }) })));
+renderer.domElement.addEventListener("pointerdown", onPointerDown);
+window.addEventListener("resize", resize);
+
+resize();
+refresh();
+animate(0);
+  </script>
+</body>
+</html>"""

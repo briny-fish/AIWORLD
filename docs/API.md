@@ -1,0 +1,111 @@
+# Local API
+
+M9 提供一个零依赖的本地 HTTP API。它的职责是稳定协议边界，不负责 3D 渲染，也不让外部直接改内部状态。
+
+启动：
+
+```powershell
+python -m virtual_society.cli --serve --seed 7 --host 127.0.0.1 --port 8765
+```
+
+如果要让服务按周期记录历史快照：
+
+```powershell
+python -m virtual_society.cli --serve --seed 7 --snapshot-every 30
+```
+
+## Endpoints
+
+`GET /health`
+
+返回服务状态和当前天数。
+
+`GET /state`
+
+返回当前世界快照，包括智能体、组织、资源、规则、事件日志、当前指标和待执行干预。
+
+`GET /metrics`
+
+返回通过 API 推进后记录的指标序列。
+
+`GET /events?limit=50`
+
+返回最近事件。
+
+`GET /history`
+
+返回周期性历史快照摘要。
+
+`GET /report/run.json`
+
+导出当前运行的 JSON 报告。
+
+`GET /report/run.html`
+
+导出当前运行的离线 HTML 报告。
+
+`GET /observer`
+
+打开同源交互式观察器页面。观察器会调用当前 API 服务读取状态、推进时间和提交干预。
+
+`GET /observer3d`
+
+打开 Three.js 3D 观察器原型。它使用同一套 API 读取世界状态并提交干预。
+
+`POST /step`
+
+推进模拟。
+
+```json
+{
+  "days": 7,
+  "interventions": [
+    {
+      "kind": "resource",
+      "reason": "observer aid",
+      "params": {
+        "resource": "food",
+        "amount": 5
+      }
+    }
+  ]
+}
+```
+
+没有 `day` 的干预会默认安排到下一天。有 `day` 的干预使用绝对世界日期。
+
+`POST /interventions`
+
+安排未来干预，但不立刻推进时间。
+
+```json
+{
+  "day": 12,
+  "kind": "organization",
+  "reason": "specialized work group",
+  "params": {
+    "id": "builders_lodge",
+    "name": "Builders Lodge",
+    "kind": "guild",
+    "members": ["a2", "a6"],
+    "norms": ["maintain_shelter"]
+  }
+}
+```
+
+`POST /reset`
+
+重置服务里的模拟。
+
+```json
+{
+  "seed": 7
+}
+```
+
+## Design Rules
+
+- API 只通过 `Intervention` 和 `step` 影响世界。
+- 外部系统不能直接写 `WorldState`。
+- 3D 客户端、Web 观察器和未来 LLM 对话层都应通过这套协议接入。
+- 服务当前是单进程内存态，适合本地开发和调试；持久化和多用户并发属于后续里程碑。

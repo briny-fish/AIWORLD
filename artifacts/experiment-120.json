@@ -1,0 +1,90 @@
+{
+  "kind": "experiment",
+  "generated_at": "2026-05-13T16:14:27+00:00",
+  "reports": [
+    {
+      "seed": 1,
+      "days": 120,
+      "final_metrics": {
+        "day": 120,
+        "population": 6,
+        "food": 1.01,
+        "materials": 6.99,
+        "shelter": 8.86,
+        "average_need": 0.42,
+        "average_trust": 0.676,
+        "crisis_events": 1
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 120,
+          "description": "Average need is strained at 0.420."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 120,
+          "description": "1 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 2,
+      "days": 120,
+      "final_metrics": {
+        "day": 120,
+        "population": 6,
+        "food": 1.03,
+        "materials": 7.5,
+        "shelter": 6.53,
+        "average_need": 0.414,
+        "average_trust": 0.691,
+        "crisis_events": 3
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 120,
+          "description": "Average need is strained at 0.414."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 120,
+          "description": "3 crisis events were recorded."
+        }
+      ]
+    },
+    {
+      "seed": 3,
+      "days": 120,
+      "final_metrics": {
+        "day": 120,
+        "population": 6,
+        "food": 1.07,
+        "materials": 8.87,
+        "shelter": 5.7,
+        "average_need": 0.412,
+        "average_trust": 0.699,
+        "crisis_events": 1
+      },
+      "findings": [
+        {
+          "code": "strained_wellbeing",
+          "severity": "warning",
+          "day": 120,
+          "description": "Average need is strained at 0.412."
+        },
+        {
+          "code": "crisis_events",
+          "severity": "warning",
+          "day": 120,
+          "description": "1 crisis events were recorded."
+        }
+      ]
+    }
+  ]
+}

@@ -2,7 +2,12 @@
 
 from .codex_cli_provider import CodexCliCognition
 from .cognition import RuleBasedCognition
-from .hybrid_cognition import HybridCognition, HybridCognitionConfig, HybridCognitionStats
+from .hybrid_cognition import (
+    HybridCognition,
+    HybridCognitionConfig,
+    HybridCognitionStats,
+    HybridCognitionTrace,
+)
 from .interventions import Intervention
 from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
@@ -22,6 +27,7 @@ __all__ = [
     "HybridCognition",
     "HybridCognitionConfig",
     "HybridCognitionStats",
+    "HybridCognitionTrace",
     "RuleBasedCognition",
     "SimulationService",
     "Simulation",

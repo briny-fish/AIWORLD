@@ -77,6 +77,7 @@ def main() -> None:
     parser.add_argument("--openai-model", default="gpt-5.2", help="OpenAI model for --cognition hybrid-openai.")
     parser.add_argument("--openai-timeout", type=int, default=60, help="OpenAI provider timeout in seconds.")
     parser.add_argument("--show-cognition-stats", action="store_true", help="Print cognition provider call stats.")
+    parser.add_argument("--save-cognition-trace-json", help="Write hybrid cognition call trace JSON.")
     parser.add_argument("--save-run-json", help="Write a JSON artifact for a single run.")
     parser.add_argument("--save-run-html", help="Write an offline HTML observer for a single run.")
     parser.add_argument(
@@ -153,12 +154,22 @@ def main() -> None:
     history = history_recorder.record(metrics) if history_recorder is not None else None
     findings = assess_metrics(metrics)
     social_findings = assess_social_dynamics(simulation.world)
+    cognition_trace = _cognition_trace(cognition)
     if args.save_run_json or args.save_run_html:
-        run_record = build_run_record(args.seed, metrics, simulation.world, findings, history=history)
+        run_record = build_run_record(
+            args.seed,
+            metrics,
+            simulation.world,
+            findings,
+            history=history,
+            cognition_trace=cognition_trace,
+        )
         if args.save_run_json:
             write_json(args.save_run_json, run_record)
         if args.save_run_html:
             write_html(args.save_run_html, render_run_html(run_record))
+    if args.save_cognition_trace_json:
+        write_json(args.save_cognition_trace_json, cognition_trace)
     if args.save_snapshots_dir and history_recorder is not None:
         write_snapshot_files(args.save_snapshots_dir, history_recorder.snapshots)
 
@@ -187,12 +198,15 @@ def main() -> None:
         _print_codex_cli_plan(simulation, args)
     if args.show_cognition_stats or isinstance(cognition, HybridCognition):
         _print_cognition_stats(cognition)
+        _print_cognition_trace(cognition)
     if history is not None:
         _print_history(history)
     if args.save_run_json:
         print(f"\nSaved run JSON: {args.save_run_json}")
     if args.save_run_html:
         print(f"Saved run HTML: {args.save_run_html}")
+    if args.save_cognition_trace_json:
+        print(f"Saved cognition trace JSON: {args.save_cognition_trace_json}")
     if args.save_snapshots_dir:
         print(f"Saved history snapshots: {args.save_snapshots_dir}")
 
@@ -305,6 +319,49 @@ def _print_cognition_stats(cognition) -> None:
     )
     if stats.last_errors:
         print(f"last_error={stats.last_errors[-1]}")
+
+
+def _print_cognition_trace(cognition) -> None:
+    if not isinstance(cognition, HybridCognition) or not cognition.trace:
+        return
+    print("\nCognition trace:")
+    print(_cognition_trace_summary(cognition))
+    for item in cognition.trace[-5:]:
+        proposed = item.proposed_plan or {}
+        baseline = item.baseline_plan
+        used = item.used_plan
+        proposed_action = proposed.get("action", "none")
+        print(
+            f"day {item.day:>3} | {item.agent_name:<8} | {item.status:<20} | "
+            f"codex={proposed_action:<9} rule={baseline['action']:<9} "
+            f"used={used['action']:<9} diverged={item.diverged_from_baseline}"
+        )
+        if item.error:
+            print(f"          error={item.error}")
+
+
+def _cognition_trace(cognition) -> list[dict]:
+    if not isinstance(cognition, HybridCognition):
+        return []
+    return [item.as_dict() for item in cognition.trace]
+
+
+def _cognition_trace_summary(cognition: HybridCognition) -> str:
+    calls = len(cognition.trace)
+    successes = sum(1 for item in cognition.trace if item.status == "primary")
+    failures = calls - successes
+    diverged = sum(1 for item in cognition.trace if item.diverged_from_baseline)
+    rest_overrides = sum(
+        1
+        for item in cognition.trace
+        if item.used_plan["action"] == "rest"
+        and item.baseline_plan["action"] != "rest"
+    )
+    divergence_rate = diverged / calls if calls else 0.0
+    return (
+        f"calls={calls} successes={successes} failures={failures} "
+        f"divergence_rate={divergence_rate:.0%} rest_overrides={rest_overrides}"
+    )
 
 
 def _find_agent_or_exit(simulation: Simulation, agent_id: str):

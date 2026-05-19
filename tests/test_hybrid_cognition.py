@@ -40,6 +40,11 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(primary.calls, 1)
         self.assertEqual(hybrid.stats.llm_successes, 1)
         self.assertGreater(hybrid.stats.skipped_calls, 0)
+        self.assertEqual(len(hybrid.trace), 1)
+        self.assertEqual(hybrid.trace[0].status, "primary")
+        self.assertEqual(hybrid.trace[0].proposed_plan["action"], "rest")
+        self.assertEqual(hybrid.trace[0].used_plan["action"], "rest")
+        self.assertTrue(hybrid.trace[0].diverged_from_baseline)
 
     def test_falls_back_after_primary_failure(self) -> None:
         primary = FailingProvider()
@@ -56,6 +61,10 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(hybrid.stats.llm_failures, 1)
         self.assertEqual(hybrid.stats.fallback_calls, 12)
         self.assertEqual(primary.calls, 1)
+        self.assertEqual(len(hybrid.trace), 1)
+        self.assertEqual(hybrid.trace[0].status, "fallback_after_error")
+        self.assertIsNone(hybrid.trace[0].proposed_plan)
+        self.assertIn("provider failed", hybrid.trace[0].error or "")
 
     def test_zero_budget_never_calls_primary(self) -> None:
         primary = FixedProvider(Action.REST)
@@ -74,4 +83,3 @@ class HybridCognitionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

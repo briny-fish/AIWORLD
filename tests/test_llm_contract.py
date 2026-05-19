@@ -36,6 +36,7 @@ class LLMContractTests(unittest.TestCase):
 
         self.assertIn("Return exactly one JSON object", prompt)
         self.assertIn("allowed_actions", prompt)
+        self.assertIn("Use target_id only for socialize plans", prompt)
 
     def test_parse_plan_response_accepts_valid_plan(self) -> None:
         plan = parse_plan_response(
@@ -50,6 +51,34 @@ class LLMContractTests(unittest.TestCase):
 
         self.assertEqual(plan.action, Action.FARM)
         self.assertEqual(plan.priority, 0.8)
+
+    def test_parse_plan_response_drops_non_social_targets(self) -> None:
+        plan = parse_plan_response(
+            {
+                "action": "rest",
+                "priority": 0.8,
+                "reason": "energy is exhausted",
+                "target_id": "self",
+                "horizon_days": 1,
+            }
+        )
+
+        self.assertEqual(plan.action, Action.REST)
+        self.assertIsNone(plan.target_id)
+
+    def test_parse_plan_response_keeps_social_targets(self) -> None:
+        plan = parse_plan_response(
+            {
+                "action": "socialize",
+                "priority": 0.6,
+                "reason": "repair trust",
+                "target_id": "a3",
+                "horizon_days": 1,
+            }
+        )
+
+        self.assertEqual(plan.action, Action.SOCIALIZE)
+        self.assertEqual(plan.target_id, "a3")
 
     def test_parse_plan_response_rejects_invalid_action(self) -> None:
         with self.assertRaises(PlanParseError):

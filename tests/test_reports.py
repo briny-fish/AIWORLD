@@ -34,6 +34,37 @@ class ReportTests(unittest.TestCase):
         self.assertIn("social_findings", record)
         self.assertTrue(record["events"])
 
+    def test_build_run_record_can_include_cognition_trace(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        trace = [
+            {
+                "day": 1,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "baseline_plan": {"action": "farm", "reason": "food"},
+                "proposed_plan": {"action": "repair", "reason": "storm"},
+                "used_plan": {"action": "repair", "reason": "storm"},
+                "diverged_from_baseline": True,
+                "error": None,
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            cognition_trace=trace,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["cognition_trace"], trace)
+        self.assertIn("Cognition Trace", html)
+        self.assertIn("divergence rate 100%", html)
+        self.assertIn("storm", html)
+
     def test_run_html_renders_observer_sections(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

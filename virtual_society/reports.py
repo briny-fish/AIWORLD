@@ -18,6 +18,7 @@ def build_run_record(
     world: WorldState,
     findings: list[HealthFinding],
     history: dict[str, Any] | None = None,
+    cognition_trace: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
     record = {
@@ -101,6 +102,8 @@ def build_run_record(
     }
     if history is not None:
         record["history"] = history
+    if cognition_trace is not None:
+        record["cognition_trace"] = cognition_trace
     return record
 
 
@@ -129,6 +132,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     final = record["final_metrics"] or {}
     findings = record["findings"]
     social_findings = record.get("social_findings", [])
+    cognition_trace = record.get("cognition_trace", [])
     agents = record["agents"]
     organizations = record.get("organizations", [])
     locations = record.get("locations", [])
@@ -171,6 +175,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <h2>Social Evaluation</h2>
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
+    {_cognition_trace_section(cognition_trace)}
     {_history_section(history)}
     <section class="band">
       <h2>Metrics</h2>
@@ -476,6 +481,64 @@ def _events_table(events: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Kind</th><th>Actor</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _cognition_trace_section(trace: list[dict[str, Any]]) -> str:
+    if not trace:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Cognition Trace</h2>"
+        f"<p>{escape(_cognition_trace_summary(trace))}</p>"
+        f"{_cognition_trace_table(trace)}"
+        "</section>"
+    )
+
+
+def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in trace[-30:]:
+        proposed = item.get("proposed_plan") or {}
+        baseline = item.get("baseline_plan") or {}
+        used = item.get("used_plan") or {}
+        rows.append(
+            "<tr>"
+            f"<td>{item['day']}</td>"
+            f"<td>{escape(item['agent_name'])}</td>"
+            f"<td>{escape(item['status'])}</td>"
+            f"<td>{escape(_plan_summary(proposed))}</td>"
+            f"<td>{escape(_plan_summary(baseline))}</td>"
+            f"<td>{escape(_plan_summary(used))}</td>"
+            f"<td>{escape(str(item.get('diverged_from_baseline', False)))}</td>"
+            f"<td>{escape(str(item.get('error') or ''))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _plan_summary(plan: dict[str, Any]) -> str:
+    if not plan:
+        return "none"
+    target = f" -> {plan['target_id']}" if plan.get("target_id") else ""
+    return f"{plan.get('action', 'none')}{target}: {plan.get('reason', '')}"
+
+
+def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
+    calls = len(trace)
+    successes = sum(1 for item in trace if item.get("status") == "primary")
+    failures = calls - successes
+    diverged = sum(1 for item in trace if item.get("diverged_from_baseline"))
+    rest_overrides = sum(
+        1
+        for item in trace
+        if (item.get("used_plan") or {}).get("action") == "rest"
+        and (item.get("baseline_plan") or {}).get("action") != "rest"
+    )
+    divergence_rate = diverged / calls if calls else 0.0
+    return (
+        f"calls {calls}; successes {successes}; failures {failures}; "
+        f"divergence rate {divergence_rate:.0%}; rest overrides {rest_overrides}."
+    )
 
 
 def _experiment_table(reports: list[dict[str, Any]]) -> str:

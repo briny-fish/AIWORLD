@@ -120,6 +120,7 @@ def render_plan_prompt(context: CognitionContext) -> str:
         "Return exactly one JSON object with keys: action, priority, reason, "
         "target_id, horizon_days.\n"
         "The action must be one of the allowed_actions. Do not invent world facts.\n"
+        "Use target_id only for socialize plans; otherwise set target_id to null.\n"
         "The simulation core will validate the plan before execution.\n\n"
         f"Context:\n{payload}"
     )
@@ -143,9 +144,9 @@ def parse_plan_response(data: dict[str, Any]) -> Plan:
     if not reason:
         raise PlanParseError("Plan reason is required")
 
-    target_id = data.get("target_id")
-    if target_id is not None:
-        target_id = str(target_id)
+    target_id = _normalize_target_id(data.get("target_id"))
+    if action != Action.SOCIALIZE:
+        target_id = None
 
     try:
         horizon_days = int(data.get("horizon_days", 1))
@@ -192,3 +193,12 @@ def _memory_query(agent: Agent, world: WorldState) -> str:
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:
     return max(minimum, min(maximum, value))
+
+
+def _normalize_target_id(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"none", "null", "self"}:
+        return None
+    return text

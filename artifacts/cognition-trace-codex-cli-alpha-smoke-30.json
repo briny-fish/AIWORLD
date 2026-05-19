@@ -1,0 +1,31 @@
+[
+  {
+    "day": 21,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "farm",
+      "priority": 1.161,
+      "reason": "shared food stores are low; role bias: farmer; profile prioritizes food security",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "rest",
+      "priority": 0.97,
+      "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "rest",
+      "priority": 0.97,
+      "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "error": null
+  }
+]

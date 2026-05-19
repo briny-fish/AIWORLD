@@ -54,3 +54,12 @@ but ended slightly below the rule baseline on average need (-0.004) and trust
 to reject Codex-driven cognition, but it says the next prompt iteration should
 ask the model to weigh individual recovery against shared production pressure
 more explicitly.
+
+The next iteration made the prompt baseline-aware and added an acceptance
+policy in hybrid cognition. Codex still proposed `rest`, but the policy rejected
+that override because shared resource pressure was active and the agent was not
+at the exhaustion threshold or just blocked by exhaustion. The candidate plan
+remained visible in trace, while the used plan returned to the rule baseline.
+This restored final metric parity with the rule baseline. The important shift
+is architectural: LLM output is now treated as a governed proposal, not as an
+automatic replacement for deterministic cognition.

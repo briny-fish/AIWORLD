@@ -34,6 +34,39 @@ class CodexCliProviderTests(unittest.TestCase):
         self.assertEqual(plan.reason, "food is low")
         self.assertIn("gpt-5.4-mini", commands[0])
         self.assertIn('model_reasoning_effort="low"', commands[0])
+        self.assertIn("decision_pressure", commands[0][-1])
+
+    def test_provider_can_include_baseline_plan_in_prompt(self) -> None:
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            commands.append(command)
+            output_path = command[command.index("--output-last-message") + 1]
+            Path(output_path).write_text(
+                '{"action":"rest","priority":0.6,"reason":"energy is low","target_id":null,"horizon_days":1}',
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+        simulation = Simulation(seed=7)
+        baseline = simulation.world.agents[0].active_plan
+        if baseline is None:
+            from virtual_society.cognition import RuleBasedCognition
+
+            baseline = RuleBasedCognition().propose_plan(
+                simulation.world.agents[0],
+                simulation.world,
+            )
+        provider = CodexCliCognition(codex_path="codex.exe", run_command=fake_run)
+
+        provider.propose_plan_with_baseline(
+            simulation.world.agents[0],
+            simulation.world,
+            baseline,
+        )
+
+        self.assertIn('"baseline_plan"', commands[0][-1])
+        self.assertIn(baseline.action.value, commands[0][-1])
 
     def test_provider_rejects_failed_codex_call(self) -> None:
         def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
@@ -60,4 +93,3 @@ class CodexCliProviderTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

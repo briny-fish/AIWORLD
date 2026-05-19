@@ -33,10 +33,18 @@ class OpenAICognition:
         self.http_post = http_post
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
+        return self.propose_plan_with_baseline(agent, world, None)
+
+    def propose_plan_with_baseline(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan | None,
+    ) -> Plan:
         if not self.api_key and self.http_post is None:
             raise OpenAICognitionError("OPENAI_API_KEY is required for OpenAICognition")
 
-        context = build_cognition_context(agent, world)
+        context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
         prompt = render_plan_prompt(context)
         payload = {
             "model": self.model,

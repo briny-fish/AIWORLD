@@ -398,8 +398,11 @@ def _cognition_trace(cognition) -> list[dict]:
 
 def _cognition_trace_summary(cognition: HybridCognition) -> str:
     calls = len(cognition.trace)
-    successes = sum(1 for item in cognition.trace if item.status == "primary")
-    failures = calls - successes
+    accepted = sum(1 for item in cognition.trace if item.status == "primary")
+    policy_fallbacks = sum(
+        1 for item in cognition.trace if item.status == "baseline_after_policy"
+    )
+    failures = calls - accepted - policy_fallbacks
     diverged = sum(1 for item in cognition.trace if item.diverged_from_baseline)
     rest_overrides = sum(
         1
@@ -409,8 +412,9 @@ def _cognition_trace_summary(cognition: HybridCognition) -> str:
     )
     divergence_rate = diverged / calls if calls else 0.0
     return (
-        f"calls={calls} successes={successes} failures={failures} "
-        f"divergence_rate={divergence_rate:.0%} rest_overrides={rest_overrides}"
+        f"calls={calls} accepted={accepted} policy_fallbacks={policy_fallbacks} "
+        f"failures={failures} divergence_rate={divergence_rate:.0%} "
+        f"rest_overrides={rest_overrides}"
     )
 
 

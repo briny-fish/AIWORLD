@@ -43,7 +43,15 @@ class CodexCliCognition:
         self._run_command = run_command or self._default_run_command
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
-        context = build_cognition_context(agent, world)
+        return self.propose_plan_with_baseline(agent, world, None)
+
+    def propose_plan_with_baseline(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan | None,
+    ) -> Plan:
+        context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
         prompt = (
             f"{render_plan_prompt(context)}\n\n"
             "Return JSON only. No markdown. No prose before or after the JSON."

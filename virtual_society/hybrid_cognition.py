@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 from .cognition import CognitionProvider, RuleBasedCognition
-from .model import Agent, Plan, WorldState
+from .model import Action, Agent, Plan, WorldState
 
 
 @dataclass
@@ -14,6 +14,7 @@ class HybridCognitionConfig:
     max_calls: int = 10
     max_failures: int = 3
     trace_limit: int = 100
+    guard_rest_overrides: bool = True
 
 
 @dataclass
@@ -36,6 +37,7 @@ class HybridCognitionTrace:
     proposed_plan: dict | None
     used_plan: dict
     diverged_from_baseline: bool
+    proposed_diverged_from_baseline: bool = False
     error: str | None = None
 
     def as_dict(self) -> dict:
@@ -66,7 +68,7 @@ class HybridCognition:
         baseline_plan = self.fallback.propose_plan(agent, world)
         self.stats.llm_attempts += 1
         try:
-            plan = self.primary.propose_plan(agent, world)
+            plan = self._call_primary(agent, world, baseline_plan)
         except Exception as exc:
             self.stats.llm_failures += 1
             self.stats.fallback_calls += 1
@@ -83,16 +85,61 @@ class HybridCognition:
             return baseline_plan
 
         self.stats.llm_successes += 1
+        used_plan, status, policy_note = self._apply_acceptance_policy(
+            agent,
+            world,
+            baseline_plan,
+            plan,
+        )
         self._record_trace(
             agent=agent,
             world=world,
-            status="primary",
+            status=status,
             baseline_plan=baseline_plan,
             proposed_plan=plan,
-            used_plan=plan,
-            error=None,
+            used_plan=used_plan,
+            error=policy_note,
         )
-        return plan
+        return used_plan
+
+    def _call_primary(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan,
+    ) -> Plan:
+        baseline_aware = getattr(self.primary, "propose_plan_with_baseline", None)
+        if callable(baseline_aware):
+            return baseline_aware(agent, world, baseline_plan)
+        return self.primary.propose_plan(agent, world)
+
+    def _apply_acceptance_policy(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan,
+        proposed_plan: Plan,
+    ) -> tuple[Plan, str, str | None]:
+        if not self.config.guard_rest_overrides:
+            return proposed_plan, "primary", None
+
+        productive_actions = {Action.FARM, Action.GATHER, Action.HAUL, Action.REPAIR}
+        if (
+            proposed_plan.action != Action.REST
+            or baseline_plan.action not in productive_actions
+            or not _shared_resource_pressure(world)
+            or _rest_is_required(agent, world)
+        ):
+            return proposed_plan, "primary", None
+
+        return (
+            baseline_plan,
+            "baseline_after_policy",
+            (
+                "rest override rejected: shared pressure is active and the agent "
+                "is not at the exhaustion threshold or just blocked by exhaustion"
+            ),
+        )
 
     def _should_call_primary(self, agent: Agent, world: WorldState) -> bool:
         if self.config.max_calls <= 0:
@@ -133,6 +180,11 @@ class HybridCognition:
                 proposed_plan=_plan_dict(proposed_plan) if proposed_plan is not None else None,
                 used_plan=_plan_dict(used_plan),
                 diverged_from_baseline=_plan_differs(used_plan, baseline_plan),
+                proposed_diverged_from_baseline=(
+                    _plan_differs(proposed_plan, baseline_plan)
+                    if proposed_plan is not None
+                    else False
+                ),
                 error=error,
             )
         )
@@ -158,3 +210,22 @@ def _plan_differs(first: Plan, second: Plan) -> bool:
         or first.target_id != second.target_id
         or first.horizon_days != second.horizon_days
     )
+
+
+def _shared_resource_pressure(world: WorldState) -> bool:
+    food_pressure = world.population * world.rules.food_per_agent * 1.15
+    material_floor = world.population * 0.35
+    shelter_floor = world.population * world.rules.shelter_safety_ratio
+    return (
+        world.resources.get("food", 0.0) < food_pressure
+        or world.resources.get("materials", 0.0) < material_floor
+        or world.resources.get("shelter", 0.0) < shelter_floor
+    )
+
+
+def _rest_is_required(agent: Agent, world: WorldState) -> bool:
+    if agent.needs.energy <= world.rules.exhaustion_work_threshold:
+        return True
+    if not agent.plan_history:
+        return False
+    return "blocked by exhaustion" in agent.plan_history[-1].lower()

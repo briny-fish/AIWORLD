@@ -25,6 +25,8 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("reputation", context.agent)
         self.assertIn("location_id", context.agent)
         self.assertIn("retrieved_memories", context.as_dict())
+        self.assertIn("decision_pressure", context.as_dict())
+        self.assertIn("food_gap", context.decision_pressure)
         self.assertTrue(context.world["locations"])
         self.assertTrue(context.world["agent_organizations"])
 
@@ -37,6 +39,26 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("Return exactly one JSON object", prompt)
         self.assertIn("allowed_actions", prompt)
         self.assertIn("Use target_id only for socialize plans", prompt)
+        self.assertIn("baseline_plan", prompt)
+        self.assertIn("shared production and repair needs", prompt)
+
+    def test_context_can_include_rule_baseline_plan(self) -> None:
+        simulation = Simulation(seed=7)
+        agent = simulation.world.agents[0]
+        baseline = agent.active_plan
+        if baseline is None:
+            from virtual_society.cognition import RuleBasedCognition
+
+            baseline = RuleBasedCognition().propose_plan(agent, simulation.world)
+
+        context = build_cognition_context(agent, simulation.world, baseline_plan=baseline)
+
+        self.assertIsNotNone(context.baseline_plan)
+        self.assertEqual(context.baseline_plan["action"], baseline.action.value)
+        self.assertEqual(
+            context.decision_pressure["baseline_action"],
+            baseline.action.value,
+        )
 
     def test_parse_plan_response_accepts_valid_plan(self) -> None:
         plan = parse_plan_response(

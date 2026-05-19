@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from .generative_memory import memory_dicts, retrieve_memories
@@ -16,6 +16,8 @@ class CognitionContext:
     memories: list[str]
     retrieved_memories: list[dict[str, Any]]
     allowed_actions: list[str]
+    baseline_plan: dict[str, Any] | None = None
+    decision_pressure: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -30,6 +32,7 @@ def build_cognition_context(
     world: WorldState,
     event_limit: int = 12,
     memory_limit: int = 8,
+    baseline_plan: Plan | None = None,
 ) -> CognitionContext:
     organizations = [
         organization
@@ -110,6 +113,8 @@ def build_cognition_context(
         memories=agent.memories[-memory_limit:],
         retrieved_memories=memory_dicts(retrieved),
         allowed_actions=[action.value for action in Action],
+        baseline_plan=_plan_dict(baseline_plan) if baseline_plan is not None else None,
+        decision_pressure=_decision_pressure(agent, world, baseline_plan),
     )
 
 
@@ -121,6 +126,14 @@ def render_plan_prompt(context: CognitionContext) -> str:
         "target_id, horizon_days.\n"
         "The action must be one of the allowed_actions. Do not invent world facts.\n"
         "Use target_id only for socialize plans; otherwise set target_id to null.\n"
+        "If baseline_plan is present, treat it as the deterministic rule baseline: "
+        "you may follow it or diverge, but the reason must cite concrete evidence "
+        "from needs, memories, reflections, events, resources, or decision_pressure.\n"
+        "Do not choose rest only because energy is imperfect. Rest only when energy "
+        "is at or near the exhaustion threshold, recent work was blocked by "
+        "exhaustion, or rest clearly protects later shared outcomes. Under food, "
+        "material, shelter, or shock pressure, weigh personal recovery against "
+        "shared production and repair needs.\n"
         "The simulation core will validate the plan before execution.\n\n"
         f"Context:\n{payload}"
     )
@@ -189,6 +202,67 @@ def _memory_query(agent: Agent, world: WorldState) -> str:
             " ".join(event.kind for event in world.event_log[-6:]),
         ]
     )
+
+
+def _decision_pressure(
+    agent: Agent,
+    world: WorldState,
+    baseline_plan: Plan | None,
+) -> dict[str, Any]:
+    food_pressure = world.population * world.rules.food_per_agent * 1.15
+    food_gap = max(0.0, food_pressure - world.resources.get("food", 0.0))
+    material_floor = world.population * 0.35
+    material_gap = max(0.0, material_floor - world.resources.get("materials", 0.0))
+    shelter_floor = world.population * world.rules.shelter_safety_ratio
+    shelter_gap = max(0.0, shelter_floor - world.resources.get("shelter", 0.0))
+    energy_margin = agent.needs.energy - world.rules.exhaustion_work_threshold
+    recent_plan_text = " ".join(agent.plan_history[-4:]).lower()
+    recent_exhaustion_block = "blocked by exhaustion" in recent_plan_text
+
+    pressures: list[str] = []
+    if food_gap > 0:
+        pressures.append("shared food stores are below pressure threshold")
+    if material_gap > 0:
+        pressures.append("shared materials are below pressure threshold")
+    if shelter_gap > 0:
+        pressures.append("shared shelter is below safety floor")
+    if any(event.kind == "disaster" for event in world.event_log[-10:]):
+        pressures.append("recent disaster remains socially salient")
+    if not pressures:
+        pressures.append("no severe shared resource pressure detected")
+
+    guidance = [
+        "baseline_plan is the plan deterministic cognition would use now",
+        "diverge only when agent-local evidence or social pressure justifies it",
+        "productive or repair actions matter more when resource gaps are active",
+        "rest is justified by near-threshold energy or recent exhaustion blocks",
+    ]
+
+    return {
+        "baseline_action": baseline_plan.action.value if baseline_plan else None,
+        "baseline_reason": baseline_plan.reason if baseline_plan else None,
+        "food_pressure_threshold": round(food_pressure, 3),
+        "food_gap": round(food_gap, 3),
+        "material_gap": round(material_gap, 3),
+        "shelter_gap": round(shelter_gap, 3),
+        "energy": round(agent.needs.energy, 3),
+        "exhaustion_threshold": round(world.rules.exhaustion_work_threshold, 3),
+        "energy_margin": round(energy_margin, 3),
+        "near_exhaustion": energy_margin <= 0.05,
+        "recent_exhaustion_block": recent_exhaustion_block,
+        "shared_pressures": pressures,
+        "guidance": guidance,
+    }
+
+
+def _plan_dict(plan: Plan) -> dict[str, Any]:
+    return {
+        "action": plan.action.value,
+        "priority": plan.priority,
+        "reason": plan.reason,
+        "target_id": plan.target_id,
+        "horizon_days": plan.horizon_days,
+    }
 
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:

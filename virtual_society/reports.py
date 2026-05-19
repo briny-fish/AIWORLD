@@ -624,8 +624,11 @@ def _plan_summary(plan: dict[str, Any]) -> str:
 
 def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
     calls = len(trace)
-    successes = sum(1 for item in trace if item.get("status") == "primary")
-    failures = calls - successes
+    accepted = sum(1 for item in trace if item.get("status") == "primary")
+    policy_fallbacks = sum(
+        1 for item in trace if item.get("status") == "baseline_after_policy"
+    )
+    failures = calls - accepted - policy_fallbacks
     diverged = sum(1 for item in trace if item.get("diverged_from_baseline"))
     rest_overrides = sum(
         1
@@ -635,7 +638,8 @@ def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
     )
     divergence_rate = diverged / calls if calls else 0.0
     return (
-        f"calls {calls}; successes {successes}; failures {failures}; "
+        f"calls {calls}; accepted {accepted}; policy fallbacks {policy_fallbacks}; "
+        f"failures {failures}; "
         f"divergence rate {divergence_rate:.0%}; rest overrides {rest_overrides}."
     )
 

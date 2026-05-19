@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-19T15:27:22+00:00",
+  "generated_at": "2026-05-19T16:19:04+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -9214,9 +9214,9 @@
       "day": 21,
       "kind": "plan",
       "actor_id": "a1",
-      "description": "Ari planned to rest: Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+      "description": "Ari planned to rest: energy is near the exhaustion threshold; resting now protects later work capacity before food and hauling tasks",
       "effects": {
-        "priority": 0.97
+        "priority": 1.0
       }
     },
     {
@@ -16356,20 +16356,76 @@
       },
       "proposed_plan": {
         "action": "rest",
-        "priority": 0.97,
-        "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+        "priority": 1.0,
+        "reason": "energy is near the exhaustion threshold; resting now protects later work capacity before food and hauling tasks",
         "target_id": null,
         "horizon_days": 1
       },
       "used_plan": {
         "action": "rest",
-        "priority": 0.97,
-        "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+        "priority": 1.0,
+        "reason": "energy is near the exhaustion threshold; resting now protects later work capacity before food and hauling tasks",
         "target_id": null,
         "horizon_days": 1
       },
       "diverged_from_baseline": true,
       "error": null
     }
-  ]
+  ],
+  "baseline_comparison": {
+    "kind": "rule_baseline",
+    "summary": "Compared with the deterministic rule baseline: average need -0.004, trust -0.002, institutional cohesion 0, crisis events 0.",
+    "final_metrics": {
+      "day": 30,
+      "population": 12,
+      "food": 2.73,
+      "materials": 0.77,
+      "shelter": 12.56,
+      "average_need": 0.651,
+      "average_trust": 0.606,
+      "average_reputation": 0.546,
+      "institutional_cohesion": 0.604,
+      "crisis_events": 0
+    },
+    "baseline_final_metrics": {
+      "day": 30,
+      "population": 12,
+      "food": 1.82,
+      "materials": 0.66,
+      "shelter": 13.14,
+      "average_need": 0.655,
+      "average_trust": 0.608,
+      "average_reputation": 0.546,
+      "institutional_cohesion": 0.604,
+      "crisis_events": 0
+    },
+    "deltas": {
+      "population": 0.0,
+      "food": 0.91,
+      "materials": 0.11,
+      "shelter": -0.58,
+      "average_need": -0.004,
+      "average_trust": -0.002,
+      "average_reputation": 0.0,
+      "institutional_cohesion": 0.0,
+      "crisis_events": 0.0
+    },
+    "baseline_findings": [
+      {
+        "code": "stable",
+        "severity": "info",
+        "day": 30,
+        "description": "No collapse or major instability detected."
+      }
+    ],
+    "baseline_social_findings": [
+      {
+        "code": "shock_trace_active",
+        "severity": "info",
+        "day": 30,
+        "description": "Latest disaster on day 15 is traceable: memory 100%, reflection 100%, plan response 100%.",
+        "value": 1.0
+      }
+    ]
+  }
 }

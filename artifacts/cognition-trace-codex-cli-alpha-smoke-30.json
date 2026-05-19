@@ -13,15 +13,15 @@
     },
     "proposed_plan": {
       "action": "rest",
-      "priority": 0.97,
-      "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+      "priority": 1.0,
+      "reason": "energy is near the exhaustion threshold; resting now protects later work capacity before food and hauling tasks",
       "target_id": null,
       "horizon_days": 1
     },
     "used_plan": {
       "action": "rest",
-      "priority": 0.97,
-      "reason": "Energy is near the exhaustion threshold, so recovery should come before work; this avoids blocked or inefficient labor.",
+      "priority": 1.0,
+      "reason": "energy is near the exhaustion threshold; resting now protects later work capacity before food and hauling tasks",
       "target_id": null,
       "horizon_days": 1
     },

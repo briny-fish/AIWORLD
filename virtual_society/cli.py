@@ -14,6 +14,7 @@ from .llm_contract import build_cognition_context, render_plan_prompt
 from .openai_provider import OpenAICognition
 from .reports import (
     build_experiment_record,
+    build_rule_baseline_comparison,
     build_run_record,
     render_experiment_html,
     render_run_html,
@@ -78,6 +79,11 @@ def main() -> None:
     parser.add_argument("--openai-timeout", type=int, default=60, help="OpenAI provider timeout in seconds.")
     parser.add_argument("--show-cognition-stats", action="store_true", help="Print cognition provider call stats.")
     parser.add_argument("--save-cognition-trace-json", help="Write hybrid cognition call trace JSON.")
+    parser.add_argument(
+        "--compare-rule-baseline",
+        action="store_true",
+        help="Run the same scenario with rule cognition and compare final metrics.",
+    )
     parser.add_argument("--save-run-json", help="Write a JSON artifact for a single run.")
     parser.add_argument("--save-run-html", help="Write an offline HTML observer for a single run.")
     parser.add_argument(
@@ -155,6 +161,11 @@ def main() -> None:
     findings = assess_metrics(metrics)
     social_findings = assess_social_dynamics(simulation.world)
     cognition_trace = _cognition_trace(cognition)
+    baseline_comparison = (
+        _build_rule_baseline_comparison(args, interventions, metrics)
+        if args.compare_rule_baseline
+        else None
+    )
     if args.save_run_json or args.save_run_html:
         run_record = build_run_record(
             args.seed,
@@ -163,6 +174,7 @@ def main() -> None:
             findings,
             history=history,
             cognition_trace=cognition_trace,
+            baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
             write_json(args.save_run_json, run_record)
@@ -177,6 +189,8 @@ def main() -> None:
         payload = simulation.snapshot()
         if history is not None:
             payload["history"] = history
+        if baseline_comparison is not None:
+            payload["baseline_comparison"] = baseline_comparison
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
@@ -199,6 +213,8 @@ def main() -> None:
     if args.show_cognition_stats or isinstance(cognition, HybridCognition):
         _print_cognition_stats(cognition)
         _print_cognition_trace(cognition)
+    if baseline_comparison is not None:
+        _print_baseline_comparison(baseline_comparison)
     if history is not None:
         _print_history(history)
     if args.save_run_json:
@@ -340,6 +356,40 @@ def _print_cognition_trace(cognition) -> None:
             print(f"          error={item.error}")
 
 
+def _print_baseline_comparison(comparison: dict) -> None:
+    print("\nRule baseline comparison:")
+    print(comparison.get("summary", "No comparison summary."))
+    deltas = comparison.get("deltas", {})
+    for key in (
+        "average_need",
+        "average_trust",
+        "institutional_cohesion",
+        "food",
+        "materials",
+        "shelter",
+        "crisis_events",
+    ):
+        if key in deltas:
+            print(f"{key:<24} {_signed_number(deltas[key])}")
+
+
+def _build_rule_baseline_comparison(
+    args: argparse.Namespace,
+    interventions: list,
+    metrics: list,
+) -> dict:
+    baseline = Simulation(seed=args.seed, world_preset=args.world_preset)
+    baseline_metrics = baseline.run(args.days, interventions=interventions)
+    baseline_findings = assess_metrics(baseline_metrics)
+    baseline_social_findings = assess_social_dynamics(baseline.world)
+    return build_rule_baseline_comparison(
+        metrics,
+        baseline_metrics,
+        baseline_findings,
+        baseline_social_findings,
+    )
+
+
 def _cognition_trace(cognition) -> list[dict]:
     if not isinstance(cognition, HybridCognition):
         return []
@@ -362,6 +412,13 @@ def _cognition_trace_summary(cognition: HybridCognition) -> str:
         f"calls={calls} successes={successes} failures={failures} "
         f"divergence_rate={divergence_rate:.0%} rest_overrides={rest_overrides}"
     )
+
+
+def _signed_number(value: float) -> str:
+    number = float(value)
+    if number > 0:
+        return f"+{number:g}"
+    return f"{number:g}"
 
 
 def _find_agent_or_exit(simulation: Simulation, agent_id: str):

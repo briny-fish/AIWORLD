@@ -9,7 +9,20 @@ from typing import Any
 
 from .health import HealthFinding, RunReport
 from .model import Metrics, WorldState
-from .social_evaluation import assess_social_dynamics
+from .social_evaluation import SocialFinding, assess_social_dynamics
+
+
+COMPARISON_METRICS = [
+    "population",
+    "food",
+    "materials",
+    "shelter",
+    "average_need",
+    "average_trust",
+    "average_reputation",
+    "institutional_cohesion",
+    "crisis_events",
+]
 
 
 def build_run_record(
@@ -19,6 +32,7 @@ def build_run_record(
     findings: list[HealthFinding],
     history: dict[str, Any] | None = None,
     cognition_trace: list[dict[str, Any]] | None = None,
+    baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
     record = {
@@ -104,7 +118,50 @@ def build_run_record(
         record["history"] = history
     if cognition_trace is not None:
         record["cognition_trace"] = cognition_trace
+    if baseline_comparison is not None:
+        record["baseline_comparison"] = baseline_comparison
     return record
+
+
+def build_rule_baseline_comparison(
+    metrics: list[Metrics],
+    baseline_metrics: list[Metrics],
+    baseline_findings: list[HealthFinding],
+    baseline_social_findings: list[SocialFinding],
+) -> dict[str, Any]:
+    if not metrics or not baseline_metrics:
+        return {
+            "kind": "rule_baseline",
+            "summary": "Comparison unavailable because one run produced no metrics.",
+            "final_metrics": None,
+            "baseline_final_metrics": None,
+            "deltas": {},
+            "baseline_findings": [asdict(item) for item in baseline_findings],
+            "baseline_social_findings": [
+                item.as_dict()
+                for item in baseline_social_findings
+            ],
+        }
+
+    final = asdict(metrics[-1])
+    baseline_final = asdict(baseline_metrics[-1])
+    deltas = {
+        key: round(float(final[key]) - float(baseline_final[key]), 3)
+        for key in COMPARISON_METRICS
+        if key in final and key in baseline_final
+    }
+    return {
+        "kind": "rule_baseline",
+        "summary": _comparison_summary(deltas),
+        "final_metrics": final,
+        "baseline_final_metrics": baseline_final,
+        "deltas": deltas,
+        "baseline_findings": [asdict(item) for item in baseline_findings],
+        "baseline_social_findings": [
+            item.as_dict()
+            for item in baseline_social_findings
+        ],
+    }
 
 
 def build_experiment_record(reports: list[RunReport]) -> dict[str, Any]:
@@ -133,6 +190,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     findings = record["findings"]
     social_findings = record.get("social_findings", [])
     cognition_trace = record.get("cognition_trace", [])
+    baseline_comparison = record.get("baseline_comparison")
     agents = record["agents"]
     organizations = record.get("organizations", [])
     locations = record.get("locations", [])
@@ -176,6 +234,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
     {_cognition_trace_section(cognition_trace)}
+    {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     <section class="band">
       <h2>Metrics</h2>
@@ -516,6 +575,46 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
     return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
+def _baseline_comparison_section(comparison: dict[str, Any] | None) -> str:
+    if not comparison:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Rule Baseline Comparison</h2>"
+        f"<p>{escape(str(comparison.get('summary', '')))}</p>"
+        f"{_baseline_delta_table(comparison.get('deltas', {}))}"
+        f"{_baseline_finding_text(comparison)}"
+        "</section>"
+    )
+
+
+def _baseline_delta_table(deltas: dict[str, Any]) -> str:
+    if not deltas:
+        return "<p>No metric deltas recorded.</p>"
+    rows = []
+    for key in COMPARISON_METRICS:
+        if key not in deltas:
+            continue
+        rows.append(
+            "<tr>"
+            f"<td>{escape(key)}</td>"
+            f"<td>{escape(_signed_number(deltas[key]))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Metric</th><th>Run minus rule baseline</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _baseline_finding_text(comparison: dict[str, Any]) -> str:
+    findings = comparison.get("baseline_findings", [])
+    social = comparison.get("baseline_social_findings", [])
+    finding_codes = ", ".join(item.get("code", "") for item in findings) or "none"
+    social_codes = ", ".join(item.get("code", "") for item in social) or "none"
+    return (
+        f"<p>Rule baseline health: {escape(finding_codes)}; "
+        f"social: {escape(social_codes)}.</p>"
+    )
+
+
 def _plan_summary(plan: dict[str, Any]) -> str:
     if not plan:
         return "none"
@@ -539,6 +638,27 @@ def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
         f"calls {calls}; successes {successes}; failures {failures}; "
         f"divergence rate {divergence_rate:.0%}; rest overrides {rest_overrides}."
     )
+
+
+def _comparison_summary(deltas: dict[str, float]) -> str:
+    need_delta = deltas.get("average_need", 0.0)
+    trust_delta = deltas.get("average_trust", 0.0)
+    cohesion_delta = deltas.get("institutional_cohesion", 0.0)
+    crisis_delta = deltas.get("crisis_events", 0.0)
+    return (
+        "Compared with the deterministic rule baseline: "
+        f"average need {_signed_number(need_delta)}, "
+        f"trust {_signed_number(trust_delta)}, "
+        f"institutional cohesion {_signed_number(cohesion_delta)}, "
+        f"crisis events {_signed_number(crisis_delta)}."
+    )
+
+
+def _signed_number(value: Any) -> str:
+    number = float(value)
+    if number > 0:
+        return f"+{number:g}"
+    return f"{number:g}"
 
 
 def _experiment_table(reports: list[dict[str, Any]]) -> str:

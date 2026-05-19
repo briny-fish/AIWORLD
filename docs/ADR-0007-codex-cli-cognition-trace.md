@@ -30,6 +30,12 @@ standalone JSON artifact. Local Codex CLI tests should stay small by default:
 one to four calls, selected agents, selected days, and explicit call/failure
 budgets.
 
+The CLI can also run a deterministic rule-only baseline for the same seed,
+world preset, duration, and interventions. Reports then include the final
+metric deltas between the LLM-influenced run and the rule baseline. This keeps
+LLM evaluation tied to observable social outcomes rather than treating plan
+divergence as success by itself.
+
 ## Consequences
 
 This creates evidence for prompt and policy iteration before using an API key.
@@ -39,3 +45,12 @@ near exhaustion. That may be correct human-like caution, or it may be excessive
 conservatism. The next evaluation work should measure whether these overrides
 improve recovery and long-run stability rather than treating any divergence as
 automatically good.
+
+The first baseline-compared smoke run used one local Codex CLI call in the
+`generative_alpha` storm scenario. Codex changed Ari's day 21 rule baseline
+from `farm` to `rest`. The run stayed stable and maintained `shock_trace_active`,
+but ended slightly below the rule baseline on average need (-0.004) and trust
+(-0.002), with more food (+0.91) and less shelter (-0.58). That is not enough
+to reject Codex-driven cognition, but it says the next prompt iteration should
+ask the model to weigh individual recovery against shared production pressure
+more explicitly.

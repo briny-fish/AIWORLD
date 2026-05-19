@@ -9,6 +9,7 @@ from virtual_society.health import assess_metrics
 from virtual_society.history import HistoryRecorder
 from virtual_society.reports import (
     build_experiment_record,
+    build_rule_baseline_comparison,
     build_run_record,
     render_experiment_html,
     render_run_html,
@@ -64,6 +65,31 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Cognition Trace", html)
         self.assertIn("divergence rate 100%", html)
         self.assertIn("storm", html)
+
+    def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(5)
+        baseline = Simulation(seed=7)
+        baseline_metrics = baseline.run(5)
+        comparison = build_rule_baseline_comparison(
+            metrics,
+            baseline_metrics,
+            assess_metrics(baseline_metrics),
+            [],
+        )
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            baseline_comparison=comparison,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(comparison["deltas"]["average_need"], 0.0)
+        self.assertIn("Rule Baseline Comparison", html)
+        self.assertIn("average need 0", html)
 
     def test_run_html_renders_observer_sections(self) -> None:
         simulation = Simulation(seed=7)

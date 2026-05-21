@@ -6,6 +6,7 @@ from virtual_society import Simulation
 from virtual_society.codex_cli_provider import (
     CodexCliCognition,
     CodexCliCognitionError,
+    CodexCliDialogue,
     CodexCliReflection,
 )
 from virtual_society.model import Action
@@ -130,6 +131,36 @@ class CodexCliProviderTests(unittest.TestCase):
         self.assertEqual(proposal.memory_refs, [0])
         self.assertIn("recent_memories", commands[0][-1])
         self.assertIn("baseline_reflection", commands[0][-1])
+
+    def test_dialogue_provider_parses_memory_grounded_output(self) -> None:
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            commands.append(command)
+            output_path = command[command.index("--output-last-message") + 1]
+            Path(output_path).write_text(
+                '{"text":"Ari asked Bo to keep food distribution visible.","focus":"coordination","memory_refs":[0]}',
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+        simulation = Simulation(seed=7)
+        simulation.run(1)
+        speaker = simulation.world.agents[0]
+        partner = simulation.world.agents[1]
+        provider = CodexCliDialogue(codex_path="codex.exe", run_command=fake_run)
+
+        proposal = provider.propose_dialogue(
+            speaker,
+            partner,
+            simulation.world,
+            "Ari and Bo discussed routine work.",
+        )
+
+        self.assertEqual(proposal.focus, "coordination")
+        self.assertEqual(proposal.memory_refs, [0])
+        self.assertIn("recent_memories", commands[0][-1])
+        self.assertIn("baseline_dialogue", commands[0][-1])
 
 
 if __name__ == "__main__":

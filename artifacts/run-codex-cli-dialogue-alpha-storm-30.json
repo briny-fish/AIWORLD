@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-21T16:08:14+00:00",
+  "generated_at": "2026-05-21T16:16:48+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -549,7 +549,7 @@
       ],
       "recent_reflections": [
         "day 14: Ari reflects that 4 work memories show where effort has been spent; most salient memory: Ari farmed food.",
-        "day 21: Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
+        "day 21: Ari reflects that 1 crises or shocks require caution; 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.",
         "day 28: Ari reflects that 4 work memories show where effort has been spent; most salient memory: Ari hauled food from East Orchard to Commons."
       ]
     },
@@ -9285,7 +9285,7 @@
       "day": 21,
       "kind": "dialogue",
       "actor_id": "a9",
-      "description": "Ivo and Gale discussed common_council with workable trust. They grounded the talk in day 15: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation. Ivo connected it to prevent silent suffering; Gale weighed it against warning.",
+      "description": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
       "effects": {
         "trust": 0.035
       }
@@ -9432,7 +9432,7 @@
       "day": 21,
       "kind": "reflection",
       "actor_id": "a1",
-      "description": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
+      "description": "Ari reflects that 1 crises or shocks require caution; 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.",
       "effects": {
         "importance": 0.76
       }
@@ -9901,9 +9901,9 @@
       "day": 23,
       "kind": "plan",
       "actor_id": "a1",
-      "description": "Ari planned to haul: materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "description": "Ari planned to haul: materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
       "effects": {
-        "priority": 0.51
+        "priority": 0.45
       }
     },
     {
@@ -11243,9 +11243,9 @@
       "day": 27,
       "kind": "plan",
       "actor_id": "a1",
-      "description": "Ari planned to haul: materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "description": "Ari planned to haul: materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
       "effects": {
-        "priority": 0.51
+        "priority": 0.45
       }
     },
     {
@@ -16164,127 +16164,25 @@
     ]
   },
   "cognition_trace": [],
-  "reflection_trace": [
+  "reflection_trace": [],
+  "reflection_follow_through": [],
+  "dialogue_trace": [
     {
       "day": 21,
-      "agent_id": "a1",
-      "agent_name": "Ari",
+      "speaker_id": "a9",
+      "speaker_name": "Ivo",
+      "partner_id": "a7",
+      "partner_name": "Gale",
       "status": "primary",
-      "baseline_reflection": "Ari reflects that 1 crises or shocks require caution; 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.",
-      "proposed_reflection": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
-      "used_reflection": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
-      "focus": "scarcity",
+      "baseline_dialogue": "Ivo and Gale discussed common_council with workable trust. They grounded the talk in day 15: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation. Ivo connected it to prevent silent suffering; Gale weighed it against warning.",
+      "proposed_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+      "used_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+      "focus": "coordination",
       "memory_refs": [
-        0,
-        2,
         4,
-        5,
-        8
+        7
       ],
       "error": null
-    }
-  ],
-  "reflection_follow_through": [
-    {
-      "day": 21,
-      "agent_id": "a1",
-      "agent_name": "Ari",
-      "status": "primary",
-      "focus": "scarcity",
-      "signal": "baseline_plan_context_diverged",
-      "window_start": 22,
-      "window_end": 28,
-      "reflection_summary": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
-      "plan_evidence": [
-        {
-          "day": 22,
-          "kind": "plan",
-          "text": "day 22: rest | work plan blocked by exhaustion; resting first",
-          "overlap_terms": [
-            "rest",
-            "work"
-          ]
-        },
-        {
-          "day": 23,
-          "kind": "plan",
-          "text": "day 23: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
-          "overlap_terms": [
-            "distribution",
-            "food",
-            "haul",
-            "hauling"
-          ]
-        },
-        {
-          "day": 24,
-          "kind": "plan",
-          "text": "day 24: rest | work plan blocked by exhaustion; resting first",
-          "overlap_terms": [
-            "rest",
-            "work"
-          ]
-        },
-        {
-          "day": 25,
-          "kind": "plan",
-          "text": "day 25: farm | shared food stores are low; role bias: farmer; profile prioritizes food security",
-          "overlap_terms": [
-            "farm",
-            "food",
-            "security",
-            "shared"
-          ]
-        },
-        {
-          "day": 26,
-          "kind": "plan",
-          "text": "day 26: rest | work plan blocked by exhaustion; resting first",
-          "overlap_terms": [
-            "rest",
-            "work"
-          ]
-        },
-        {
-          "day": 27,
-          "kind": "plan",
-          "text": "day 27: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
-          "overlap_terms": [
-            "distribution",
-            "food",
-            "haul",
-            "hauling"
-          ]
-        }
-      ],
-      "dialogue_evidence": [],
-      "baseline_plan_deltas": [
-        {
-          "day": 23,
-          "run_plan": "day 23: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
-          "baseline_plan": "day 23: haul | materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
-          "run_action": "haul",
-          "baseline_action": "haul",
-          "change_kind": "context"
-        },
-        {
-          "day": 27,
-          "run_plan": "day 27: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
-          "baseline_plan": "day 27: haul | materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
-          "run_action": "haul",
-          "baseline_action": "haul",
-          "change_kind": "context"
-        },
-        {
-          "day": 28,
-          "run_plan": "day 28: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
-          "baseline_plan": "day 28: haul | materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
-          "run_action": "haul",
-          "baseline_action": "haul",
-          "change_kind": "context"
-        }
-      ],
-      "summary": "After the generated reflection on day 21, Ari keeps the same recorded actions but has 3 plan-context differences against the rule baseline in days 22-28; 6 later plans and 0 dialogue events overlap reflection terms."
     }
   ],
   "baseline_comparison": {

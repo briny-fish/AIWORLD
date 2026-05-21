@@ -7,6 +7,7 @@ from dataclasses import asdict
 from typing import Iterable
 
 from .cognition import CognitionProvider, RuleBasedCognition
+from .dialogue import DialogueProvider, RuleBasedDialogue
 from .generative_memory import CRITICAL_EVENT_KINDS, memory_from_event
 from .interventions import Intervention, group_interventions
 from .model import (
@@ -38,6 +39,7 @@ class Simulation:
         world: WorldState | None = None,
         cognition: CognitionProvider | None = None,
         reflection: ReflectionProvider | None = None,
+        dialogue: DialogueProvider | None = None,
         world_preset: str = "base",
     ) -> None:
         self.seed = seed
@@ -46,6 +48,7 @@ class Simulation:
         self.world = world if world is not None else self._create_world(world_preset)
         self.cognition = cognition if cognition is not None else RuleBasedCognition()
         self.reflection = reflection if reflection is not None else RuleBasedReflection()
+        self.dialogue = dialogue if dialogue is not None else RuleBasedDialogue()
         self._sync_world_resources()
 
     def _create_world(self, world_preset: str) -> WorldState:
@@ -745,10 +748,17 @@ class Simulation:
                 partner.needs.belonging += 0.06
                 partner.location_id = agent.location_id
                 self._record("social", agent.id, f"{agent.name} strengthened ties with {partner.name}.", {})
+                baseline_dialogue = self._compose_social_dialogue(agent, partner)
+                dialogue = self.dialogue.propose_dialogue(
+                    agent,
+                    partner,
+                    self.world,
+                    baseline_dialogue,
+                )
                 dialogue_event = self._record(
                     "dialogue",
                     agent.id,
-                    self._compose_social_dialogue(agent, partner),
+                    dialogue.text,
                     {"trust": 0.035},
                     remember_actor=True,
                 )

@@ -7,17 +7,21 @@ from .api import run_server
 from .codex_cli_provider import (
     CodexCliCognition,
     CodexCliCognitionError,
+    CodexCliDialogue,
     CodexCliReflection,
     resolve_codex_cli,
 )
+from .dialogue import HybridDialogue, HybridDialogueConfig
 from .experiment import run_experiment
 from .health import assess_metrics
 from .history import HistoryRecorder, write_snapshot_files
 from .hybrid_cognition import HybridCognition, HybridCognitionConfig
 from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
+from .model import WorldState
 from .openai_provider import OpenAICognition
 from .reflection import HybridReflection, HybridReflectionConfig
+from .reflection_evaluation import assess_reflection_follow_through
 from .reports import (
     build_experiment_record,
     build_rule_baseline_comparison,
@@ -116,6 +120,36 @@ def main() -> None:
     parser.add_argument("--show-reflection-stats", action="store_true", help="Print reflection provider call stats.")
     parser.add_argument("--save-reflection-trace-json", help="Write hybrid reflection call trace JSON.")
     parser.add_argument(
+        "--dialogue",
+        choices=["rule", "hybrid-codex-cli"],
+        default="rule",
+        help="Dialogue provider for social actions.",
+    )
+    parser.add_argument(
+        "--dialogue-agent-ids",
+        help="Comma-separated speaker ids allowed to use generated dialogue.",
+    )
+    parser.add_argument(
+        "--dialogue-min-day",
+        type=int,
+        default=1,
+        help="Earliest day allowed for generated dialogue calls.",
+    )
+    parser.add_argument(
+        "--dialogue-max-calls",
+        type=int,
+        default=1,
+        help="Maximum generated dialogue calls in one run.",
+    )
+    parser.add_argument(
+        "--dialogue-max-failures",
+        type=int,
+        default=1,
+        help="Maximum generated dialogue failures before fallback only.",
+    )
+    parser.add_argument("--show-dialogue-stats", action="store_true", help="Print dialogue provider call stats.")
+    parser.add_argument("--save-dialogue-trace-json", help="Write hybrid dialogue call trace JSON.")
+    parser.add_argument(
         "--compare-rule-baseline",
         action="store_true",
         help="Run the same scenario with rule cognition and compare final metrics.",
@@ -178,10 +212,12 @@ def main() -> None:
 
     cognition = _build_cognition(args)
     reflection = _build_reflection(args)
+    dialogue = _build_dialogue(args)
     simulation = Simulation(
         seed=args.seed,
         cognition=cognition,
         reflection=reflection,
+        dialogue=dialogue,
         world_preset=args.world_preset,
     )
     effective_snapshot_every = args.snapshot_every
@@ -204,11 +240,23 @@ def main() -> None:
     social_findings = assess_social_dynamics(simulation.world)
     cognition_trace = _cognition_trace(cognition)
     reflection_trace = _reflection_trace(reflection)
-    baseline_comparison = (
-        _build_rule_baseline_comparison(args, interventions, metrics)
-        if args.compare_rule_baseline
-        else None
-    )
+    dialogue_trace = _dialogue_trace(dialogue)
+    baseline_comparison = None
+    baseline_world = None
+    if args.compare_rule_baseline:
+        baseline_comparison, baseline_world = _run_rule_baseline(
+            args,
+            interventions,
+            metrics,
+        )
+    reflection_follow_through = [
+        item.as_dict()
+        for item in assess_reflection_follow_through(
+            simulation.world,
+            reflection_trace,
+            baseline_world=baseline_world,
+        )
+    ]
     if args.save_run_json or args.save_run_html:
         run_record = build_run_record(
             args.seed,
@@ -218,6 +266,8 @@ def main() -> None:
             history=history,
             cognition_trace=cognition_trace,
             reflection_trace=reflection_trace,
+            reflection_follow_through=reflection_follow_through,
+            dialogue_trace=dialogue_trace,
             baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
@@ -228,6 +278,8 @@ def main() -> None:
         write_json(args.save_cognition_trace_json, cognition_trace)
     if args.save_reflection_trace_json:
         write_json(args.save_reflection_trace_json, reflection_trace)
+    if args.save_dialogue_trace_json:
+        write_json(args.save_dialogue_trace_json, dialogue_trace)
     if args.save_snapshots_dir and history_recorder is not None:
         write_snapshot_files(args.save_snapshots_dir, history_recorder.snapshots)
 
@@ -237,6 +289,8 @@ def main() -> None:
             payload["history"] = history
         if baseline_comparison is not None:
             payload["baseline_comparison"] = baseline_comparison
+        if reflection_follow_through:
+            payload["reflection_follow_through"] = reflection_follow_through
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
@@ -262,6 +316,10 @@ def main() -> None:
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
         _print_reflection_stats(reflection)
         _print_reflection_trace(reflection)
+        _print_reflection_follow_through(reflection_follow_through)
+    if args.show_dialogue_stats or isinstance(dialogue, HybridDialogue):
+        _print_dialogue_stats(dialogue)
+        _print_dialogue_trace(dialogue)
     if baseline_comparison is not None:
         _print_baseline_comparison(baseline_comparison)
     if history is not None:
@@ -274,6 +332,8 @@ def main() -> None:
         print(f"Saved cognition trace JSON: {args.save_cognition_trace_json}")
     if args.save_reflection_trace_json:
         print(f"Saved reflection trace JSON: {args.save_reflection_trace_json}")
+    if args.save_dialogue_trace_json:
+        print(f"Saved dialogue trace JSON: {args.save_dialogue_trace_json}")
     if args.save_snapshots_dir:
         print(f"Saved history snapshots: {args.save_snapshots_dir}")
 
@@ -441,6 +501,51 @@ def _print_reflection_trace(reflection) -> None:
             print(f"          error={item.error}")
 
 
+def _print_reflection_follow_through(follow_through: list[dict]) -> None:
+    if not follow_through:
+        return
+    print("\nReflection follow-through:")
+    for item in follow_through[-5:]:
+        print(
+            f"day {item['day']:>3} | {item['agent_name']:<8} | "
+            f"{item['signal']:<24} | {item['summary']}"
+        )
+
+
+def _print_dialogue_stats(dialogue) -> None:
+    if not isinstance(dialogue, HybridDialogue):
+        print("\nDialogue stats:")
+        print("rule-based provider only")
+        return
+    stats = dialogue.stats
+    print("\nDialogue stats:")
+    print(
+        f"llm_attempts={stats.llm_attempts} "
+        f"llm_successes={stats.llm_successes} "
+        f"llm_failures={stats.llm_failures} "
+        f"fallback_calls={stats.fallback_calls} "
+        f"skipped_calls={stats.skipped_calls}"
+    )
+    if stats.last_errors:
+        print(f"last_error={stats.last_errors[-1]}")
+
+
+def _print_dialogue_trace(dialogue) -> None:
+    if not isinstance(dialogue, HybridDialogue) or not dialogue.trace:
+        return
+    print("\nDialogue trace:")
+    print(_dialogue_trace_summary(dialogue))
+    for item in dialogue.trace[-5:]:
+        proposed = item.proposed_dialogue or "none"
+        refs = ",".join(str(ref) for ref in item.memory_refs) or "none"
+        print(
+            f"day {item.day:>3} | {item.speaker_name:<8} -> {item.partner_name:<8} | "
+            f"{item.status:<20} | focus={item.focus:<12} refs={refs:<8} | {proposed}"
+        )
+        if item.error:
+            print(f"          error={item.error}")
+
+
 def _print_baseline_comparison(comparison: dict) -> None:
     print("\nRule baseline comparison:")
     print(comparison.get("summary", "No comparison summary."))
@@ -458,20 +563,23 @@ def _print_baseline_comparison(comparison: dict) -> None:
             print(f"{key:<24} {_signed_number(deltas[key])}")
 
 
-def _build_rule_baseline_comparison(
+def _run_rule_baseline(
     args: argparse.Namespace,
     interventions: list,
     metrics: list,
-) -> dict:
+) -> tuple[dict, WorldState]:
     baseline = Simulation(seed=args.seed, world_preset=args.world_preset)
     baseline_metrics = baseline.run(args.days, interventions=interventions)
     baseline_findings = assess_metrics(baseline_metrics)
     baseline_social_findings = assess_social_dynamics(baseline.world)
-    return build_rule_baseline_comparison(
-        metrics,
-        baseline_metrics,
-        baseline_findings,
-        baseline_social_findings,
+    return (
+        build_rule_baseline_comparison(
+            metrics,
+            baseline_metrics,
+            baseline_findings,
+            baseline_social_findings,
+        ),
+        baseline.world,
     )
 
 
@@ -485,6 +593,12 @@ def _reflection_trace(reflection) -> list[dict]:
     if not isinstance(reflection, HybridReflection):
         return []
     return [item.as_dict() for item in reflection.trace]
+
+
+def _dialogue_trace(dialogue) -> list[dict]:
+    if not isinstance(dialogue, HybridDialogue):
+        return []
+    return [item.as_dict() for item in dialogue.trace]
 
 
 def _cognition_trace_summary(cognition: HybridCognition) -> str:
@@ -514,6 +628,17 @@ def _reflection_trace_summary(reflection: HybridReflection) -> str:
     accepted = sum(1 for item in reflection.trace if item.status == "primary")
     failures = calls - accepted
     cited = sum(1 for item in reflection.trace if item.memory_refs)
+    return (
+        f"calls={calls} accepted={accepted} failures={failures} "
+        f"memory_grounded={cited}"
+    )
+
+
+def _dialogue_trace_summary(dialogue: HybridDialogue) -> str:
+    calls = len(dialogue.trace)
+    accepted = sum(1 for item in dialogue.trace if item.status == "primary")
+    failures = calls - accepted
+    cited = sum(1 for item in dialogue.trace if item.memory_refs)
     return (
         f"calls={calls} accepted={accepted} failures={failures} "
         f"memory_grounded={cited}"
@@ -627,6 +752,31 @@ def _build_reflection(args: argparse.Namespace):
         )
 
     raise ValueError(f"Unknown reflection provider: {args.reflection}")
+
+
+def _build_dialogue(args: argparse.Namespace):
+    if args.dialogue == "rule":
+        return None
+
+    if args.dialogue == "hybrid-codex-cli":
+        primary = CodexCliDialogue(
+            codex_path=args.codex_cli_path or resolve_codex_cli(),
+            model=args.codex_cli_model,
+            reasoning_effort="low",
+            timeout_seconds=args.codex_cli_timeout,
+            workdir=".",
+        )
+        return HybridDialogue(
+            primary=primary,
+            config=HybridDialogueConfig(
+                agent_ids=_parse_optional_agent_ids(args.dialogue_agent_ids),
+                min_day=args.dialogue_min_day,
+                max_calls=args.dialogue_max_calls,
+                max_failures=args.dialogue_max_failures,
+            ),
+        )
+
+    raise ValueError(f"Unknown dialogue provider: {args.dialogue}")
 
 
 def _parse_optional_agent_ids(value: str | None) -> set[str] | None:

@@ -1,7 +1,20 @@
 """Virtual society simulation core."""
 
-from .codex_cli_provider import CodexCliCognition, CodexCliReflection
+from .codex_cli_provider import CodexCliCognition, CodexCliDialogue, CodexCliReflection
 from .cognition import RuleBasedCognition
+from .dialogue import (
+    HybridDialogue,
+    HybridDialogueConfig,
+    HybridDialogueStats,
+    HybridDialogueTrace,
+    RuleBasedDialogue,
+)
+from .dialogue_contract import (
+    DialogueProposal,
+    build_dialogue_context,
+    parse_dialogue_response,
+    render_dialogue_prompt,
+)
 from .hybrid_cognition import (
     HybridCognition,
     HybridCognitionConfig,
@@ -26,6 +39,7 @@ from .reflection_contract import (
     parse_reflection_response,
     render_reflection_prompt,
 )
+from .reflection_evaluation import assess_reflection_follow_through
 from .simulation import Simulation
 from .social_evaluation import SocialFinding, assess_social_dynamics
 
@@ -33,29 +47,40 @@ __all__ = [
     "Intervention",
     "Plan",
     "AgentProfile",
+    "DialogueProposal",
     "MemoryItem",
     "OpenAICognition",
     "SocialFinding",
     "CodexCliCognition",
+    "CodexCliDialogue",
     "CodexCliReflection",
     "HybridCognition",
     "HybridCognitionConfig",
     "HybridCognitionStats",
     "HybridCognitionTrace",
+    "HybridDialogue",
+    "HybridDialogueConfig",
+    "HybridDialogueStats",
+    "HybridDialogueTrace",
     "HybridReflection",
     "HybridReflectionConfig",
     "HybridReflectionStats",
     "HybridReflectionTrace",
     "ReflectionProposal",
     "RuleBasedCognition",
+    "RuleBasedDialogue",
     "RuleBasedReflection",
     "SimulationService",
     "Simulation",
     "build_cognition_context",
+    "build_dialogue_context",
     "build_reflection_context",
+    "assess_reflection_follow_through",
     "parse_plan_response",
+    "parse_dialogue_response",
     "parse_reflection_response",
     "render_plan_prompt",
+    "render_dialogue_prompt",
     "render_reflection_prompt",
     "assess_social_dynamics",
 ]

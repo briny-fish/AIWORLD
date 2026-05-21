@@ -1,0 +1,19 @@
+[
+  {
+    "day": 21,
+    "speaker_id": "a9",
+    "speaker_name": "Ivo",
+    "partner_id": "a7",
+    "partner_name": "Gale",
+    "status": "primary",
+    "baseline_dialogue": "Ivo and Gale discussed common_council with workable trust. They grounded the talk in day 15: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation. Ivo connected it to prevent silent suffering; Gale weighed it against warning.",
+    "proposed_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+    "used_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+    "focus": "coordination",
+    "memory_refs": [
+      4,
+      7
+    ],
+    "error": null
+  }
+]

@@ -5,17 +5,15 @@
     "agent_name": "Ari",
     "status": "primary",
     "baseline_reflection": "Ari reflects that 1 crises or shocks require caution; 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.",
-    "proposed_reflection": "Ari should keep focusing on food security through steady farm work and careful hauling, because shared stores are still low and recent work memories show repeated effort toward distribution. The storm remains the main cautionary shock in memory, but the more immediate pattern is routine labor, rest when energy is too low, and practical trust built through council-linked coordination.",
-    "used_reflection": "Ari should keep focusing on food security through steady farm work and careful hauling, because shared stores are still low and recent work memories show repeated effort toward distribution. The storm remains the main cautionary shock in memory, but the more immediate pattern is routine labor, rest when energy is too low, and practical trust built through council-linked coordination.",
+    "proposed_reflection": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
+    "used_reflection": "Ari should keep food security and practical trust at the center: recent work, hauling, and rest show a pattern of meeting scarcity without overextending energy. The storm memory still frames caution, but the immediate lesson is steady labor for shared granaries and reliable distribution through the common council.",
     "focus": "scarcity",
     "memory_refs": [
       0,
       2,
       4,
       5,
-      6,
-      8,
-      9
+      8
     ],
     "error": null
   }

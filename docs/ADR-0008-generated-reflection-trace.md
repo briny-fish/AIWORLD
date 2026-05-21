@@ -33,6 +33,12 @@ Run JSON/HTML reports can include a reflection trace with the deterministic
 baseline, generated proposal, accepted reflection, focus, cited memory refs, and
 fallback errors. The CLI can save the same trace as a standalone JSON artifact.
 
+The same reports can add a follow-through record for accepted generated
+reflections. It scans a bounded post-reflection window for later plan and
+dialogue evidence that overlaps reflection terms. When the CLI also runs the
+same scenario against a rule-only baseline, the follow-through record includes
+per-day plan-history deltas for the reflected agent.
+
 ## Consequences
 
 This keeps reflection generation observable and evidence-bound. It does not
@@ -40,6 +46,7 @@ promote Codex CLI into the batch simulation backend, and it does not let a model
 write world events or mutate resources directly.
 
 The next behavior-quality question is no longer just whether a generated plan
-diverges from the rule baseline. It is whether a generated reflection after a
-shock changes later plans, dialogue, or organizational response in a way that
-can be traced back to profile and memory evidence.
+diverges from the rule baseline. Reflection follow-through now answers the
+first bounded version of that question for later plans and dialogue. A later
+stage should extend the same evidence chain into organizational proposals and
+longer-lived norm changes.

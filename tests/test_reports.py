@@ -98,6 +98,85 @@ class ReportTests(unittest.TestCase):
         self.assertIn("memory grounded 1", html)
         self.assertIn("storm as a duty", html)
 
+    def test_build_run_record_can_include_reflection_follow_through(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        follow_through = [
+            {
+                "day": 21,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "focus": "scarcity",
+                "signal": "baseline_action_diverged",
+                "window_start": 22,
+                "window_end": 28,
+                "reflection_summary": "Ari kept food security salient.",
+                "plan_evidence": [{"day": 22, "kind": "plan", "text": "farm", "overlap_terms": ["food"]}],
+                "dialogue_evidence": [],
+                "baseline_plan_deltas": [
+                    {
+                        "day": 22,
+                        "run_plan": "day 22: farm | food pressure",
+                        "baseline_plan": "day 22: gather | routine",
+                        "run_action": "farm",
+                        "baseline_action": "gather",
+                        "change_kind": "action",
+                    }
+                ],
+                "summary": "Ari changed plan history after the reflection.",
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            reflection_follow_through=follow_through,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["reflection_follow_through"], follow_through)
+        self.assertIn("Reflection Follow-through", html)
+        self.assertIn("baseline_action_diverged", html)
+        self.assertIn("Ari changed plan history", html)
+        self.assertIn("day 22: farm", html)
+
+    def test_build_run_record_can_include_dialogue_trace(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        trace = [
+            {
+                "day": 21,
+                "speaker_id": "a1",
+                "speaker_name": "Ari",
+                "partner_id": "a2",
+                "partner_name": "Bo",
+                "status": "primary",
+                "baseline_dialogue": "Ari and Bo discussed routine work.",
+                "proposed_dialogue": "Ari asked Bo to keep food distribution visible.",
+                "used_dialogue": "Ari asked Bo to keep food distribution visible.",
+                "focus": "coordination",
+                "memory_refs": [0],
+                "error": None,
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            dialogue_trace=trace,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["dialogue_trace"], trace)
+        self.assertIn("Dialogue Trace", html)
+        self.assertIn("memory grounded 1", html)
+        self.assertIn("food distribution visible", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

@@ -32,6 +32,7 @@ def build_run_record(
     findings: list[HealthFinding],
     history: dict[str, Any] | None = None,
     cognition_trace: list[dict[str, Any]] | None = None,
+    reflection_trace: list[dict[str, Any]] | None = None,
     baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
@@ -118,6 +119,8 @@ def build_run_record(
         record["history"] = history
     if cognition_trace is not None:
         record["cognition_trace"] = cognition_trace
+    if reflection_trace is not None:
+        record["reflection_trace"] = reflection_trace
     if baseline_comparison is not None:
         record["baseline_comparison"] = baseline_comparison
     return record
@@ -190,6 +193,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     findings = record["findings"]
     social_findings = record.get("social_findings", [])
     cognition_trace = record.get("cognition_trace", [])
+    reflection_trace = record.get("reflection_trace", [])
     baseline_comparison = record.get("baseline_comparison")
     agents = record["agents"]
     organizations = record.get("organizations", [])
@@ -234,6 +238,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
     {_cognition_trace_section(cognition_trace)}
+    {_reflection_trace_section(reflection_trace)}
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     <section class="band">
@@ -575,6 +580,38 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
     return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
+def _reflection_trace_section(trace: list[dict[str, Any]]) -> str:
+    if not trace:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Reflection Trace</h2>"
+        f"<p>{escape(_reflection_trace_summary(trace))}</p>"
+        f"{_reflection_trace_table(trace)}"
+        "</section>"
+    )
+
+
+def _reflection_trace_table(trace: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in trace[-30:]:
+        memory_refs = ", ".join(str(ref) for ref in item.get("memory_refs", []))
+        rows.append(
+            "<tr>"
+            f"<td>{item['day']}</td>"
+            f"<td>{escape(item['agent_name'])}</td>"
+            f"<td>{escape(item['status'])}</td>"
+            f"<td>{escape(item.get('focus') or '')}</td>"
+            f"<td>{escape(memory_refs or 'none')}</td>"
+            f"<td>{escape(item.get('proposed_reflection') or 'none')}</td>"
+            f"<td>{escape(item.get('baseline_reflection') or '')}</td>"
+            f"<td>{escape(item.get('used_reflection') or '')}</td>"
+            f"<td>{escape(str(item.get('error') or ''))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Focus</th><th>Memory refs</th><th>Codex Reflection</th><th>Rule Baseline</th><th>Used</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
 def _baseline_comparison_section(comparison: dict[str, Any] | None) -> str:
     if not comparison:
         return ""
@@ -641,6 +678,17 @@ def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
         f"calls {calls}; accepted {accepted}; policy fallbacks {policy_fallbacks}; "
         f"failures {failures}; "
         f"divergence rate {divergence_rate:.0%}; rest overrides {rest_overrides}."
+    )
+
+
+def _reflection_trace_summary(trace: list[dict[str, Any]]) -> str:
+    calls = len(trace)
+    accepted = sum(1 for item in trace if item.get("status") == "primary")
+    failures = calls - accepted
+    grounded = sum(1 for item in trace if item.get("memory_refs"))
+    return (
+        f"calls {calls}; accepted {accepted}; failures {failures}; "
+        f"memory grounded {grounded}."
     )
 
 

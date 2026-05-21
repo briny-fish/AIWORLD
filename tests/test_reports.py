@@ -66,6 +66,38 @@ class ReportTests(unittest.TestCase):
         self.assertIn("divergence rate 100%", html)
         self.assertIn("storm", html)
 
+    def test_build_run_record_can_include_reflection_trace(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        trace = [
+            {
+                "day": 7,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "baseline_reflection": "Ari saw a routine week.",
+                "proposed_reflection": "Ari treated the storm as a duty.",
+                "used_reflection": "Ari treated the storm as a duty.",
+                "focus": "shock",
+                "memory_refs": [0, 2],
+                "error": None,
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            reflection_trace=trace,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["reflection_trace"], trace)
+        self.assertIn("Reflection Trace", html)
+        self.assertIn("memory grounded 1", html)
+        self.assertIn("storm as a duty", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

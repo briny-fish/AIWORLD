@@ -4,7 +4,12 @@ import argparse
 import json
 
 from .api import run_server
-from .codex_cli_provider import CodexCliCognition, CodexCliCognitionError, resolve_codex_cli
+from .codex_cli_provider import (
+    CodexCliCognition,
+    CodexCliCognitionError,
+    CodexCliReflection,
+    resolve_codex_cli,
+)
 from .experiment import run_experiment
 from .health import assess_metrics
 from .history import HistoryRecorder, write_snapshot_files
@@ -12,6 +17,7 @@ from .hybrid_cognition import HybridCognition, HybridCognitionConfig
 from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
 from .openai_provider import OpenAICognition
+from .reflection import HybridReflection, HybridReflectionConfig
 from .reports import (
     build_experiment_record,
     build_rule_baseline_comparison,
@@ -80,6 +86,36 @@ def main() -> None:
     parser.add_argument("--show-cognition-stats", action="store_true", help="Print cognition provider call stats.")
     parser.add_argument("--save-cognition-trace-json", help="Write hybrid cognition call trace JSON.")
     parser.add_argument(
+        "--reflection",
+        choices=["rule", "hybrid-codex-cli"],
+        default="rule",
+        help="Reflection provider for periodic agent reflections.",
+    )
+    parser.add_argument(
+        "--reflection-agent-ids",
+        help="Comma-separated agent ids allowed to use generated reflection.",
+    )
+    parser.add_argument(
+        "--reflection-min-day",
+        type=int,
+        default=1,
+        help="Earliest day allowed for generated reflection calls.",
+    )
+    parser.add_argument(
+        "--reflection-max-calls",
+        type=int,
+        default=1,
+        help="Maximum generated reflection calls in one run.",
+    )
+    parser.add_argument(
+        "--reflection-max-failures",
+        type=int,
+        default=1,
+        help="Maximum generated reflection failures before fallback only.",
+    )
+    parser.add_argument("--show-reflection-stats", action="store_true", help="Print reflection provider call stats.")
+    parser.add_argument("--save-reflection-trace-json", help="Write hybrid reflection call trace JSON.")
+    parser.add_argument(
         "--compare-rule-baseline",
         action="store_true",
         help="Run the same scenario with rule cognition and compare final metrics.",
@@ -141,7 +177,13 @@ def main() -> None:
         return
 
     cognition = _build_cognition(args)
-    simulation = Simulation(seed=args.seed, cognition=cognition, world_preset=args.world_preset)
+    reflection = _build_reflection(args)
+    simulation = Simulation(
+        seed=args.seed,
+        cognition=cognition,
+        reflection=reflection,
+        world_preset=args.world_preset,
+    )
     effective_snapshot_every = args.snapshot_every
     if args.save_snapshots_dir and effective_snapshot_every == 0:
         effective_snapshot_every = 30
@@ -161,6 +203,7 @@ def main() -> None:
     findings = assess_metrics(metrics)
     social_findings = assess_social_dynamics(simulation.world)
     cognition_trace = _cognition_trace(cognition)
+    reflection_trace = _reflection_trace(reflection)
     baseline_comparison = (
         _build_rule_baseline_comparison(args, interventions, metrics)
         if args.compare_rule_baseline
@@ -174,6 +217,7 @@ def main() -> None:
             findings,
             history=history,
             cognition_trace=cognition_trace,
+            reflection_trace=reflection_trace,
             baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
@@ -182,6 +226,8 @@ def main() -> None:
             write_html(args.save_run_html, render_run_html(run_record))
     if args.save_cognition_trace_json:
         write_json(args.save_cognition_trace_json, cognition_trace)
+    if args.save_reflection_trace_json:
+        write_json(args.save_reflection_trace_json, reflection_trace)
     if args.save_snapshots_dir and history_recorder is not None:
         write_snapshot_files(args.save_snapshots_dir, history_recorder.snapshots)
 
@@ -213,6 +259,9 @@ def main() -> None:
     if args.show_cognition_stats or isinstance(cognition, HybridCognition):
         _print_cognition_stats(cognition)
         _print_cognition_trace(cognition)
+    if args.show_reflection_stats or isinstance(reflection, HybridReflection):
+        _print_reflection_stats(reflection)
+        _print_reflection_trace(reflection)
     if baseline_comparison is not None:
         _print_baseline_comparison(baseline_comparison)
     if history is not None:
@@ -223,6 +272,8 @@ def main() -> None:
         print(f"Saved run HTML: {args.save_run_html}")
     if args.save_cognition_trace_json:
         print(f"Saved cognition trace JSON: {args.save_cognition_trace_json}")
+    if args.save_reflection_trace_json:
+        print(f"Saved reflection trace JSON: {args.save_reflection_trace_json}")
     if args.save_snapshots_dir:
         print(f"Saved history snapshots: {args.save_snapshots_dir}")
 
@@ -356,6 +407,40 @@ def _print_cognition_trace(cognition) -> None:
             print(f"          error={item.error}")
 
 
+def _print_reflection_stats(reflection) -> None:
+    if not isinstance(reflection, HybridReflection):
+        print("\nReflection stats:")
+        print("rule-based provider only")
+        return
+    stats = reflection.stats
+    print("\nReflection stats:")
+    print(
+        f"llm_attempts={stats.llm_attempts} "
+        f"llm_successes={stats.llm_successes} "
+        f"llm_failures={stats.llm_failures} "
+        f"fallback_calls={stats.fallback_calls} "
+        f"skipped_calls={stats.skipped_calls}"
+    )
+    if stats.last_errors:
+        print(f"last_error={stats.last_errors[-1]}")
+
+
+def _print_reflection_trace(reflection) -> None:
+    if not isinstance(reflection, HybridReflection) or not reflection.trace:
+        return
+    print("\nReflection trace:")
+    print(_reflection_trace_summary(reflection))
+    for item in reflection.trace[-5:]:
+        proposed = item.proposed_reflection or "none"
+        refs = ",".join(str(ref) for ref in item.memory_refs) or "none"
+        print(
+            f"day {item.day:>3} | {item.agent_name:<8} | {item.status:<20} | "
+            f"focus={item.focus:<8} refs={refs:<8} | {proposed}"
+        )
+        if item.error:
+            print(f"          error={item.error}")
+
+
 def _print_baseline_comparison(comparison: dict) -> None:
     print("\nRule baseline comparison:")
     print(comparison.get("summary", "No comparison summary."))
@@ -396,6 +481,12 @@ def _cognition_trace(cognition) -> list[dict]:
     return [item.as_dict() for item in cognition.trace]
 
 
+def _reflection_trace(reflection) -> list[dict]:
+    if not isinstance(reflection, HybridReflection):
+        return []
+    return [item.as_dict() for item in reflection.trace]
+
+
 def _cognition_trace_summary(cognition: HybridCognition) -> str:
     calls = len(cognition.trace)
     accepted = sum(1 for item in cognition.trace if item.status == "primary")
@@ -415,6 +506,17 @@ def _cognition_trace_summary(cognition: HybridCognition) -> str:
         f"calls={calls} accepted={accepted} policy_fallbacks={policy_fallbacks} "
         f"failures={failures} divergence_rate={divergence_rate:.0%} "
         f"rest_overrides={rest_overrides}"
+    )
+
+
+def _reflection_trace_summary(reflection: HybridReflection) -> str:
+    calls = len(reflection.trace)
+    accepted = sum(1 for item in reflection.trace if item.status == "primary")
+    failures = calls - accepted
+    cited = sum(1 for item in reflection.trace if item.memory_refs)
+    return (
+        f"calls={calls} accepted={accepted} failures={failures} "
+        f"memory_grounded={cited}"
     )
 
 
@@ -500,6 +602,31 @@ def _build_cognition(args: argparse.Namespace):
         )
 
     raise ValueError(f"Unknown cognition provider: {args.cognition}")
+
+
+def _build_reflection(args: argparse.Namespace):
+    if args.reflection == "rule":
+        return None
+
+    if args.reflection == "hybrid-codex-cli":
+        primary = CodexCliReflection(
+            codex_path=args.codex_cli_path or resolve_codex_cli(),
+            model=args.codex_cli_model,
+            reasoning_effort="low",
+            timeout_seconds=args.codex_cli_timeout,
+            workdir=".",
+        )
+        return HybridReflection(
+            primary=primary,
+            config=HybridReflectionConfig(
+                agent_ids=_parse_optional_agent_ids(args.reflection_agent_ids),
+                min_day=args.reflection_min_day,
+                max_calls=args.reflection_max_calls,
+                max_failures=args.reflection_max_failures,
+            ),
+        )
+
+    raise ValueError(f"Unknown reflection provider: {args.reflection}")
 
 
 def _parse_optional_agent_ids(value: str | None) -> set[str] | None:

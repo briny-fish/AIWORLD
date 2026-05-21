@@ -7,7 +7,7 @@ from dataclasses import asdict
 from typing import Iterable
 
 from .cognition import CognitionProvider, RuleBasedCognition
-from .generative_memory import CRITICAL_EVENT_KINDS, build_reflection, memory_from_event
+from .generative_memory import CRITICAL_EVENT_KINDS, memory_from_event
 from .interventions import Intervention, group_interventions
 from .model import (
     Action,
@@ -22,6 +22,7 @@ from .model import (
     Plan,
     WorldState,
 )
+from .reflection import ReflectionProvider, RuleBasedReflection
 
 
 class Simulation:
@@ -36,6 +37,7 @@ class Simulation:
         seed: int = 1,
         world: WorldState | None = None,
         cognition: CognitionProvider | None = None,
+        reflection: ReflectionProvider | None = None,
         world_preset: str = "base",
     ) -> None:
         self.seed = seed
@@ -43,6 +45,7 @@ class Simulation:
         self.rng = random.Random(seed)
         self.world = world if world is not None else self._create_world(world_preset)
         self.cognition = cognition if cognition is not None else RuleBasedCognition()
+        self.reflection = reflection if reflection is not None else RuleBasedReflection()
         self._sync_world_resources()
 
     def _create_world(self, world_preset: str) -> WorldState:
@@ -1592,11 +1595,13 @@ class Simulation:
         if interval < 1 or self.world.day % interval != 0:
             return
         for agent in self.world.agents:
-            summary = build_reflection(
+            proposal = self.reflection.propose_reflection(
                 agent,
-                current_day=self.world.day,
-                lookback_days=interval,
+                self.world,
+                self.world.day,
+                interval,
             )
+            summary = proposal.summary
             agent.reflections.append(f"day {self.world.day}: {summary}")
             del agent.reflections[:-self.world.rules.reflection_limit]
             self._record(

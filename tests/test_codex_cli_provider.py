@@ -3,8 +3,13 @@ import unittest
 from pathlib import Path
 
 from virtual_society import Simulation
-from virtual_society.codex_cli_provider import CodexCliCognition, CodexCliCognitionError
+from virtual_society.codex_cli_provider import (
+    CodexCliCognition,
+    CodexCliCognitionError,
+    CodexCliReflection,
+)
 from virtual_society.model import Action
+from virtual_society.reflection import RuleBasedReflection
 
 
 class CodexCliProviderTests(unittest.TestCase):
@@ -89,6 +94,42 @@ class CodexCliProviderTests(unittest.TestCase):
 
         with self.assertRaises(CodexCliCognitionError):
             provider.propose_plan(simulation.world.agents[0], simulation.world)
+
+    def test_reflection_provider_parses_memory_grounded_output(self) -> None:
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            commands.append(command)
+            output_path = command[command.index("--output-last-message") + 1]
+            Path(output_path).write_text(
+                '{"summary":"Ari connected field work with food pressure.","focus":"work","memory_refs":[0]}',
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+        simulation = Simulation(seed=7)
+        simulation.run(1)
+        agent = simulation.world.agents[0]
+        baseline = RuleBasedReflection().propose_reflection(
+            agent,
+            simulation.world,
+            current_day=simulation.world.day,
+            lookback_days=1,
+        )
+        provider = CodexCliReflection(codex_path="codex.exe", run_command=fake_run)
+
+        proposal = provider.propose_reflection_with_baseline(
+            agent,
+            simulation.world,
+            current_day=simulation.world.day,
+            lookback_days=1,
+            baseline=baseline,
+        )
+
+        self.assertEqual(proposal.focus, "work")
+        self.assertEqual(proposal.memory_refs, [0])
+        self.assertIn("recent_memories", commands[0][-1])
+        self.assertIn("baseline_reflection", commands[0][-1])
 
 
 if __name__ == "__main__":

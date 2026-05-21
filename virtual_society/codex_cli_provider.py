@@ -10,6 +10,12 @@ from typing import Callable
 
 from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import Agent, Plan, WorldState
+from .reflection_contract import (
+    ReflectionProposal,
+    build_reflection_context,
+    parse_reflection_response,
+    render_reflection_prompt,
+)
 
 
 class CodexCliCognitionError(RuntimeError):
@@ -78,6 +84,119 @@ class CodexCliCognition:
         except Exception as exc:
             raise CodexCliCognitionError(
                 f"codex exec returned an invalid plan: {_truncate(response)}"
+            ) from exc
+
+    def _build_command(self, output_path: str, prompt: str) -> list[str]:
+        command = [
+            self.codex_path,
+            "exec",
+            "--ephemeral",
+            "--sandbox",
+            "read-only",
+            "-m",
+            self.model,
+            "-c",
+            f'model_reasoning_effort="{self.reasoning_effort}"',
+            "--output-last-message",
+            output_path,
+        ]
+        if self.workdir is not None:
+            command.extend(["-C", self.workdir])
+        command.append(prompt)
+        return command
+
+    def _default_run_command(
+        self,
+        command: list[str],
+        timeout_seconds: int,
+    ) -> subprocess.CompletedProcess[str]:
+        return subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout_seconds,
+            check=False,
+        )
+
+
+class CodexCliReflection:
+    """Reflection provider backed by local `codex exec`."""
+
+    def __init__(
+        self,
+        codex_path: str | None = None,
+        model: str = "gpt-5.4-mini",
+        reasoning_effort: str = "low",
+        timeout_seconds: int = 180,
+        workdir: str | None = None,
+        run_command: RunCommand | None = None,
+    ) -> None:
+        self.codex_path = codex_path or resolve_codex_cli()
+        self.model = model
+        self.reasoning_effort = reasoning_effort
+        self.timeout_seconds = timeout_seconds
+        self.workdir = workdir
+        self._run_command = run_command or self._default_run_command
+
+    def propose_reflection(
+        self,
+        agent: Agent,
+        world: WorldState,
+        current_day: int,
+        lookback_days: int,
+    ) -> ReflectionProposal:
+        return self.propose_reflection_with_baseline(
+            agent,
+            world,
+            current_day,
+            lookback_days,
+            ReflectionProposal(summary="", focus="routine"),
+        )
+
+    def propose_reflection_with_baseline(
+        self,
+        agent: Agent,
+        world: WorldState,
+        current_day: int,
+        lookback_days: int,
+        baseline: ReflectionProposal,
+    ) -> ReflectionProposal:
+        context = build_reflection_context(
+            agent,
+            world,
+            current_day,
+            lookback_days,
+            baseline.summary,
+        )
+        prompt = (
+            f"{render_reflection_prompt(context)}\n\n"
+            "Return JSON only. No markdown. No prose before or after the JSON."
+        )
+
+        with tempfile.TemporaryDirectory() as directory:
+            output_path = str(Path(directory) / "codex-reflection.json")
+            command = self._build_command(output_path, prompt)
+            result = self._run_command(command, self.timeout_seconds)
+
+            if result.returncode != 0:
+                raise CodexCliCognitionError(
+                    "codex exec failed: "
+                    f"{_truncate(result.stderr or result.stdout or 'no output')}"
+                )
+            if not Path(output_path).exists():
+                raise CodexCliCognitionError("codex exec did not write an output message")
+            response = Path(output_path).read_text(encoding="utf-8")
+
+        try:
+            return parse_reflection_response(
+                _loads_json_object(response),
+                memory_count=len(context.recent_memories),
+            )
+        except Exception as exc:
+            raise CodexCliCognitionError(
+                f"codex exec returned an invalid reflection: {_truncate(response)}"
             ) from exc
 
     def _build_command(self, output_path: str, prompt: str) -> list[str]:

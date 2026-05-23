@@ -8,6 +8,7 @@ import tempfile
 from pathlib import Path
 from typing import Callable
 
+from .llm_cache import LLMCallCache
 from .dialogue_contract import (
     DialogueProposal,
     build_dialogue_context,
@@ -45,6 +46,7 @@ class CodexCliCognition:
         reasoning_effort: str = "low",
         timeout_seconds: int = 180,
         workdir: str | None = None,
+        cache: LLMCallCache | None = None,
         run_command: RunCommand | None = None,
     ) -> None:
         self.codex_path = codex_path or resolve_codex_cli()
@@ -52,6 +54,7 @@ class CodexCliCognition:
         self.reasoning_effort = reasoning_effort
         self.timeout_seconds = timeout_seconds
         self.workdir = workdir
+        self.cache = cache
         self._run_command = run_command or self._default_run_command
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
@@ -69,21 +72,7 @@ class CodexCliCognition:
             "Return JSON only. No markdown. No prose before or after the JSON."
         )
 
-        with tempfile.TemporaryDirectory() as directory:
-            output_path = str(Path(directory) / "codex-plan.json")
-            command = self._build_command(output_path, prompt)
-            result = self._run_command(command, self.timeout_seconds)
-
-            if result.returncode != 0:
-                raise CodexCliCognitionError(
-                    "codex exec failed: "
-                    f"{_truncate(result.stderr or result.stdout or 'no output')}"
-                )
-
-            if not Path(output_path).exists():
-                raise CodexCliCognitionError("codex exec did not write an output message")
-
-            response = Path(output_path).read_text(encoding="utf-8")
+        response = _response_for_prompt(self, "cognition", "codex-plan.json", prompt)
 
         try:
             return parse_plan_response(_loads_json_object(response))
@@ -137,6 +126,7 @@ class CodexCliReflection:
         reasoning_effort: str = "low",
         timeout_seconds: int = 180,
         workdir: str | None = None,
+        cache: LLMCallCache | None = None,
         run_command: RunCommand | None = None,
     ) -> None:
         self.codex_path = codex_path or resolve_codex_cli()
@@ -144,6 +134,7 @@ class CodexCliReflection:
         self.reasoning_effort = reasoning_effort
         self.timeout_seconds = timeout_seconds
         self.workdir = workdir
+        self.cache = cache
         self._run_command = run_command or self._default_run_command
 
     def propose_reflection(
@@ -181,19 +172,7 @@ class CodexCliReflection:
             "Return JSON only. No markdown. No prose before or after the JSON."
         )
 
-        with tempfile.TemporaryDirectory() as directory:
-            output_path = str(Path(directory) / "codex-reflection.json")
-            command = self._build_command(output_path, prompt)
-            result = self._run_command(command, self.timeout_seconds)
-
-            if result.returncode != 0:
-                raise CodexCliCognitionError(
-                    "codex exec failed: "
-                    f"{_truncate(result.stderr or result.stdout or 'no output')}"
-                )
-            if not Path(output_path).exists():
-                raise CodexCliCognitionError("codex exec did not write an output message")
-            response = Path(output_path).read_text(encoding="utf-8")
+        response = _response_for_prompt(self, "reflection", "codex-reflection.json", prompt)
 
         try:
             return parse_reflection_response(
@@ -250,6 +229,7 @@ class CodexCliDialogue:
         reasoning_effort: str = "low",
         timeout_seconds: int = 180,
         workdir: str | None = None,
+        cache: LLMCallCache | None = None,
         run_command: RunCommand | None = None,
     ) -> None:
         self.codex_path = codex_path or resolve_codex_cli()
@@ -257,6 +237,7 @@ class CodexCliDialogue:
         self.reasoning_effort = reasoning_effort
         self.timeout_seconds = timeout_seconds
         self.workdir = workdir
+        self.cache = cache
         self._run_command = run_command or self._default_run_command
 
     def propose_dialogue(
@@ -286,19 +267,7 @@ class CodexCliDialogue:
             "Return JSON only. No markdown. No prose before or after the JSON."
         )
 
-        with tempfile.TemporaryDirectory() as directory:
-            output_path = str(Path(directory) / "codex-dialogue.json")
-            command = self._build_command(output_path, prompt)
-            result = self._run_command(command, self.timeout_seconds)
-
-            if result.returncode != 0:
-                raise CodexCliCognitionError(
-                    "codex exec failed: "
-                    f"{_truncate(result.stderr or result.stdout or 'no output')}"
-                )
-            if not Path(output_path).exists():
-                raise CodexCliCognitionError("codex exec did not write an output message")
-            response = Path(output_path).read_text(encoding="utf-8")
+        response = _response_for_prompt(self, "dialogue", "codex-dialogue.json", prompt)
 
         try:
             return parse_dialogue_response(
@@ -363,6 +332,54 @@ def resolve_codex_cli() -> str:
     raise CodexCliCognitionError(
         "Could not find Codex CLI. Set VIRTUAL_SOCIETY_CODEX_CLI to codex.exe."
     )
+
+
+def _response_for_prompt(
+    provider,
+    surface: str,
+    output_filename: str,
+    prompt: str,
+) -> str:
+    cache = getattr(provider, "cache", None)
+    if cache is not None:
+        cached = cache.read(
+            surface,
+            provider.model,
+            provider.reasoning_effort,
+            prompt,
+        )
+        if cached is not None:
+            return cached
+        if cache.mode == "read-only":
+            raise CodexCliCognitionError(
+                f"LLM cache miss for {surface} in read-only mode"
+            )
+
+    with tempfile.TemporaryDirectory() as directory:
+        output_path = str(Path(directory) / output_filename)
+        command = provider._build_command(output_path, prompt)
+        result = provider._run_command(command, provider.timeout_seconds)
+
+        if result.returncode != 0:
+            raise CodexCliCognitionError(
+                "codex exec failed: "
+                f"{_truncate(result.stderr or result.stdout or 'no output')}"
+            )
+
+        if not Path(output_path).exists():
+            raise CodexCliCognitionError("codex exec did not write an output message")
+
+        response = Path(output_path).read_text(encoding="utf-8")
+
+    if cache is not None:
+        cache.write(
+            surface,
+            provider.model,
+            provider.reasoning_effort,
+            prompt,
+            response,
+        )
+    return response
 
 
 def _loads_json_object(value: str) -> dict:

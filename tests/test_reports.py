@@ -389,6 +389,38 @@ class ReportTests(unittest.TestCase):
         self.assertIn("mixed_resource_gain_social_cost", html)
         self.assertIn("Ari&#x27;s generated rest", html)
 
+    def test_build_run_record_can_include_llm_cache_summary(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        llm_cache = [
+            {
+                "surface": "cognition",
+                "provider": "codex-cli",
+                "mode": "read-only",
+                "root_dir": "artifacts/llm-cache",
+                "model": "gpt-5.4-mini",
+                "reasoning_effort": "low",
+                "reads": 1,
+                "hits": 1,
+                "misses": 0,
+                "writes": 0,
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            llm_cache=llm_cache,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["llm_cache"], llm_cache)
+        self.assertIn("LLM Cache", html)
+        self.assertIn("read-only", html)
+        self.assertIn("artifacts/llm-cache", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

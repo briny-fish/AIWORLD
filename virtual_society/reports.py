@@ -39,6 +39,7 @@ def build_run_record(
     dialogue_trace: list[dict[str, Any]] | None = None,
     dialogue_follow_through: list[dict[str, Any]] | None = None,
     generated_chains: list[dict[str, Any]] | None = None,
+    llm_cache: list[dict[str, Any]] | None = None,
     baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
@@ -139,6 +140,8 @@ def build_run_record(
         record["dialogue_follow_through"] = dialogue_follow_through
     if generated_chains is not None:
         record["generated_chains"] = generated_chains
+    if llm_cache is not None:
+        record["llm_cache"] = llm_cache
     if baseline_comparison is not None:
         record["baseline_comparison"] = baseline_comparison
     return record
@@ -226,6 +229,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     dialogue_trace = record.get("dialogue_trace", [])
     dialogue_follow_through = record.get("dialogue_follow_through", [])
     generated_chains = record.get("generated_chains", [])
+    llm_cache = record.get("llm_cache", [])
     baseline_comparison = record.get("baseline_comparison")
     agents = record["agents"]
     organizations = record.get("organizations", [])
@@ -269,6 +273,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <h2>Social Evaluation</h2>
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
+    {_llm_cache_section(llm_cache)}
     {_cognition_trace_section(cognition_trace)}
     {_cognition_impacts_section(cognition_impacts)}
     {_cognition_outcomes_section(cognition_outcomes)}
@@ -569,6 +574,37 @@ def _history_table(snapshots: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Need</th><th>Trust</th><th>Rep</th><th>Cohesion</th><th>Notable</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _llm_cache_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>LLM Cache</h2>"
+        "<p>Raw prompt/response cache activity for generated providers in this run.</p>"
+        f"{_llm_cache_table(items)}"
+        "</section>"
+    )
+
+
+def _llm_cache_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('surface', '')))}</td>"
+            f"<td>{escape(str(item.get('mode', '')))}</td>"
+            f"<td>{escape(str(item.get('provider', '')))}</td>"
+            f"<td>{escape(str(item.get('model', '')))}</td>"
+            f"<td>{item.get('reads', 0)}</td>"
+            f"<td>{item.get('hits', 0)}</td>"
+            f"<td>{item.get('misses', 0)}</td>"
+            f"<td>{item.get('writes', 0)}</td>"
+            f"<td>{escape(str(item.get('root_dir', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Surface</th><th>Mode</th><th>Provider</th><th>Model</th><th>Reads</th><th>Hits</th><th>Misses</th><th>Writes</th><th>Directory</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _events_table(events: list[dict[str, Any]]) -> str:

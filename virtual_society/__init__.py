@@ -26,6 +26,7 @@ from .hybrid_cognition import (
     HybridCognitionTrace,
 )
 from .interventions import Intervention
+from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
 from .openai_provider import OpenAICognition
@@ -53,6 +54,9 @@ __all__ = [
     "AgentProfile",
     "DialogueProposal",
     "MemoryItem",
+    "LLMCacheRecord",
+    "LLMCacheStats",
+    "LLMCallCache",
     "OpenAICognition",
     "SocialFinding",
     "CodexCliCognition",

@@ -22,6 +22,7 @@ from .history import HistoryRecorder, write_snapshot_files
 from .hybrid_cognition import HybridCognition, HybridCognitionConfig
 from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
+from .llm_cache import LLMCallCache
 from .model import WorldState
 from .openai_provider import OpenAICognition
 from .reflection import HybridReflection, HybridReflectionConfig
@@ -78,6 +79,13 @@ def main() -> None:
     parser.add_argument("--codex-cli-path", help="Path to codex.exe. Defaults to ~/.codex/.sandbox-bin/codex.exe.")
     parser.add_argument("--codex-cli-model", default="gpt-5.4-mini", help="Codex CLI model for plan generation.")
     parser.add_argument("--codex-cli-timeout", type=int, default=180, help="Codex CLI timeout in seconds.")
+    parser.add_argument("--llm-cache-dir", help="Directory for raw LLM prompt/response cache.")
+    parser.add_argument(
+        "--llm-cache-mode",
+        choices=["off", "read-write", "read-only", "refresh"],
+        default="off",
+        help="LLM cache mode for local Codex CLI providers.",
+    )
     parser.add_argument(
         "--cognition",
         choices=["rule", "hybrid-codex-cli", "hybrid-openai"],
@@ -179,6 +187,8 @@ def main() -> None:
         raise SystemExit("--report-every must be >= 1")
     if args.snapshot_every < 0:
         raise SystemExit("--snapshot-every must be >= 0")
+    if args.llm_cache_mode != "off" and not args.llm_cache_dir:
+        raise SystemExit("--llm-cache-dir is required when --llm-cache-mode is not off")
     if args.serve:
         run_server(
             seed=args.seed,
@@ -245,6 +255,7 @@ def main() -> None:
     cognition_trace = _cognition_trace(cognition)
     reflection_trace = _reflection_trace(reflection)
     dialogue_trace = _dialogue_trace(dialogue)
+    llm_cache = _llm_cache_summary(cognition, reflection, dialogue)
     baseline_comparison = None
     baseline_world = None
     baseline_metrics = None
@@ -310,6 +321,7 @@ def main() -> None:
             dialogue_trace=dialogue_trace,
             dialogue_follow_through=dialogue_follow_through,
             generated_chains=generated_chains,
+            llm_cache=llm_cache,
             baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
@@ -375,6 +387,8 @@ def main() -> None:
         _print_dialogue_follow_through(dialogue_follow_through)
     if generated_chains:
         _print_generated_chains(generated_chains)
+    if llm_cache:
+        _print_llm_cache_summary(llm_cache)
     if baseline_comparison is not None:
         _print_baseline_comparison(baseline_comparison)
     if history is not None:
@@ -471,6 +485,7 @@ def _print_codex_cli_plan(simulation: Simulation, args: argparse.Namespace) -> N
         reasoning_effort="low",
         timeout_seconds=args.codex_cli_timeout,
         workdir=".",
+        cache=_build_llm_cache(args),
     )
     try:
         plan = provider.propose_plan(agent, simulation.world)
@@ -650,6 +665,17 @@ def _print_generated_chains(chains: list[dict]) -> None:
         )
 
 
+def _print_llm_cache_summary(items: list[dict]) -> None:
+    print("\nLLM cache:")
+    for item in items:
+        print(
+            f"{item['surface']:<10} | mode={item['mode']:<10} "
+            f"reads={item['reads']} hits={item['hits']} "
+            f"misses={item['misses']} writes={item['writes']} | "
+            f"{item['root_dir']}"
+        )
+
+
 def _print_baseline_comparison(comparison: dict) -> None:
     print("\nRule baseline comparison:")
     print(comparison.get("summary", "No comparison summary."))
@@ -704,6 +730,35 @@ def _dialogue_trace(dialogue) -> list[dict]:
     if not isinstance(dialogue, HybridDialogue):
         return []
     return [item.as_dict() for item in dialogue.trace]
+
+
+def _llm_cache_summary(cognition, reflection, dialogue) -> list[dict]:
+    items = []
+    for surface, provider in (
+        ("cognition", cognition),
+        ("reflection", reflection),
+        ("dialogue", dialogue),
+    ):
+        primary = getattr(provider, "primary", provider)
+        cache = getattr(primary, "cache", None)
+        if cache is None:
+            continue
+        stats = cache.stats
+        items.append(
+            {
+                "surface": surface,
+                "provider": cache.provider,
+                "mode": cache.mode,
+                "root_dir": str(cache.root_dir),
+                "model": getattr(primary, "model", ""),
+                "reasoning_effort": getattr(primary, "reasoning_effort", ""),
+                "reads": stats.reads,
+                "hits": stats.hits,
+                "misses": stats.misses,
+                "writes": stats.writes,
+            }
+        )
+    return items
 
 
 def _cognition_trace_summary(cognition: HybridCognition) -> str:
@@ -796,6 +851,7 @@ def _build_cognition(args: argparse.Namespace):
     if args.cognition == "rule":
         return None
 
+    cache = _build_llm_cache(args)
     if args.cognition == "hybrid-codex-cli":
         primary = CodexCliCognition(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
@@ -803,6 +859,7 @@ def _build_cognition(args: argparse.Namespace):
             reasoning_effort="low",
             timeout_seconds=args.codex_cli_timeout,
             workdir=".",
+            cache=cache,
         )
         return HybridCognition(
             primary=primary,
@@ -838,6 +895,7 @@ def _build_reflection(args: argparse.Namespace):
     if args.reflection == "rule":
         return None
 
+    cache = _build_llm_cache(args)
     if args.reflection == "hybrid-codex-cli":
         primary = CodexCliReflection(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
@@ -845,6 +903,7 @@ def _build_reflection(args: argparse.Namespace):
             reasoning_effort="low",
             timeout_seconds=args.codex_cli_timeout,
             workdir=".",
+            cache=cache,
         )
         return HybridReflection(
             primary=primary,
@@ -863,6 +922,7 @@ def _build_dialogue(args: argparse.Namespace):
     if args.dialogue == "rule":
         return None
 
+    cache = _build_llm_cache(args)
     if args.dialogue == "hybrid-codex-cli":
         primary = CodexCliDialogue(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
@@ -870,6 +930,7 @@ def _build_dialogue(args: argparse.Namespace):
             reasoning_effort="low",
             timeout_seconds=args.codex_cli_timeout,
             workdir=".",
+            cache=cache,
         )
         return HybridDialogue(
             primary=primary,
@@ -882,6 +943,14 @@ def _build_dialogue(args: argparse.Namespace):
         )
 
     raise ValueError(f"Unknown dialogue provider: {args.dialogue}")
+
+
+def _build_llm_cache(args: argparse.Namespace) -> LLMCallCache | None:
+    if args.llm_cache_mode == "off":
+        return None
+    if not args.llm_cache_dir:
+        raise SystemExit("--llm-cache-dir is required when --llm-cache-mode is not off")
+    return LLMCallCache(args.llm_cache_dir, mode=args.llm_cache_mode)
 
 
 def _parse_optional_agent_ids(value: str | None) -> set[str] | None:

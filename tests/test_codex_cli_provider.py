@@ -1,8 +1,9 @@
 import subprocess
 import unittest
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from virtual_society import Simulation
+from virtual_society import LLMCallCache, Simulation
 from virtual_society.codex_cli_provider import (
     CodexCliCognition,
     CodexCliCognitionError,
@@ -95,6 +96,57 @@ class CodexCliProviderTests(unittest.TestCase):
 
         with self.assertRaises(CodexCliCognitionError):
             provider.propose_plan(simulation.world.agents[0], simulation.world)
+
+    def test_provider_replays_cached_plan_without_invoking_codex(self) -> None:
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            commands.append(command)
+            output_path = command[command.index("--output-last-message") + 1]
+            Path(output_path).write_text(
+                '{"action":"farm","priority":0.7,"reason":"cached food plan","target_id":null,"horizon_days":1}',
+                encoding="utf-8",
+            )
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+        with TemporaryDirectory() as directory:
+            simulation = Simulation(seed=7)
+            cache = LLMCallCache(directory)
+            provider = CodexCliCognition(
+                codex_path="codex.exe",
+                cache=cache,
+                run_command=fake_run,
+            )
+
+            first = provider.propose_plan(simulation.world.agents[0], simulation.world)
+            second = provider.propose_plan(simulation.world.agents[0], simulation.world)
+
+        self.assertEqual(first.reason, "cached food plan")
+        self.assertEqual(second.reason, "cached food plan")
+        self.assertEqual(len(commands), 1)
+        self.assertEqual(cache.stats.writes, 1)
+        self.assertEqual(cache.stats.hits, 1)
+
+    def test_provider_read_only_cache_miss_does_not_invoke_codex(self) -> None:
+        commands: list[list[str]] = []
+
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            commands.append(command)
+            return subprocess.CompletedProcess(command, 0, stdout="", stderr="")
+
+        with TemporaryDirectory() as directory:
+            simulation = Simulation(seed=7)
+            cache = LLMCallCache(directory, mode="read-only")
+            provider = CodexCliCognition(
+                codex_path="codex.exe",
+                cache=cache,
+                run_command=fake_run,
+            )
+
+            with self.assertRaises(CodexCliCognitionError):
+                provider.propose_plan(simulation.world.agents[0], simulation.world)
+
+        self.assertEqual(commands, [])
 
     def test_reflection_provider_parses_memory_grounded_output(self) -> None:
         commands: list[list[str]] = []

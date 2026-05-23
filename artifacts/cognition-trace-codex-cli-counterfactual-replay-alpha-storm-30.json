@@ -1,0 +1,76 @@
+[
+  {
+    "day": 21,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "farm",
+      "priority": 1.161,
+      "reason": "shared food stores are low; role bias: farmer; profile prioritizes food security",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "rest",
+      "priority": 1.0,
+      "reason": "Energy is near the exhaustion threshold (0.143 vs 0.12), recent history shows repeated exhaustion blocks and rest responses, and pushing farm or haul work now would likely fail before it helps shared food and material gaps. Rest protects later productive labor.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "rest",
+      "priority": 1.0,
+      "reason": "Energy is near the exhaustion threshold (0.143 vs 0.12), recent history shows repeated exhaustion blocks and rest responses, and pushing farm or haul work now would likely fail before it helps shared food and material gaps. Rest protects later productive labor.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "error": "counterfactual accepted: proposed score 4.9987 vs baseline 4.9813",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "farm",
+        "target_id": null,
+        "reason": "shared food stores are low; role bias: farmer; profile prioritizes food security",
+        "score": 4.9813,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 2.04,
+          "materials": 4.03,
+          "shelter": 9.92,
+          "average_need": 0.688,
+          "average_trust": 0.604,
+          "average_reputation": 0.536,
+          "institutional_cohesion": 0.594,
+          "crisis_events": 0
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "rest",
+        "target_id": null,
+        "reason": "Energy is near the exhaustion threshold (0.143 vs 0.12), recent history shows repeated exhaustion blocks and rest responses, and pushing farm or haul work now would likely fail before it helps shared food and material gaps. Rest protects later productive labor.",
+        "score": 4.9987,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 2.46,
+          "materials": 3.53,
+          "shelter": 10.59,
+          "average_need": 0.676,
+          "average_trust": 0.603,
+          "average_reputation": 0.536,
+          "institutional_cohesion": 0.594,
+          "crisis_events": 0
+        }
+      },
+      "score_delta": 0.0174,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score 4.9987 vs baseline 4.9813"
+    }
+  }
+]

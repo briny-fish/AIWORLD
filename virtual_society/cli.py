@@ -97,6 +97,18 @@ def main() -> None:
     parser.add_argument("--llm-min-day", type=int, default=1, help="Earliest day allowed for LLM provider calls.")
     parser.add_argument("--llm-max-calls", type=int, default=1, help="Maximum LLM provider calls in one run.")
     parser.add_argument("--llm-max-failures", type=int, default=1, help="Maximum LLM provider failures before fallback only.")
+    parser.add_argument(
+        "--llm-counterfactual-days",
+        type=int,
+        default=0,
+        help="Short-horizon deterministic probe days before accepting a divergent LLM plan.",
+    )
+    parser.add_argument(
+        "--llm-counterfactual-reject-threshold",
+        type=float,
+        default=0.02,
+        help="Reject a divergent LLM plan when its probe score trails the rule baseline by more than this.",
+    )
     parser.add_argument("--openai-model", default="gpt-5.2", help="OpenAI model for --cognition hybrid-openai.")
     parser.add_argument("--openai-timeout", type=int, default=60, help="OpenAI provider timeout in seconds.")
     parser.add_argument("--show-cognition-stats", action="store_true", help="Print cognition provider call stats.")
@@ -187,6 +199,10 @@ def main() -> None:
         raise SystemExit("--report-every must be >= 1")
     if args.snapshot_every < 0:
         raise SystemExit("--snapshot-every must be >= 0")
+    if args.llm_counterfactual_days < 0:
+        raise SystemExit("--llm-counterfactual-days must be >= 0")
+    if args.llm_counterfactual_reject_threshold < 0:
+        raise SystemExit("--llm-counterfactual-reject-threshold must be >= 0")
     if args.llm_cache_mode != "off" and not args.llm_cache_dir:
         raise SystemExit("--llm-cache-dir is required when --llm-cache-mode is not off")
     if args.serve:
@@ -765,7 +781,9 @@ def _cognition_trace_summary(cognition: HybridCognition) -> str:
     calls = len(cognition.trace)
     accepted = sum(1 for item in cognition.trace if item.status == "primary")
     policy_fallbacks = sum(
-        1 for item in cognition.trace if item.status == "baseline_after_policy"
+        1
+        for item in cognition.trace
+        if item.status in {"baseline_after_policy", "baseline_after_counterfactual"}
     )
     failures = calls - accepted - policy_fallbacks
     diverged = sum(1 for item in cognition.trace if item.diverged_from_baseline)
@@ -869,6 +887,8 @@ def _build_cognition(args: argparse.Namespace):
                 min_day=args.llm_min_day,
                 max_calls=args.llm_max_calls,
                 max_failures=args.llm_max_failures,
+                counterfactual_horizon_days=args.llm_counterfactual_days,
+                counterfactual_reject_threshold=args.llm_counterfactual_reject_threshold,
             ),
         )
 
@@ -885,6 +905,8 @@ def _build_cognition(args: argparse.Namespace):
                 min_day=args.llm_min_day,
                 max_calls=args.llm_max_calls,
                 max_failures=args.llm_max_failures,
+                counterfactual_horizon_days=args.llm_counterfactual_days,
+                counterfactual_reject_threshold=args.llm_counterfactual_reject_threshold,
             ),
         )
 

@@ -4,6 +4,11 @@ from .codex_cli_provider import CodexCliCognition, CodexCliDialogue, CodexCliRef
 from .cognition import RuleBasedCognition
 from .cognition_impact_evaluation import assess_cognition_impacts
 from .cognition_outcome_evaluation import assess_cognition_outcomes
+from .counterfactual_cognition import (
+    PlanCounterfactualComparison,
+    PlanProbeResult,
+    compare_plan_counterfactuals,
+)
 from .dialogue import (
     HybridDialogue,
     HybridDialogueConfig,
@@ -51,6 +56,8 @@ from .social_evaluation import SocialFinding, assess_social_dynamics
 __all__ = [
     "Intervention",
     "Plan",
+    "PlanCounterfactualComparison",
+    "PlanProbeResult",
     "AgentProfile",
     "DialogueProposal",
     "MemoryItem",
@@ -85,6 +92,7 @@ __all__ = [
     "build_reflection_context",
     "assess_cognition_impacts",
     "assess_cognition_outcomes",
+    "compare_plan_counterfactuals",
     "assess_dialogue_follow_through",
     "assess_generated_chains",
     "assess_reflection_follow_through",

@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 
 from .cognition import CognitionProvider, RuleBasedCognition
+from .counterfactual_cognition import compare_plan_counterfactuals
 from .model import Action, Agent, Plan, WorldState
 
 
@@ -15,6 +16,8 @@ class HybridCognitionConfig:
     max_failures: int = 3
     trace_limit: int = 100
     guard_rest_overrides: bool = True
+    counterfactual_horizon_days: int = 0
+    counterfactual_reject_threshold: float = 0.02
 
 
 @dataclass
@@ -39,6 +42,7 @@ class HybridCognitionTrace:
     diverged_from_baseline: bool
     proposed_diverged_from_baseline: bool = False
     error: str | None = None
+    counterfactual: dict | None = None
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -85,7 +89,7 @@ class HybridCognition:
             return baseline_plan
 
         self.stats.llm_successes += 1
-        used_plan, status, policy_note = self._apply_acceptance_policy(
+        used_plan, status, policy_note, counterfactual = self._apply_acceptance_policy(
             agent,
             world,
             baseline_plan,
@@ -99,6 +103,7 @@ class HybridCognition:
             proposed_plan=plan,
             used_plan=used_plan,
             error=policy_note,
+            counterfactual=counterfactual,
         )
         return used_plan
 
@@ -119,9 +124,14 @@ class HybridCognition:
         world: WorldState,
         baseline_plan: Plan,
         proposed_plan: Plan,
-    ) -> tuple[Plan, str, str | None]:
+    ) -> tuple[Plan, str, str | None, dict | None]:
         if not self.config.guard_rest_overrides:
-            return proposed_plan, "primary", None
+            return self._apply_counterfactual_policy(
+                agent,
+                world,
+                baseline_plan,
+                proposed_plan,
+            )
 
         productive_actions = {Action.FARM, Action.GATHER, Action.HAUL, Action.REPAIR}
         if (
@@ -130,7 +140,12 @@ class HybridCognition:
             or not _shared_resource_pressure(world)
             or _rest_is_required(agent, world)
         ):
-            return proposed_plan, "primary", None
+            return self._apply_counterfactual_policy(
+                agent,
+                world,
+                baseline_plan,
+                proposed_plan,
+            )
 
         return (
             baseline_plan,
@@ -139,7 +154,38 @@ class HybridCognition:
                 "rest override rejected: shared pressure is active and the agent "
                 "is not at the exhaustion threshold or just blocked by exhaustion"
             ),
+            None,
         )
+
+    def _apply_counterfactual_policy(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan,
+        proposed_plan: Plan,
+    ) -> tuple[Plan, str, str | None, dict | None]:
+        if (
+            self.config.counterfactual_horizon_days <= 0
+            or not _plan_differs(proposed_plan, baseline_plan)
+        ):
+            return proposed_plan, "primary", None, None
+
+        comparison = compare_plan_counterfactuals(
+            world,
+            agent.id,
+            baseline_plan,
+            proposed_plan,
+            horizon_days=self.config.counterfactual_horizon_days,
+            reject_threshold=self.config.counterfactual_reject_threshold,
+        )
+        if comparison.recommendation == "baseline":
+            return (
+                baseline_plan,
+                "baseline_after_counterfactual",
+                comparison.reason,
+                comparison.as_dict(),
+            )
+        return proposed_plan, "primary", comparison.reason, comparison.as_dict()
 
     def _should_call_primary(self, agent: Agent, world: WorldState) -> bool:
         if self.config.max_calls <= 0:
@@ -169,6 +215,7 @@ class HybridCognition:
         proposed_plan: Plan | None,
         used_plan: Plan,
         error: str | None,
+        counterfactual: dict | None = None,
     ) -> None:
         self.trace.append(
             HybridCognitionTrace(
@@ -186,6 +233,7 @@ class HybridCognition:
                     else False
                 ),
                 error=error,
+                counterfactual=counterfactual,
             )
         )
         if self.config.trace_limit == 0:

@@ -157,6 +157,37 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(hybrid.trace[0].used_plan["action"], "rest")
         self.assertTrue(hybrid.trace[0].diverged_from_baseline)
 
+    def test_counterfactual_policy_can_reject_lower_scoring_plan(self) -> None:
+        primary = FixedProvider(Action.REST)
+        hybrid = HybridCognition(
+            primary=primary,
+            fallback=RuleBasedCognition(),
+            config=HybridCognitionConfig(
+                agent_ids={"a1"},
+                every_days=1,
+                max_calls=1,
+                guard_rest_overrides=False,
+                counterfactual_horizon_days=3,
+                counterfactual_reject_threshold=0.02,
+            ),
+        )
+        simulation = Simulation(seed=7, cognition=hybrid, world_preset="generative_alpha")
+        simulation.world.day = 21
+        simulation.world.resources["food"] = 0.0
+        for location in simulation.world.locations:
+            location.resources["food"] = 0.0
+        simulation.world.agents[0].needs.food = 0.8
+        simulation.world.agents[0].needs.energy = 0.9
+
+        plan = hybrid.propose_plan(simulation.world.agents[0], simulation.world)
+
+        self.assertEqual(plan.action, Action.FARM)
+        self.assertEqual(hybrid.trace[0].status, "baseline_after_counterfactual")
+        self.assertEqual(hybrid.trace[0].used_plan["action"], "farm")
+        self.assertEqual(hybrid.trace[0].proposed_plan["action"], "rest")
+        self.assertEqual(hybrid.trace[0].counterfactual["recommendation"], "baseline")
+        self.assertLess(hybrid.trace[0].counterfactual["score_delta"], -0.02)
+
 
 if __name__ == "__main__":
     unittest.main()

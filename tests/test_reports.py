@@ -48,6 +48,13 @@ class ReportTests(unittest.TestCase):
                 "proposed_plan": {"action": "repair", "reason": "storm"},
                 "used_plan": {"action": "repair", "reason": "storm"},
                 "diverged_from_baseline": True,
+                "counterfactual": {
+                    "horizon_days": 3,
+                    "score_delta": 0.04,
+                    "recommendation": "proposed",
+                    "baseline": {"score": 5.1},
+                    "proposed": {"score": 5.14},
+                },
                 "error": None,
             }
         ]
@@ -65,6 +72,7 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Cognition Trace", html)
         self.assertIn("divergence rate 100%", html)
         self.assertIn("storm", html)
+        self.assertIn("delta +0.04", html)
 
     def test_build_run_record_can_include_reflection_trace(self) -> None:
         simulation = Simulation(seed=7)

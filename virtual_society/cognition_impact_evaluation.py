@@ -223,6 +223,8 @@ def _signal(
         return "cognition_provider_failed"
     if status == "baseline_after_policy":
         return "cognition_proposal_policy_blocked"
+    if status == "baseline_after_counterfactual":
+        return "cognition_proposal_counterfactual_blocked"
     if used_action is not None and used_action != baseline_action:
         return "cognition_action_diverged"
     if used_diverged:

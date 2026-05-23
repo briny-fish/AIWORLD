@@ -109,6 +109,49 @@ class CognitionImpactEvaluationTests(unittest.TestCase):
         self.assertFalse(impacts[0].used_diverged_from_baseline)
         self.assertTrue(impacts[0].proposed_diverged_from_baseline)
 
+    def test_counterfactual_blocked_proposal_gets_distinct_signal(self) -> None:
+        simulation = Simulation(seed=7)
+        world = simulation.world
+        world.day = 21
+        agent = world.agents[0]
+
+        impacts = assess_cognition_impacts(
+            world,
+            [
+                {
+                    "day": 21,
+                    "agent_id": agent.id,
+                    "agent_name": agent.name,
+                    "status": "baseline_after_counterfactual",
+                    "baseline_plan": {
+                        "action": "farm",
+                        "reason": "shared food stores are low",
+                        "target_id": None,
+                        "horizon_days": 1,
+                    },
+                    "proposed_plan": {
+                        "action": "rest",
+                        "reason": "generated recovery",
+                        "target_id": None,
+                        "horizon_days": 1,
+                    },
+                    "used_plan": {
+                        "action": "farm",
+                        "reason": "shared food stores are low",
+                        "target_id": None,
+                        "horizon_days": 1,
+                    },
+                }
+            ],
+        )
+
+        self.assertEqual(
+            impacts[0].signal,
+            "cognition_proposal_counterfactual_blocked",
+        )
+        self.assertFalse(impacts[0].used_diverged_from_baseline)
+        self.assertTrue(impacts[0].proposed_diverged_from_baseline)
+
 
 if __name__ == "__main__":
     unittest.main()

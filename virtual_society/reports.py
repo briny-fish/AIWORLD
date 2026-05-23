@@ -639,6 +639,7 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
         proposed = item.get("proposed_plan") or {}
         baseline = item.get("baseline_plan") or {}
         used = item.get("used_plan") or {}
+        counterfactual = item.get("counterfactual") or {}
         rows.append(
             "<tr>"
             f"<td>{item['day']}</td>"
@@ -648,10 +649,11 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
             f"<td>{escape(_plan_summary(baseline))}</td>"
             f"<td>{escape(_plan_summary(used))}</td>"
             f"<td>{escape(str(item.get('diverged_from_baseline', False)))}</td>"
+            f"<td>{escape(_counterfactual_summary(counterfactual))}</td>"
             f"<td>{escape(str(item.get('error') or ''))}</td>"
             "</tr>"
         )
-    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Counterfactual</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _cognition_impacts_section(items: list[dict[str, Any]]) -> str:
@@ -1042,11 +1044,25 @@ def _plan_summary(plan: dict[str, Any]) -> str:
     return f"{plan.get('action', 'none')}{target}: {plan.get('reason', '')}"
 
 
+def _counterfactual_summary(item: dict[str, Any]) -> str:
+    if not item:
+        return "none"
+    baseline = item.get("baseline") or {}
+    proposed = item.get("proposed") or {}
+    return (
+        f"{item.get('recommendation', 'unknown')} "
+        f"delta {_signed_number(item.get('score_delta', 0))}; "
+        f"baseline {baseline.get('score', 0)} vs proposed {proposed.get('score', 0)}"
+    )
+
+
 def _cognition_trace_summary(trace: list[dict[str, Any]]) -> str:
     calls = len(trace)
     accepted = sum(1 for item in trace if item.get("status") == "primary")
     policy_fallbacks = sum(
-        1 for item in trace if item.get("status") == "baseline_after_policy"
+        1
+        for item in trace
+        if item.get("status") in {"baseline_after_policy", "baseline_after_counterfactual"}
     )
     failures = calls - accepted - policy_fallbacks
     diverged = sum(1 for item in trace if item.get("diverged_from_baseline"))

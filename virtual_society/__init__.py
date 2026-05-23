@@ -15,6 +15,7 @@ from .dialogue_contract import (
     parse_dialogue_response,
     render_dialogue_prompt,
 )
+from .dialogue_evaluation import assess_dialogue_follow_through
 from .hybrid_cognition import (
     HybridCognition,
     HybridCognitionConfig,
@@ -75,6 +76,7 @@ __all__ = [
     "build_cognition_context",
     "build_dialogue_context",
     "build_reflection_context",
+    "assess_dialogue_follow_through",
     "assess_reflection_follow_through",
     "parse_plan_response",
     "parse_dialogue_response",

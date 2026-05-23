@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-21T16:16:48+00:00",
+  "generated_at": "2026-05-23T10:47:44+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -9285,7 +9285,7 @@
       "day": 21,
       "kind": "dialogue",
       "actor_id": "a9",
-      "description": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+      "description": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
       "effects": {
         "trust": 0.035
       }
@@ -16175,14 +16175,222 @@
       "partner_name": "Gale",
       "status": "primary",
       "baseline_dialogue": "Ivo and Gale discussed common_council with workable trust. They grounded the talk in day 15: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation. Ivo connected it to prevent silent suffering; Gale weighed it against warning.",
-      "proposed_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
-      "used_dialogue": "Ivo and Gale discussed common_council with workable trust, tying the conversation to Gale’s day 21 material-gathering and Ivo’s recent effort to strengthen their ties; Ivo pressed for early care, while Gale stayed focused on warning signs and route risk.",
+      "proposed_dialogue": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
+      "used_dialogue": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
       "focus": "coordination",
       "memory_refs": [
         4,
-        7
+        5,
+        1
       ],
       "error": null
+    }
+  ],
+  "dialogue_follow_through": [
+    {
+      "day": 21,
+      "speaker_id": "a9",
+      "speaker_name": "Ivo",
+      "partner_id": "a7",
+      "partner_name": "Gale",
+      "status": "primary",
+      "focus": "coordination",
+      "signal": "memory_reflection_plan_echo",
+      "window_start": 22,
+      "window_end": 30,
+      "generated_dialogue": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
+      "baseline_dialogue": "Ivo and Gale discussed common_council with workable trust. They grounded the talk in day 15: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation. Ivo connected it to prevent silent suffering; Gale weighed it against warning.",
+      "memory_evidence": [
+        {
+          "day": 21,
+          "agent_id": "a9",
+          "agent_name": "Ivo",
+          "kind": "dialogue",
+          "text": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
+          "overlap_terms": [
+            "adapt",
+            "before",
+            "building",
+            "calm",
+            "care",
+            "common_council",
+            "early",
+            "exchange",
+            "gale",
+            "in",
+            "ivo",
+            "keeping",
+            "need",
+            "pointed",
+            "practical",
+            "routes",
+            "shortages",
+            "silent",
+            "spoke",
+            "spread",
+            "strain",
+            "stressed",
+            "to",
+            "warnings",
+            "while"
+          ]
+        },
+        {
+          "day": 21,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "dialogue",
+          "text": "Ivo and Gale spoke in a calm, practical exchange about common_council: Ivo stressed early care and keeping silent strain from building, while Gale pointed to warnings from the routes and the need to adapt to shortages before they spread.",
+          "overlap_terms": [
+            "adapt",
+            "before",
+            "building",
+            "calm",
+            "care",
+            "common_council",
+            "early",
+            "exchange",
+            "gale",
+            "in",
+            "ivo",
+            "keeping",
+            "need",
+            "pointed",
+            "practical",
+            "routes",
+            "shortages",
+            "silent",
+            "spoke",
+            "spread",
+            "strain",
+            "stressed",
+            "to",
+            "warnings",
+            "while"
+          ]
+        }
+      ],
+      "reflection_evidence": [
+        {
+          "day": 28,
+          "agent_id": "a9",
+          "agent_name": "Ivo",
+          "kind": "reflection",
+          "text": "day 28: Ivo reflects that 4 work memories show where effort has been spent; most salient memory: Ivo farmed food.",
+          "overlap_terms": [
+            "ivo"
+          ]
+        },
+        {
+          "day": 28,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "reflection",
+          "text": "day 28: Gale reflects that 4 work memories show where effort has been spent; most salient memory: Gale hauled materials from Woodlot to Workshop.",
+          "overlap_terms": [
+            "gale",
+            "to"
+          ]
+        }
+      ],
+      "plan_evidence": [
+        {
+          "day": 22,
+          "agent_id": "a9",
+          "agent_name": "Ivo",
+          "kind": "plan",
+          "text": "day 22: haul | materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "need",
+            "to"
+          ]
+        },
+        {
+          "day": 26,
+          "agent_id": "a9",
+          "agent_name": "Ivo",
+          "kind": "plan",
+          "text": "day 26: haul | food needs hauling to shared depots; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "need",
+            "to"
+          ]
+        },
+        {
+          "day": 30,
+          "agent_id": "a9",
+          "agent_name": "Ivo",
+          "kind": "plan",
+          "text": "day 30: socialize | role bias: healer; profile prioritizes care relationships; profile prioritizes social coordination; recent hopeful message favors coordination",
+          "overlap_terms": [
+            "care",
+            "coordination"
+          ]
+        },
+        {
+          "day": 25,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "plan",
+          "text": "day 25: haul | food needs hauling to shared depots; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "early",
+            "exchange",
+            "need",
+            "routes",
+            "to",
+            "warning"
+          ]
+        },
+        {
+          "day": 27,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "plan",
+          "text": "day 27: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "early",
+            "exchange",
+            "need",
+            "routes",
+            "to",
+            "warning"
+          ]
+        },
+        {
+          "day": 28,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "plan",
+          "text": "day 28: haul | materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "early",
+            "exchange",
+            "need",
+            "routes",
+            "to",
+            "warning"
+          ]
+        },
+        {
+          "day": 30,
+          "agent_id": "a7",
+          "agent_name": "Gale",
+          "kind": "plan",
+          "text": "day 30: haul | materials need hauling to the workshop; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+          "overlap_terms": [
+            "early",
+            "exchange",
+            "need",
+            "routes",
+            "to",
+            "warning"
+          ]
+        }
+      ],
+      "baseline_reflection_deltas": [],
+      "baseline_plan_deltas": [],
+      "summary": "After generated dialogue on day 21, Ivo and Gale show 2 memory hits, 2 reflection echoes, and 7 plan echoes in days 22-30; no baseline text deltas were found."
     }
   ],
   "baseline_comparison": {

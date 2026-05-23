@@ -35,6 +35,7 @@ def build_run_record(
     reflection_trace: list[dict[str, Any]] | None = None,
     reflection_follow_through: list[dict[str, Any]] | None = None,
     dialogue_trace: list[dict[str, Any]] | None = None,
+    dialogue_follow_through: list[dict[str, Any]] | None = None,
     baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
@@ -127,6 +128,8 @@ def build_run_record(
         record["reflection_follow_through"] = reflection_follow_through
     if dialogue_trace is not None:
         record["dialogue_trace"] = dialogue_trace
+    if dialogue_follow_through is not None:
+        record["dialogue_follow_through"] = dialogue_follow_through
     if baseline_comparison is not None:
         record["baseline_comparison"] = baseline_comparison
     return record
@@ -202,6 +205,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     reflection_trace = record.get("reflection_trace", [])
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
+    dialogue_follow_through = record.get("dialogue_follow_through", [])
     baseline_comparison = record.get("baseline_comparison")
     agents = record["agents"]
     organizations = record.get("organizations", [])
@@ -249,6 +253,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_reflection_trace_section(reflection_trace)}
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
+    {_dialogue_follow_through_section(dialogue_follow_through)}
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     <section class="band">
@@ -704,6 +709,74 @@ def _dialogue_trace_table(trace: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Speaker</th><th>Partner</th><th>Status</th><th>Focus</th><th>Memory refs</th><th>Codex Dialogue</th><th>Rule Baseline</th><th>Used</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _dialogue_follow_through_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Dialogue Follow-through</h2>"
+        "<p>Downstream memory, reflection, plan, and rule-baseline differences "
+        "after accepted generated dialogues.</p>"
+        f"{_dialogue_follow_through_table(items)}"
+        "</section>"
+    )
+
+
+def _dialogue_follow_through_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item['day']}</td>"
+            f"<td>{escape(item['speaker_name'])}</td>"
+            f"<td>{escape(item['partner_name'])}</td>"
+            f"<td>{escape(item.get('focus') or '')}</td>"
+            f"<td>{escape(item.get('signal') or '')}</td>"
+            f"<td>{item['window_start']}-{item['window_end']}</td>"
+            f"<td>{len(item.get('memory_evidence') or [])}</td>"
+            f"<td>{len(item.get('reflection_evidence') or [])}</td>"
+            f"<td>{len(item.get('plan_evidence') or [])}</td>"
+            f"<td>{len(item.get('baseline_reflection_deltas') or [])}</td>"
+            f"<td>{len(item.get('baseline_plan_deltas') or [])}</td>"
+            f"<td>{escape(_dialogue_follow_evidence_text(item))}</td>"
+            f"<td>{escape(item.get('summary') or '')}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Speaker</th><th>Partner</th><th>Focus</th><th>Signal</th><th>Window</th><th>Memory</th><th>Reflection</th><th>Plan</th><th>Reflection deltas</th><th>Plan deltas</th><th>Evidence sample</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _dialogue_follow_evidence_text(item: dict[str, Any]) -> str:
+    parts = []
+    memories = item.get("memory_evidence") or []
+    reflections = item.get("reflection_evidence") or []
+    plans = item.get("plan_evidence") or []
+    reflection_deltas = item.get("baseline_reflection_deltas") or []
+    plan_deltas = item.get("baseline_plan_deltas") or []
+    if memories:
+        parts.append(f"memory: {memories[0].get('agent_name', '')}: {memories[0].get('text', '')}")
+    if reflections:
+        parts.append(
+            f"reflection: {reflections[0].get('agent_name', '')}: "
+            f"{reflections[0].get('text', '')}"
+        )
+    if plans:
+        parts.append(f"plan: {plans[0].get('agent_name', '')}: {plans[0].get('text', '')}")
+    if reflection_deltas:
+        parts.append(
+            "reflection delta: "
+            f"{reflection_deltas[0].get('agent_name', '')}: "
+            f"{reflection_deltas[0].get('run_text', '')}"
+        )
+    if plan_deltas:
+        parts.append(
+            "plan delta: "
+            f"{plan_deltas[0].get('change_kind') or 'plan'} | "
+            f"{plan_deltas[0].get('agent_name', '')}: "
+            f"{plan_deltas[0].get('run_text', '')}"
+        )
+    return " | ".join(parts) or "none"
 
 
 def _baseline_comparison_section(comparison: dict[str, Any] | None) -> str:

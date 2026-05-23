@@ -12,6 +12,7 @@ from .codex_cli_provider import (
     resolve_codex_cli,
 )
 from .dialogue import HybridDialogue, HybridDialogueConfig
+from .dialogue_evaluation import assess_dialogue_follow_through
 from .experiment import run_experiment
 from .health import assess_metrics
 from .history import HistoryRecorder, write_snapshot_files
@@ -257,6 +258,14 @@ def main() -> None:
             baseline_world=baseline_world,
         )
     ]
+    dialogue_follow_through = [
+        item.as_dict()
+        for item in assess_dialogue_follow_through(
+            simulation.world,
+            dialogue_trace,
+            baseline_world=baseline_world,
+        )
+    ]
     if args.save_run_json or args.save_run_html:
         run_record = build_run_record(
             args.seed,
@@ -268,6 +277,7 @@ def main() -> None:
             reflection_trace=reflection_trace,
             reflection_follow_through=reflection_follow_through,
             dialogue_trace=dialogue_trace,
+            dialogue_follow_through=dialogue_follow_through,
             baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
@@ -291,6 +301,8 @@ def main() -> None:
             payload["baseline_comparison"] = baseline_comparison
         if reflection_follow_through:
             payload["reflection_follow_through"] = reflection_follow_through
+        if dialogue_follow_through:
+            payload["dialogue_follow_through"] = dialogue_follow_through
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
@@ -320,6 +332,7 @@ def main() -> None:
     if args.show_dialogue_stats or isinstance(dialogue, HybridDialogue):
         _print_dialogue_stats(dialogue)
         _print_dialogue_trace(dialogue)
+        _print_dialogue_follow_through(dialogue_follow_through)
     if baseline_comparison is not None:
         _print_baseline_comparison(baseline_comparison)
     if history is not None:
@@ -544,6 +557,17 @@ def _print_dialogue_trace(dialogue) -> None:
         )
         if item.error:
             print(f"          error={item.error}")
+
+
+def _print_dialogue_follow_through(follow_through: list[dict]) -> None:
+    if not follow_through:
+        return
+    print("\nDialogue follow-through:")
+    for item in follow_through[-5:]:
+        print(
+            f"day {item['day']:>3} | {item['speaker_name']:<8} -> "
+            f"{item['partner_name']:<8} | {item['signal']:<34} | {item['summary']}"
+        )
 
 
 def _print_baseline_comparison(comparison: dict) -> None:

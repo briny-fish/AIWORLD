@@ -177,6 +177,64 @@ class ReportTests(unittest.TestCase):
         self.assertIn("memory grounded 1", html)
         self.assertIn("food distribution visible", html)
 
+    def test_build_run_record_can_include_dialogue_follow_through(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        follow_through = [
+            {
+                "day": 21,
+                "speaker_id": "a1",
+                "speaker_name": "Ari",
+                "partner_id": "a2",
+                "partner_name": "Bo",
+                "status": "primary",
+                "focus": "coordination",
+                "signal": "baseline_reflection_context_diverged",
+                "window_start": 22,
+                "window_end": 35,
+                "generated_dialogue": "Ari asked Bo to keep food distribution visible.",
+                "baseline_dialogue": "Ari and Bo discussed routine work.",
+                "memory_evidence": [
+                    {
+                        "day": 21,
+                        "agent_id": "a1",
+                        "agent_name": "Ari",
+                        "kind": "dialogue",
+                        "text": "Ari asked Bo to keep food distribution visible.",
+                        "overlap_terms": ["food"],
+                    }
+                ],
+                "reflection_evidence": [],
+                "plan_evidence": [],
+                "baseline_reflection_deltas": [
+                    {
+                        "day": 28,
+                        "agent_id": "a1",
+                        "agent_name": "Ari",
+                        "run_text": "day 28: Ari kept food distribution salient.",
+                        "baseline_text": "day 28: Ari reflected on routine labor.",
+                        "change_kind": "context",
+                    }
+                ],
+                "baseline_plan_deltas": [],
+                "summary": "Ari and Bo carried generated dialogue into later reflection.",
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            dialogue_follow_through=follow_through,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["dialogue_follow_through"], follow_through)
+        self.assertIn("Dialogue Follow-through", html)
+        self.assertIn("baseline_reflection_context_diverged", html)
+        self.assertIn("food distribution salient", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

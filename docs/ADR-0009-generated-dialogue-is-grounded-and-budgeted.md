@@ -35,9 +35,15 @@ Run JSON/HTML reports can include a dialogue trace with the deterministic
 baseline, generated proposal, used dialogue, focus, cited memory refs, and
 fallback errors. The CLI can save the same trace as a standalone JSON artifact.
 
+Reports can also include dialogue follow-through. For every accepted generated
+dialogue, the evaluator checks whether the dialogue entered participant
+memories, whether later reflections or plans echo its terms, and whether those
+later texts differ from a rule-only baseline when one is available.
+
 ## Consequences
 
 The alpha can now test a richer social-information loop without pushing LLM
 authority into state settlement. Local Codex dialogue experiments should remain
-small until the trace shows that generated dialogue improves later memory and
-reflection quality over the event-aware template baseline.
+small until the trace and follow-through evidence show that generated dialogue
+improves later memory and reflection quality over the event-aware template
+baseline.

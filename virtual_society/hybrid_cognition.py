@@ -228,4 +228,5 @@ def _rest_is_required(agent: Agent, world: WorldState) -> bool:
         return True
     if not agent.plan_history:
         return False
-    return "blocked by exhaustion" in agent.plan_history[-1].lower()
+    recent_plan_text = " ".join(agent.plan_history[-4:]).lower()
+    return "blocked by exhaustion" in recent_plan_text

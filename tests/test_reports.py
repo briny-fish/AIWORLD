@@ -293,6 +293,59 @@ class ReportTests(unittest.TestCase):
         self.assertIn("generated_chain_action_diverged", html)
         self.assertIn("Ari carried generated dialogue", html)
 
+    def test_build_run_record_can_include_cognition_impacts(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        impacts = [
+            {
+                "day": 21,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "signal": "cognition_action_diverged",
+                "baseline_action": "farm",
+                "proposed_action": "rest",
+                "used_action": "rest",
+                "proposed_diverged_from_baseline": True,
+                "used_diverged_from_baseline": True,
+                "execution_evidence": [
+                    {
+                        "day": 21,
+                        "agent_id": "a1",
+                        "agent_name": "Ari",
+                        "kind": "rest",
+                        "text": "Ari rested.",
+                        "effects": {"energy": 0.32},
+                    }
+                ],
+                "baseline_plan_deltas": [
+                    {
+                        "day": 21,
+                        "run_plan": "day 21: rest | generated recovery",
+                        "baseline_plan": "day 21: farm | shared food stores are low",
+                        "run_action": "rest",
+                        "baseline_action": "farm",
+                        "change_kind": "action",
+                    }
+                ],
+                "summary": "Ari accepted generated rest over the rule baseline.",
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            cognition_impacts=impacts,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["cognition_impacts"], impacts)
+        self.assertIn("Cognition Impact Evaluation", html)
+        self.assertIn("cognition_action_diverged", html)
+        self.assertIn("Ari accepted generated rest", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

@@ -32,6 +32,7 @@ def build_run_record(
     findings: list[HealthFinding],
     history: dict[str, Any] | None = None,
     cognition_trace: list[dict[str, Any]] | None = None,
+    cognition_impacts: list[dict[str, Any]] | None = None,
     reflection_trace: list[dict[str, Any]] | None = None,
     reflection_follow_through: list[dict[str, Any]] | None = None,
     dialogue_trace: list[dict[str, Any]] | None = None,
@@ -123,6 +124,8 @@ def build_run_record(
         record["history"] = history
     if cognition_trace is not None:
         record["cognition_trace"] = cognition_trace
+    if cognition_impacts is not None:
+        record["cognition_impacts"] = cognition_impacts
     if reflection_trace is not None:
         record["reflection_trace"] = reflection_trace
     if reflection_follow_through is not None:
@@ -213,6 +216,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     findings = record["findings"]
     social_findings = record.get("social_findings", [])
     cognition_trace = record.get("cognition_trace", [])
+    cognition_impacts = record.get("cognition_impacts", [])
     reflection_trace = record.get("reflection_trace", [])
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
@@ -262,6 +266,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
     {_cognition_trace_section(cognition_trace)}
+    {_cognition_impacts_section(cognition_impacts)}
     {_reflection_trace_section(reflection_trace)}
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
@@ -606,6 +611,59 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _cognition_impacts_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Cognition Impact Evaluation</h2>"
+        "<p>Accepted or blocked generated plan proposals linked to execution "
+        "evidence and rule-baseline plan differences.</p>"
+        f"{_cognition_impacts_table(items)}"
+        "</section>"
+    )
+
+
+def _cognition_impacts_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item['day']}</td>"
+            f"<td>{escape(item['agent_name'])}</td>"
+            f"<td>{escape(item.get('status') or '')}</td>"
+            f"<td>{escape(item.get('signal') or '')}</td>"
+            f"<td>{escape(str(item.get('baseline_action') or 'none'))}</td>"
+            f"<td>{escape(str(item.get('proposed_action') or 'none'))}</td>"
+            f"<td>{escape(str(item.get('used_action') or 'none'))}</td>"
+            f"<td>{len(item.get('execution_evidence') or [])}</td>"
+            f"<td>{len(item.get('baseline_plan_deltas') or [])}</td>"
+            f"<td>{escape(_cognition_impact_evidence_text(item))}</td>"
+            f"<td>{escape(item.get('summary') or '')}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Signal</th><th>Rule</th><th>Proposed</th><th>Used</th><th>Execution</th><th>Plan deltas</th><th>Evidence sample</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _cognition_impact_evidence_text(item: dict[str, Any]) -> str:
+    parts = []
+    execution = item.get("execution_evidence") or []
+    deltas = item.get("baseline_plan_deltas") or []
+    if execution:
+        parts.append(
+            f"execution: {execution[0].get('kind', '')}: "
+            f"{execution[0].get('text', '')}"
+        )
+    if deltas:
+        parts.append(
+            "plan delta: "
+            f"{deltas[0].get('change_kind') or 'plan'} | "
+            f"{deltas[0].get('run_plan', '')} vs "
+            f"{deltas[0].get('baseline_plan') or 'none'}"
+        )
+    return " | ".join(parts) or "none"
 
 
 def _reflection_trace_section(trace: list[dict[str, Any]]) -> str:

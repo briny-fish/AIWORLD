@@ -134,6 +134,29 @@ class HybridCognitionTests(unittest.TestCase):
         )
         self.assertTrue(hybrid.trace[0].proposed_diverged_from_baseline)
 
+    def test_recent_exhaustion_block_can_justify_rest_override(self) -> None:
+        primary = FixedProvider(Action.REST)
+        hybrid = HybridCognition(
+            primary=primary,
+            fallback=RuleBasedCognition(),
+            config=HybridCognitionConfig(agent_ids={"a1"}, every_days=1, max_calls=1),
+        )
+        simulation = Simulation(seed=7, cognition=hybrid)
+        simulation.world.day = 1
+        simulation.world.resources["food"] = 0.0
+        simulation.world.agents[0].needs.energy = 0.5
+        simulation.world.agents[0].needs.food = 0.1
+        simulation.world.agents[0].plan_history = [
+            "day 1: gather | work plan blocked by exhaustion; resting first",
+            "day 2: farm | shared food stores are low",
+        ]
+
+        hybrid.propose_plan(simulation.world.agents[0], simulation.world)
+
+        self.assertEqual(hybrid.trace[0].status, "primary")
+        self.assertEqual(hybrid.trace[0].used_plan["action"], "rest")
+        self.assertTrue(hybrid.trace[0].diverged_from_baseline)
+
 
 if __name__ == "__main__":
     unittest.main()

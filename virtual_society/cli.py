@@ -11,6 +11,7 @@ from .codex_cli_provider import (
     CodexCliReflection,
     resolve_codex_cli,
 )
+from .cognition_impact_evaluation import assess_cognition_impacts
 from .dialogue import HybridDialogue, HybridDialogueConfig
 from .dialogue_evaluation import assess_dialogue_follow_through
 from .experiment import run_experiment
@@ -251,6 +252,14 @@ def main() -> None:
             interventions,
             metrics,
         )
+    cognition_impacts = [
+        item.as_dict()
+        for item in assess_cognition_impacts(
+            simulation.world,
+            cognition_trace,
+            baseline_world=baseline_world,
+        )
+    ]
     reflection_follow_through = [
         item.as_dict()
         for item in assess_reflection_follow_through(
@@ -284,6 +293,7 @@ def main() -> None:
             findings,
             history=history,
             cognition_trace=cognition_trace,
+            cognition_impacts=cognition_impacts,
             reflection_trace=reflection_trace,
             reflection_follow_through=reflection_follow_through,
             dialogue_trace=dialogue_trace,
@@ -310,6 +320,8 @@ def main() -> None:
             payload["history"] = history
         if baseline_comparison is not None:
             payload["baseline_comparison"] = baseline_comparison
+        if cognition_impacts:
+            payload["cognition_impacts"] = cognition_impacts
         if reflection_follow_through:
             payload["reflection_follow_through"] = reflection_follow_through
         if dialogue_follow_through:
@@ -338,6 +350,7 @@ def main() -> None:
     if args.show_cognition_stats or isinstance(cognition, HybridCognition):
         _print_cognition_stats(cognition)
         _print_cognition_trace(cognition)
+        _print_cognition_impacts(cognition_impacts)
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
         _print_reflection_stats(reflection)
         _print_reflection_trace(reflection)
@@ -493,6 +506,17 @@ def _print_cognition_trace(cognition) -> None:
         )
         if item.error:
             print(f"          error={item.error}")
+
+
+def _print_cognition_impacts(impacts: list[dict]) -> None:
+    if not impacts:
+        return
+    print("\nCognition impact:")
+    for item in impacts[-5:]:
+        print(
+            f"day {item['day']:>3} | {item['agent_name']:<8} | "
+            f"{item['signal']:<36} | {item['summary']}"
+        )
 
 
 def _print_reflection_stats(reflection) -> None:

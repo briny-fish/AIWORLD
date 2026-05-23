@@ -16,6 +16,7 @@ from .dialogue_contract import (
     render_dialogue_prompt,
 )
 from .dialogue_evaluation import assess_dialogue_follow_through
+from .generative_chain_evaluation import assess_generated_chains
 from .hybrid_cognition import (
     HybridCognition,
     HybridCognitionConfig,
@@ -77,6 +78,7 @@ __all__ = [
     "build_dialogue_context",
     "build_reflection_context",
     "assess_dialogue_follow_through",
+    "assess_generated_chains",
     "assess_reflection_follow_through",
     "parse_plan_response",
     "parse_dialogue_response",

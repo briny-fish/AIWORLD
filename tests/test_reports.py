@@ -235,6 +235,64 @@ class ReportTests(unittest.TestCase):
         self.assertIn("baseline_reflection_context_diverged", html)
         self.assertIn("food distribution salient", html)
 
+    def test_build_run_record_can_include_generated_chains(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        chains = [
+            {
+                "dialogue_day": 21,
+                "reflection_day": 28,
+                "speaker_id": "a1",
+                "speaker_name": "Ari",
+                "partner_id": "a2",
+                "partner_name": "Bo",
+                "reflection_agent_id": "a1",
+                "reflection_agent_name": "Ari",
+                "dialogue_focus": "coordination",
+                "reflection_focus": "scarcity",
+                "signal": "generated_chain_action_diverged",
+                "shared_terms": ["food", "trust"],
+                "generated_dialogue": "Ari asked Bo to keep food visible.",
+                "generated_reflection": "Ari made food trust the priority.",
+                "memory_evidence": [
+                    {
+                        "day": 21,
+                        "agent_id": "a1",
+                        "agent_name": "Ari",
+                        "kind": "dialogue",
+                        "text": "Ari asked Bo to keep food visible.",
+                        "overlap_terms": ["food"],
+                    }
+                ],
+                "plan_evidence": [],
+                "baseline_plan_deltas": [
+                    {
+                        "day": 29,
+                        "run_plan": "day 29: farm | food pressure",
+                        "baseline_plan": "day 29: gather | routine",
+                        "run_action": "farm",
+                        "baseline_action": "gather",
+                        "change_kind": "action",
+                    }
+                ],
+                "summary": "Ari carried generated dialogue into generated reflection.",
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            generated_chains=chains,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["generated_chains"], chains)
+        self.assertIn("Generated Chain Evaluation", html)
+        self.assertIn("generated_chain_action_diverged", html)
+        self.assertIn("Ari carried generated dialogue", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

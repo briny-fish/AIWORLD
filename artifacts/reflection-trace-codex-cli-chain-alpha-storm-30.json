@@ -1,0 +1,20 @@
+[
+  {
+    "day": 21,
+    "agent_id": "a9",
+    "agent_name": "Ivo",
+    "status": "primary",
+    "baseline_reflection": "Ivo reflects that 1 crises or shocks require caution; 8 social or institutional moments shaped trust; 1 work memories show where effort has been spent; most salient memory: river storm damaged the society: alpha stress test: storm breaks routine and tests memory propagation.",
+    "proposed_reflection": "Ivo remains a calm, care-driven healer who is trying to keep suffering visible and respond early rather than waiting for crises to deepen. After the storm, the recent pattern is steady trust-building through council dialogue, cautious attention to shortages and routes, and a necessary balance between rest and practical work like farming. The current priority is to preserve social trust while treating scarcity as an early-warning signal, not a late emergency.",
+    "used_reflection": "Ivo remains a calm, care-driven healer who is trying to keep suffering visible and respond early rather than waiting for crises to deepen. After the storm, the recent pattern is steady trust-building through council dialogue, cautious attention to shortages and routes, and a necessary balance between rest and practical work like farming. The current priority is to preserve social trust while treating scarcity as an early-warning signal, not a late emergency.",
+    "focus": "scarcity",
+    "memory_refs": [
+      2,
+      3,
+      9,
+      10,
+      0
+    ],
+    "error": null
+  }
+]

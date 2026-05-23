@@ -36,6 +36,7 @@ def build_run_record(
     reflection_follow_through: list[dict[str, Any]] | None = None,
     dialogue_trace: list[dict[str, Any]] | None = None,
     dialogue_follow_through: list[dict[str, Any]] | None = None,
+    generated_chains: list[dict[str, Any]] | None = None,
     baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
@@ -130,6 +131,8 @@ def build_run_record(
         record["dialogue_trace"] = dialogue_trace
     if dialogue_follow_through is not None:
         record["dialogue_follow_through"] = dialogue_follow_through
+    if generated_chains is not None:
+        record["generated_chains"] = generated_chains
     if baseline_comparison is not None:
         record["baseline_comparison"] = baseline_comparison
     return record
@@ -193,7 +196,15 @@ def write_json(path: str | Path, data: dict[str, Any] | list[Any]) -> None:
 def write_html(path: str | Path, html: str) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(html, encoding="utf-8")
+    target.write_text(_strip_trailing_whitespace(html), encoding="utf-8")
+
+
+def _strip_trailing_whitespace(html: str) -> str:
+    lines = html.splitlines()
+    output = "\n".join(line.rstrip() for line in lines)
+    if html.endswith(("\n", "\r\n")):
+        output += "\n"
+    return output
 
 
 def render_run_html(record: dict[str, Any]) -> str:
@@ -206,6 +217,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
     dialogue_follow_through = record.get("dialogue_follow_through", [])
+    generated_chains = record.get("generated_chains", [])
     baseline_comparison = record.get("baseline_comparison")
     agents = record["agents"]
     organizations = record.get("organizations", [])
@@ -254,6 +266,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
     {_dialogue_follow_through_section(dialogue_follow_through)}
+    {_generated_chains_section(generated_chains)}
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     <section class="band">
@@ -775,6 +788,59 @@ def _dialogue_follow_evidence_text(item: dict[str, Any]) -> str:
             f"{plan_deltas[0].get('change_kind') or 'plan'} | "
             f"{plan_deltas[0].get('agent_name', '')}: "
             f"{plan_deltas[0].get('run_text', '')}"
+        )
+    return " | ".join(parts) or "none"
+
+
+def _generated_chains_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Generated Chain Evaluation</h2>"
+        "<p>Accepted generated dialogue linked to accepted generated reflection "
+        "and later plans.</p>"
+        f"{_generated_chains_table(items)}"
+        "</section>"
+    )
+
+
+def _generated_chains_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item['dialogue_day']} -> {item['reflection_day']}</td>"
+            f"<td>{escape(item['speaker_name'])} / {escape(item['partner_name'])}</td>"
+            f"<td>{escape(item['reflection_agent_name'])}</td>"
+            f"<td>{escape(item.get('dialogue_focus') or '')}</td>"
+            f"<td>{escape(item.get('reflection_focus') or '')}</td>"
+            f"<td>{escape(item.get('signal') or '')}</td>"
+            f"<td>{escape(', '.join(item.get('shared_terms') or []) or 'none')}</td>"
+            f"<td>{len(item.get('memory_evidence') or [])}</td>"
+            f"<td>{len(item.get('plan_evidence') or [])}</td>"
+            f"<td>{len(item.get('baseline_plan_deltas') or [])}</td>"
+            f"<td>{escape(_generated_chain_evidence_text(item))}</td>"
+            f"<td>{escape(item.get('summary') or '')}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Days</th><th>Dialogue</th><th>Reflection Agent</th><th>Dialogue Focus</th><th>Reflection Focus</th><th>Signal</th><th>Shared Terms</th><th>Memory</th><th>Plan</th><th>Plan deltas</th><th>Evidence sample</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _generated_chain_evidence_text(item: dict[str, Any]) -> str:
+    parts = []
+    memories = item.get("memory_evidence") or []
+    plans = item.get("plan_evidence") or []
+    deltas = item.get("baseline_plan_deltas") or []
+    if memories:
+        parts.append(f"memory: {memories[0].get('text', '')}")
+    if plans:
+        parts.append(f"plan: {plans[0].get('text', '')}")
+    if deltas:
+        parts.append(
+            "baseline delta: "
+            f"{deltas[0].get('change_kind') or 'plan'} | "
+            f"{deltas[0].get('run_plan', '')}"
         )
     return " | ".join(parts) or "none"
 

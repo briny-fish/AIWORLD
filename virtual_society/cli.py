@@ -14,6 +14,7 @@ from .codex_cli_provider import (
 from .dialogue import HybridDialogue, HybridDialogueConfig
 from .dialogue_evaluation import assess_dialogue_follow_through
 from .experiment import run_experiment
+from .generative_chain_evaluation import assess_generated_chains
 from .health import assess_metrics
 from .history import HistoryRecorder, write_snapshot_files
 from .hybrid_cognition import HybridCognition, HybridCognitionConfig
@@ -266,6 +267,15 @@ def main() -> None:
             baseline_world=baseline_world,
         )
     ]
+    generated_chains = [
+        item.as_dict()
+        for item in assess_generated_chains(
+            simulation.world,
+            dialogue_trace,
+            reflection_trace,
+            baseline_world=baseline_world,
+        )
+    ]
     if args.save_run_json or args.save_run_html:
         run_record = build_run_record(
             args.seed,
@@ -278,6 +288,7 @@ def main() -> None:
             reflection_follow_through=reflection_follow_through,
             dialogue_trace=dialogue_trace,
             dialogue_follow_through=dialogue_follow_through,
+            generated_chains=generated_chains,
             baseline_comparison=baseline_comparison,
         )
         if args.save_run_json:
@@ -303,6 +314,8 @@ def main() -> None:
             payload["reflection_follow_through"] = reflection_follow_through
         if dialogue_follow_through:
             payload["dialogue_follow_through"] = dialogue_follow_through
+        if generated_chains:
+            payload["generated_chains"] = generated_chains
         print(json.dumps(payload, ensure_ascii=False, indent=2))
         return
 
@@ -333,6 +346,8 @@ def main() -> None:
         _print_dialogue_stats(dialogue)
         _print_dialogue_trace(dialogue)
         _print_dialogue_follow_through(dialogue_follow_through)
+    if generated_chains:
+        _print_generated_chains(generated_chains)
     if baseline_comparison is not None:
         _print_baseline_comparison(baseline_comparison)
     if history is not None:
@@ -567,6 +582,16 @@ def _print_dialogue_follow_through(follow_through: list[dict]) -> None:
         print(
             f"day {item['day']:>3} | {item['speaker_name']:<8} -> "
             f"{item['partner_name']:<8} | {item['signal']:<34} | {item['summary']}"
+        )
+
+
+def _print_generated_chains(chains: list[dict]) -> None:
+    print("\nGenerated chains:")
+    for item in chains[-5:]:
+        print(
+            f"dialogue day {item['dialogue_day']:>3} -> reflection day "
+            f"{item['reflection_day']:>3} | {item['reflection_agent_name']:<8} | "
+            f"{item['signal']:<38} | {item['summary']}"
         )
 
 

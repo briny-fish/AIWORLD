@@ -346,6 +346,49 @@ class ReportTests(unittest.TestCase):
         self.assertIn("cognition_action_diverged", html)
         self.assertIn("Ari accepted generated rest", html)
 
+    def test_build_run_record_can_include_cognition_outcomes(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        outcomes = [
+            {
+                "day": 21,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "cognition_signal": "cognition_action_diverged",
+                "outcome_signal": "mixed_resource_gain_social_cost",
+                "windows": [
+                    {
+                        "label": "final",
+                        "day": 30,
+                        "deltas": {
+                            "average_need": -0.004,
+                            "average_trust": -0.002,
+                            "institutional_cohesion": 0.0,
+                            "food": 0.91,
+                            "materials": 0.11,
+                            "shelter": -0.58,
+                        },
+                        "signal": "mixed_resource_gain_social_cost",
+                    }
+                ],
+                "summary": "Ari's generated rest traded social cost for food.",
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            cognition_outcomes=outcomes,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["cognition_outcomes"], outcomes)
+        self.assertIn("Cognition Outcome Evaluation", html)
+        self.assertIn("mixed_resource_gain_social_cost", html)
+        self.assertIn("Ari&#x27;s generated rest", html)
+
     def test_build_rule_baseline_comparison_records_final_deltas(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(5)

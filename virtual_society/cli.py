@@ -12,6 +12,7 @@ from .codex_cli_provider import (
     resolve_codex_cli,
 )
 from .cognition_impact_evaluation import assess_cognition_impacts
+from .cognition_outcome_evaluation import assess_cognition_outcomes
 from .dialogue import HybridDialogue, HybridDialogueConfig
 from .dialogue_evaluation import assess_dialogue_follow_through
 from .experiment import run_experiment
@@ -246,8 +247,9 @@ def main() -> None:
     dialogue_trace = _dialogue_trace(dialogue)
     baseline_comparison = None
     baseline_world = None
+    baseline_metrics = None
     if args.compare_rule_baseline:
-        baseline_comparison, baseline_world = _run_rule_baseline(
+        baseline_comparison, baseline_world, baseline_metrics = _run_rule_baseline(
             args,
             interventions,
             metrics,
@@ -258,6 +260,14 @@ def main() -> None:
             simulation.world,
             cognition_trace,
             baseline_world=baseline_world,
+        )
+    ]
+    cognition_outcomes = [
+        item.as_dict()
+        for item in assess_cognition_outcomes(
+            metrics,
+            baseline_metrics,
+            cognition_impacts,
         )
     ]
     reflection_follow_through = [
@@ -294,6 +304,7 @@ def main() -> None:
             history=history,
             cognition_trace=cognition_trace,
             cognition_impacts=cognition_impacts,
+            cognition_outcomes=cognition_outcomes,
             reflection_trace=reflection_trace,
             reflection_follow_through=reflection_follow_through,
             dialogue_trace=dialogue_trace,
@@ -322,6 +333,8 @@ def main() -> None:
             payload["baseline_comparison"] = baseline_comparison
         if cognition_impacts:
             payload["cognition_impacts"] = cognition_impacts
+        if cognition_outcomes:
+            payload["cognition_outcomes"] = cognition_outcomes
         if reflection_follow_through:
             payload["reflection_follow_through"] = reflection_follow_through
         if dialogue_follow_through:
@@ -351,6 +364,7 @@ def main() -> None:
         _print_cognition_stats(cognition)
         _print_cognition_trace(cognition)
         _print_cognition_impacts(cognition_impacts)
+        _print_cognition_outcomes(cognition_outcomes)
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
         _print_reflection_stats(reflection)
         _print_reflection_trace(reflection)
@@ -519,6 +533,23 @@ def _print_cognition_impacts(impacts: list[dict]) -> None:
         )
 
 
+def _print_cognition_outcomes(outcomes: list[dict]) -> None:
+    if not outcomes:
+        return
+    print("\nCognition outcome:")
+    for item in outcomes[-5:]:
+        final = (item.get("windows") or [{}])[-1]
+        deltas = final.get("deltas") or {}
+        print(
+            f"day {item['day']:>3} | {item['agent_name']:<8} | "
+            f"{item['outcome_signal']:<36} | "
+            f"need={_signed_number(deltas.get('average_need', 0))} "
+            f"trust={_signed_number(deltas.get('average_trust', 0))} "
+            f"food={_signed_number(deltas.get('food', 0))} "
+            f"shelter={_signed_number(deltas.get('shelter', 0))}"
+        )
+
+
 def _print_reflection_stats(reflection) -> None:
     if not isinstance(reflection, HybridReflection):
         print("\nReflection stats:")
@@ -640,7 +671,7 @@ def _run_rule_baseline(
     args: argparse.Namespace,
     interventions: list,
     metrics: list,
-) -> tuple[dict, WorldState]:
+) -> tuple[dict, WorldState, list]:
     baseline = Simulation(seed=args.seed, world_preset=args.world_preset)
     baseline_metrics = baseline.run(args.days, interventions=interventions)
     baseline_findings = assess_metrics(baseline_metrics)
@@ -653,6 +684,7 @@ def _run_rule_baseline(
             baseline_social_findings,
         ),
         baseline.world,
+        baseline_metrics,
     )
 
 

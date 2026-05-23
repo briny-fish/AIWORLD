@@ -3,6 +3,7 @@
 from .codex_cli_provider import CodexCliCognition, CodexCliDialogue, CodexCliReflection
 from .cognition import RuleBasedCognition
 from .cognition_impact_evaluation import assess_cognition_impacts
+from .cognition_outcome_evaluation import assess_cognition_outcomes
 from .dialogue import (
     HybridDialogue,
     HybridDialogueConfig,
@@ -79,6 +80,7 @@ __all__ = [
     "build_dialogue_context",
     "build_reflection_context",
     "assess_cognition_impacts",
+    "assess_cognition_outcomes",
     "assess_dialogue_follow_through",
     "assess_generated_chains",
     "assess_reflection_follow_through",

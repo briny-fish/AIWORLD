@@ -33,6 +33,7 @@ def build_run_record(
     history: dict[str, Any] | None = None,
     cognition_trace: list[dict[str, Any]] | None = None,
     cognition_impacts: list[dict[str, Any]] | None = None,
+    cognition_outcomes: list[dict[str, Any]] | None = None,
     reflection_trace: list[dict[str, Any]] | None = None,
     reflection_follow_through: list[dict[str, Any]] | None = None,
     dialogue_trace: list[dict[str, Any]] | None = None,
@@ -126,6 +127,8 @@ def build_run_record(
         record["cognition_trace"] = cognition_trace
     if cognition_impacts is not None:
         record["cognition_impacts"] = cognition_impacts
+    if cognition_outcomes is not None:
+        record["cognition_outcomes"] = cognition_outcomes
     if reflection_trace is not None:
         record["reflection_trace"] = reflection_trace
     if reflection_follow_through is not None:
@@ -217,6 +220,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     social_findings = record.get("social_findings", [])
     cognition_trace = record.get("cognition_trace", [])
     cognition_impacts = record.get("cognition_impacts", [])
+    cognition_outcomes = record.get("cognition_outcomes", [])
     reflection_trace = record.get("reflection_trace", [])
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
@@ -267,6 +271,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     </section>
     {_cognition_trace_section(cognition_trace)}
     {_cognition_impacts_section(cognition_impacts)}
+    {_cognition_outcomes_section(cognition_outcomes)}
     {_reflection_trace_section(reflection_trace)}
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
@@ -662,6 +667,57 @@ def _cognition_impact_evidence_text(item: dict[str, Any]) -> str:
             f"{deltas[0].get('change_kind') or 'plan'} | "
             f"{deltas[0].get('run_plan', '')} vs "
             f"{deltas[0].get('baseline_plan') or 'none'}"
+        )
+    return " | ".join(parts) or "none"
+
+
+def _cognition_outcomes_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Cognition Outcome Evaluation</h2>"
+        "<p>Post-decision metric deltas against the deterministic rule baseline "
+        "for accepted or blocked generated cognition calls.</p>"
+        f"{_cognition_outcomes_table(items)}"
+        "</section>"
+    )
+
+
+def _cognition_outcomes_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        final = (item.get("windows") or [{}])[-1]
+        deltas = final.get("deltas") or {}
+        rows.append(
+            "<tr>"
+            f"<td>{item['day']}</td>"
+            f"<td>{escape(item['agent_name'])}</td>"
+            f"<td>{escape(item.get('cognition_signal') or '')}</td>"
+            f"<td>{escape(item.get('outcome_signal') or '')}</td>"
+            f"<td>{escape(final.get('label') or '')}</td>"
+            f"<td>{escape(_signed_number(deltas.get('average_need', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('average_trust', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('institutional_cohesion', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('food', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('materials', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('shelter', 0)))}</td>"
+            f"<td>{escape(_cognition_outcome_windows_text(item))}</td>"
+            f"<td>{escape(item.get('summary') or '')}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Cognition Signal</th><th>Outcome Signal</th><th>Final Window</th><th>Avg Need</th><th>Trust</th><th>Cohesion</th><th>Food</th><th>Materials</th><th>Shelter</th><th>Windows</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _cognition_outcome_windows_text(item: dict[str, Any]) -> str:
+    parts = []
+    for window in item.get("windows") or []:
+        deltas = window.get("deltas") or {}
+        parts.append(
+            f"{window.get('label', '')}: "
+            f"need {_signed_number(deltas.get('average_need', 0))}, "
+            f"trust {_signed_number(deltas.get('average_trust', 0))}, "
+            f"food {_signed_number(deltas.get('food', 0))}"
         )
     return " | ".join(parts) or "none"
 

@@ -12,6 +12,9 @@ CRITICAL_EVENT_KINDS = {
     "hunger_crisis",
     "safety_crisis",
     "institutional_crisis",
+    "organization_fracture",
+    "relationship_crisis",
+    "route_blocked",
 }
 
 SOCIAL_EVENT_KINDS = {
@@ -20,6 +23,8 @@ SOCIAL_EVENT_KINDS = {
     "exchange",
     "market",
     "organization",
+    "reconciliation",
+    "route_reopened",
     "social",
 }
 
@@ -136,8 +141,11 @@ def _memory_tags(event: Event, agent: Agent) -> list[str]:
             "disaster",
             "rationing",
             "repair",
+            "route",
             "exchange",
             "social",
+            "fracture",
+            "reconciliation",
         }:
             tags.add(term)
     return sorted(tag for tag in tags if tag)

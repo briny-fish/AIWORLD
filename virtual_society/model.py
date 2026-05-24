@@ -181,6 +181,9 @@ class WorldRules:
     scarcity_trust_loss: float = 0.001
     relationship_baseline: float = 0.55
     relationship_daily_drift: float = 0.0013
+    relationship_crisis_threshold: float = 0.18
+    relationship_repair_threshold: float = 0.42
+    relationship_crisis_social_repair_bonus: float = 0.035
     memory_limit: int = 30
     memory_stream_limit: int = 120
     reflection_limit: int = 20
@@ -213,6 +216,14 @@ class WorldRules:
     organization_exchange_deficit_threshold: float = 0.22
     organization_exchange_cohesion_gain: float = 0.0009
     institutional_crisis_threshold: float = 0.35
+    organization_fracture_threshold: float = 0.24
+    organization_fracture_min_members: int = 4
+    organization_fracture_cooldown_days: int = 28
+    route_block_condition_threshold: float = 0.16
+    route_block_excess_threshold: float = 2.5
+    route_block_repair_need: float = 1.0
+    route_repair_material_cost: float = 0.22
+    route_repair_progress: float = 0.26
 
 
 @dataclass
@@ -227,6 +238,9 @@ class WorldState:
     locations: list[Location] = field(default_factory=list)
     organizations: list[Organization] = field(default_factory=list)
     route_loads: dict[str, float] = field(default_factory=dict)
+    blocked_routes: dict[str, float] = field(default_factory=dict)
+    relationship_crises: dict[str, int] = field(default_factory=dict)
+    organization_fractures: dict[str, int] = field(default_factory=dict)
     rules: WorldRules = field(default_factory=WorldRules)
     event_log: list[Event] = field(default_factory=list)
 

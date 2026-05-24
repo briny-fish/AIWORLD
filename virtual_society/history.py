@@ -24,8 +24,13 @@ SIGNIFICANT_EVENT_KINDS = {
     "maintenance",
     "norm_warning",
     "organization",
+    "organization_fracture",
     "rationing",
     "reflection",
+    "relationship_crisis",
+    "reconciliation",
+    "route_blocked",
+    "route_reopened",
     "route_strain",
     "safety_crisis",
 }
@@ -169,6 +174,12 @@ def build_history_snapshot(
             key: round(value, 3)
             for key, value in world.resources.items()
         },
+        "relationship_crises": dict(sorted(world.relationship_crises.items())),
+        "blocked_routes": {
+            key: round(value, 3)
+            for key, value in sorted(world.blocked_routes.items())
+        },
+        "organization_fractures": dict(sorted(world.organization_fractures.items())),
         "route_loads": {
             key: round(value, 3)
             for key, value in world.route_loads.items()
@@ -222,9 +233,13 @@ def summarize_history(snapshots: list[dict[str, Any]], metrics: list[Metrics]) -
             for snapshot in snapshots
         )
         average_location_condition = _average_location_condition(snapshots[-1])
+        active_relationship_crises = len(snapshots[-1].get("relationship_crises", {}))
+        blocked_routes = len(snapshots[-1].get("blocked_routes", {}))
         parts.append(f"rationing events {total_rationing}")
         parts.append(f"organizations observed {total_organizations}")
         parts.append(f"average location condition {average_location_condition:.3f}")
+        parts.append(f"active relationship crises {active_relationship_crises}")
+        parts.append(f"blocked routes {blocked_routes}")
     return "; ".join(parts) + "."
 
 
@@ -282,6 +297,9 @@ def _snapshot_summary(
         event_counts.get("hunger_crisis", 0)
         + event_counts.get("safety_crisis", 0)
         + event_counts.get("institutional_crisis", 0)
+        + event_counts.get("relationship_crisis", 0)
+        + event_counts.get("organization_fracture", 0)
+        + event_counts.get("route_blocked", 0)
     )
     trend_text = _trend_word(trends["average_need"])
     if total_crises:

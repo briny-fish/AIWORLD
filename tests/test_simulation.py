@@ -3,6 +3,7 @@ import unittest
 from virtual_society.experiment import run_experiment
 from virtual_society.interventions import Intervention
 from virtual_society import Simulation
+from virtual_society.model import Action, Plan
 
 
 class SimulationTests(unittest.TestCase):
@@ -115,6 +116,29 @@ class SimulationTests(unittest.TestCase):
 
         self.assertEqual(simulation.world.rules.food_per_agent, 0.8)
         self.assertEqual(simulation.world.event_log[0].kind, "edict")
+
+    def test_relationship_crisis_blocks_passive_repair_until_social_action(self) -> None:
+        simulation = Simulation(seed=7)
+        first = simulation.world.agents[0]
+        second = simulation.world.agents[1]
+        first.relationships[second.id] = 0.10
+        second.relationships[first.id] = 0.12
+        simulation.world.day = 5
+
+        simulation._apply_relationship_crises()
+        before = first.relationships[second.id]
+        simulation._apply_social_drift()
+
+        self.assertIn("a1|a2", simulation.world.relationship_crises)
+        self.assertEqual(first.relationships[second.id], before)
+        self.assertTrue(any(event.kind == "relationship_crisis" for event in simulation.world.event_log))
+
+        first.relationships[second.id] = 0.39
+        second.relationships[first.id] = 0.39
+        simulation._apply_action(first, Plan(Action.SOCIALIZE, 1.0, "repair trust", target_id=second.id))
+
+        self.assertNotIn("a1|a2", simulation.world.relationship_crises)
+        self.assertTrue(any(event.kind == "reconciliation" for event in simulation.world.event_log))
 
     def test_experiment_returns_report_for_each_seed(self) -> None:
         reports = run_experiment(seeds=[1, 2, 3], days=30)

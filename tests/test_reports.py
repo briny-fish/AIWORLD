@@ -540,6 +540,22 @@ class ReportTests(unittest.TestCase):
         self.assertIn("History", html)
         self.assertIn("Day 1", html)
 
+    def test_run_html_renders_historical_scars(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.world.relationship_crises["a1|a2"] = 3
+        simulation.world.blocked_routes["commons|north_field"] = 0.75
+        simulation.world.organization_fractures["common_council"] = 4
+        metrics = simulation.run(1)
+
+        record = build_run_record(7, metrics, simulation.world, assess_metrics(metrics))
+        html = render_run_html(record)
+
+        self.assertIn("Historical Scars", html)
+        self.assertIn("Relationship Crises", html)
+        self.assertIn("Blocked Routes", html)
+        self.assertIn("Organization Fractures", html)
+        self.assertIn("commons|north_field", html)
+
     def test_experiment_html_renders_seed_comparison(self) -> None:
         reports = run_experiment(seeds=[1, 2], days=10)
         record = build_experiment_record(reports)

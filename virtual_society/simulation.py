@@ -101,12 +101,15 @@ class Simulation:
         self._apply_institutional_effects(actions_taken)
         self._apply_organization_exchange()
         self._apply_supply_routes()
+        self._apply_route_repairs()
         self._apply_common_maintenance()
         self._apply_route_wear()
         self._consume_food()
         self._apply_social_pressure()
         self._apply_scarcity_pressure()
         self._apply_institutional_pressure()
+        self._apply_relationship_crises()
+        self._apply_organization_fractures()
         self._apply_reflections()
         return self.metrics()
 
@@ -129,7 +132,15 @@ class Simulation:
         crisis_events = sum(
             1
             for event in self.world.event_log
-            if event.kind in {"hunger_crisis", "safety_crisis", "institutional_crisis"}
+            if event.kind
+            in {
+                "hunger_crisis",
+                "safety_crisis",
+                "institutional_crisis",
+                "organization_fracture",
+                "relationship_crisis",
+                "route_blocked",
+            }
         )
         return Metrics(
             day=self.world.day,
@@ -566,6 +577,8 @@ class Simulation:
         rules = self.world.rules
         for agent in self.world.agents:
             for other_id, trust in list(agent.relationships.items()):
+                if _relationship_key(agent.id, other_id) in self.world.relationship_crises:
+                    continue
                 drift = rules.relationship_daily_drift
                 if self._share_organization(agent, other_id):
                     drift *= 0.55
@@ -743,11 +756,24 @@ class Simulation:
             agent.needs.belonging += 0.18
             agent.needs.meaning += 0.03
             if partner is not None:
-                agent.relationships[partner.id] = min(1.0, agent.relationships[partner.id] + 0.04)
-                partner.relationships[agent.id] = min(1.0, partner.relationships[agent.id] + 0.03)
+                pair_key = _relationship_key(agent.id, partner.id)
+                repair_bonus = (
+                    self.world.rules.relationship_crisis_social_repair_bonus
+                    if pair_key in self.world.relationship_crises
+                    else 0.0
+                )
+                agent.relationships[partner.id] = min(
+                    1.0,
+                    agent.relationships[partner.id] + 0.04 + repair_bonus,
+                )
+                partner.relationships[agent.id] = min(
+                    1.0,
+                    partner.relationships[agent.id] + 0.03 + repair_bonus,
+                )
                 partner.needs.belonging += 0.06
                 partner.location_id = agent.location_id
                 self._record("social", agent.id, f"{agent.name} strengthened ties with {partner.name}.", {})
+                self._maybe_reconcile_relationship(agent, partner)
                 baseline_dialogue = self._compose_social_dialogue(agent, partner)
                 dialogue = self.dialogue.propose_dialogue(
                     agent,
@@ -1151,6 +1177,7 @@ class Simulation:
         rules = self.world.rules
         total_excess = 0.0
         affected_routes = 0
+        newly_blocked: list[str] = []
         for route_key, load in list(self.world.route_loads.items()):
             soft_capacity = rules.route_soft_capacity * self._edge_condition_factor(route_key)
             if load <= soft_capacity:
@@ -1159,6 +1186,12 @@ class Simulation:
             wear = min(0.012, excess * rules.route_congestion_wear)
             for location_id in route_key.split("|"):
                 self._wear_location(location_id, wear)
+            if self._should_block_route(route_key, excess):
+                self.world.blocked_routes[route_key] = max(
+                    self.world.blocked_routes.get(route_key, 0.0),
+                    rules.route_block_repair_need,
+                )
+                newly_blocked.append(route_key)
             total_excess += excess
             affected_routes += 1
 
@@ -1172,6 +1205,82 @@ class Simulation:
             {"route_excess": total_excess, "routes": float(affected_routes)},
             remember_actor=False,
         )
+        for route_key in newly_blocked:
+            self._record(
+                "route_blocked",
+                "common_council",
+                f"Route {route_key} became blocked after repeated strain and poor condition.",
+                {"repair_need": self.world.blocked_routes[route_key]},
+                remember_all=True,
+            )
+
+    def _should_block_route(self, route_key: str, excess: float) -> bool:
+        if route_key in self.world.blocked_routes:
+            return False
+        if excess < self.world.rules.route_block_excess_threshold:
+            return False
+        location_ids = route_key.split("|")
+        conditions = [
+            location.condition
+            for location_id in location_ids
+            if (location := self._find_location(location_id)) is not None
+        ]
+        if not conditions:
+            return False
+        return min(conditions) <= self.world.rules.route_block_condition_threshold
+
+    def _apply_route_repairs(self) -> None:
+        if not self.world.blocked_routes:
+            return
+        rules = self.world.rules
+        workshop_materials = self._location_resource("workshop", "materials")
+        if workshop_materials <= 0.05:
+            return
+
+        cohesion = self._average_institutional_cohesion()
+        if cohesion < 0.45:
+            return
+
+        repaired_routes = 0
+        used_materials = 0.0
+        for route_key, repair_need in sorted(list(self.world.blocked_routes.items())):
+            if workshop_materials <= 0.05:
+                break
+            material_cost = min(workshop_materials, rules.route_repair_material_cost)
+            removed = self._remove_location_resource("workshop", "materials", material_cost)
+            if removed <= 0.0:
+                break
+            workshop_materials -= removed
+            used_materials += removed
+            remaining = round(
+                repair_need - rules.route_repair_progress * (0.65 + cohesion),
+                3,
+            )
+            if remaining <= 0.0:
+                del self.world.blocked_routes[route_key]
+                repaired_routes += 1
+                self._record(
+                    "route_reopened",
+                    "common_council",
+                    f"Route {route_key} reopened after common repair work.",
+                    {"materials": -removed},
+                    remember_all=True,
+                )
+            else:
+                self.world.blocked_routes[route_key] = remaining
+
+        if used_materials <= 0.0:
+            return
+
+        self._sync_world_resources()
+        if repaired_routes <= 0:
+            self._record(
+                "route_repair",
+                "common_council",
+                "Common repair crews reduced blocked route repair backlog.",
+                {"materials": -used_materials},
+                remember_actor=False,
+            )
 
     def _consume_food(self) -> None:
         food_per_agent = self.world.rules.food_per_agent
@@ -1422,6 +1531,162 @@ class Simulation:
             "Weak institutional cohesion reduced belonging, meaning, and trust.",
             {"institutional_cohesion": -loss},
         )
+
+    def _apply_relationship_crises(self) -> None:
+        rules = self.world.rules
+        candidates: list[tuple[float, Agent, Agent]] = []
+        for index, agent in enumerate(self.world.agents):
+            for other in self.world.agents[index + 1:]:
+                pair_key = _relationship_key(agent.id, other.id)
+                if pair_key in self.world.relationship_crises:
+                    continue
+                trust = (
+                    agent.relationships.get(other.id, 0.50)
+                    + other.relationships.get(agent.id, 0.50)
+                ) / 2
+                if trust <= rules.relationship_crisis_threshold:
+                    candidates.append((trust, agent, other))
+
+        for trust, agent, other in sorted(candidates, key=lambda item: item[0])[:3]:
+            pair_key = _relationship_key(agent.id, other.id)
+            self.world.relationship_crises[pair_key] = self.world.day
+            self._record(
+                "relationship_crisis",
+                "society",
+                (
+                    f"{agent.name} and {other.name} entered a relationship crisis; "
+                    f"trust fell to {trust:.3f}."
+                ),
+                {"trust": -round(rules.relationship_crisis_threshold - trust, 3)},
+                remember_all=True,
+            )
+
+    def _maybe_reconcile_relationship(self, agent: Agent, partner: Agent) -> None:
+        pair_key = _relationship_key(agent.id, partner.id)
+        if pair_key not in self.world.relationship_crises:
+            return
+        trust = (
+            agent.relationships.get(partner.id, 0.50)
+            + partner.relationships.get(agent.id, 0.50)
+        ) / 2
+        if trust < self.world.rules.relationship_repair_threshold:
+            return
+
+        started_day = self.world.relationship_crises.pop(pair_key)
+        self._record(
+            "reconciliation",
+            agent.id,
+            (
+                f"{agent.name} and {partner.name} reconciled after a relationship "
+                f"crisis that began on day {started_day}."
+            ),
+            {"trust": trust},
+            remember_all=True,
+        )
+
+    def _apply_organization_fractures(self) -> None:
+        rules = self.world.rules
+        for organization in list(self.world.organizations):
+            if len(organization.members) < rules.organization_fracture_min_members:
+                continue
+            if organization.cohesion > rules.organization_fracture_threshold:
+                continue
+            last_fracture_day = self.world.organization_fractures.get(organization.id)
+            if (
+                last_fracture_day is not None
+                and self.world.day - last_fracture_day < rules.organization_fracture_cooldown_days
+            ):
+                continue
+            members = [
+                agent
+                for member_id in organization.members
+                if (agent := self._find_agent(member_id)) is not None
+            ]
+            if len(members) < rules.organization_fracture_min_members:
+                continue
+
+            scored_members = sorted(
+                (
+                    (self._average_peer_trust(agent, organization), agent)
+                    for agent in members
+                ),
+                key=lambda item: (item[0], item[1].id),
+            )
+            split_count = min(max(2, len(members) // 3), len(members) - 2)
+            breakaway_agents = [agent for _, agent in scored_members[:split_count]]
+            if len(breakaway_agents) < 2:
+                continue
+
+            self._create_splinter_organization(organization, breakaway_agents)
+            return
+
+    def _average_peer_trust(self, agent: Agent, organization: Organization) -> float:
+        peer_ids = [member_id for member_id in organization.members if member_id != agent.id]
+        if not peer_ids:
+            return 0.0
+        return sum(agent.relationships.get(peer_id, 0.50) for peer_id in peer_ids) / len(peer_ids)
+
+    def _create_splinter_organization(
+        self,
+        organization: Organization,
+        breakaway_agents: list[Agent],
+    ) -> None:
+        breakaway_ids = [agent.id for agent in breakaway_agents]
+        breakaway_names = ", ".join(agent.name for agent in breakaway_agents)
+        organization.members = [
+            member_id
+            for member_id in organization.members
+            if member_id not in breakaway_ids
+        ]
+        for agent in breakaway_agents:
+            if organization.id in agent.organization_ids:
+                agent.organization_ids.remove(organization.id)
+
+        organization.cohesion = _clamp(organization.cohesion - 0.04, 0.0, 1.0)
+        new_id = self._unique_organization_id(f"{organization.id}_splinter")
+        home_location_id = breakaway_agents[0].location_id
+        splinter = Organization(
+            id=new_id,
+            name=f"{organization.name} Splinter",
+            kind=f"{organization.kind}_splinter",
+            home_location_id=home_location_id,
+            members=breakaway_ids,
+            norms=list(dict.fromkeys([*organization.norms[:2], "repair_trust"])),
+            inventory_targets=dict(organization.inventory_targets),
+            exchange_preferences=dict(organization.exchange_preferences),
+            cohesion=0.38,
+            reputation=round(
+                sum(agent.reputation for agent in breakaway_agents) / len(breakaway_agents),
+                3,
+            ),
+        )
+        self.world.organizations.append(splinter)
+        for agent in breakaway_agents:
+            if splinter.id not in agent.organization_ids:
+                agent.organization_ids.append(splinter.id)
+
+        self.world.organization_fractures[organization.id] = self.world.day
+        self._record(
+            "organization_fracture",
+            organization.id,
+            (
+                f"{organization.name} fractured; {breakaway_names} formed "
+                f"{splinter.name} at {self._location_name(home_location_id)}."
+            ),
+            {
+                "members": -float(len(breakaway_ids)),
+                "cohesion": organization.cohesion,
+            },
+            remember_all=True,
+        )
+
+    def _unique_organization_id(self, base_id: str) -> str:
+        candidate = base_id
+        index = 2
+        while self._find_organization(candidate) is not None:
+            candidate = f"{base_id}_{index}"
+            index += 1
+        return candidate
 
     def _apply_disaster(self, intervention: Intervention) -> None:
         name = str(intervention.params.get("name", "disaster"))
@@ -1905,6 +2170,7 @@ class Simulation:
             neighbor_id
             for neighbor_id in sorted(neighbors)
             if self._find_location(neighbor_id) is not None
+            and _route_key(location_id, neighbor_id) not in self.world.blocked_routes
         ]
 
     def _register_route_use(self, source_id: str, destination_id: str, amount: float) -> None:
@@ -2087,6 +2353,20 @@ def _default_profile(name: str, role: str) -> AgentProfile:
 def _route_key(first_location_id: str, second_location_id: str) -> str:
     left, right = sorted([first_location_id, second_location_id])
     return f"{left}|{right}"
+
+
+def _relationship_key(first_agent_id: str, second_agent_id: str) -> str:
+    left, right = sorted(
+        [first_agent_id, second_agent_id],
+        key=_agent_id_sort_key,
+    )
+    return f"{left}|{right}"
+
+
+def _agent_id_sort_key(agent_id: str) -> tuple[str, int | str]:
+    if len(agent_id) > 1 and agent_id[0].isalpha() and agent_id[1:].isdigit():
+        return (agent_id[0], int(agent_id[1:]))
+    return (agent_id, agent_id)
 
 
 def _string_list(value: object) -> list[str]:

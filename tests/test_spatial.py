@@ -154,6 +154,33 @@ class SpatialTests(unittest.TestCase):
         self.assertLess(commons.condition, 1.0)
         self.assertEqual(simulation.world.event_log[-1].kind, "route_strain")
 
+    def test_route_strain_can_block_low_condition_route(self) -> None:
+        simulation = Simulation(seed=7)
+        field = next(location for location in simulation.world.locations if location.id == "north_field")
+        commons = next(location for location in simulation.world.locations if location.id == "commons")
+        field.condition = 0.10
+        commons.condition = 0.12
+        simulation.world.route_loads["commons|north_field"] = 20.0
+
+        simulation._apply_route_wear()
+
+        self.assertIn("commons|north_field", simulation.world.blocked_routes)
+        self.assertTrue(any(event.kind == "route_blocked" for event in simulation.world.event_log))
+        self.assertNotIn("north_field", simulation._connected_neighbors("commons"))
+
+    def test_route_repairs_reopen_blocked_route_with_materials(self) -> None:
+        simulation = Simulation(seed=7)
+        workshop = next(location for location in simulation.world.locations if location.id == "workshop")
+        workshop.resources["materials"] = 1.0
+        simulation.world.blocked_routes["commons|north_field"] = 0.10
+        simulation._sync_world_resources()
+
+        simulation._apply_route_repairs()
+
+        self.assertNotIn("commons|north_field", simulation.world.blocked_routes)
+        self.assertTrue(any(event.kind == "route_reopened" for event in simulation.world.event_log))
+        self.assertIn("north_field", simulation._connected_neighbors("commons"))
+
     def test_shelter_upkeep_depreciates_shelter_stock(self) -> None:
         simulation = Simulation(seed=7)
         before = simulation.world.resources["shelter"]

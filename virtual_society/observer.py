@@ -104,6 +104,7 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
 .agent-node span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; overflow-wrap: anywhere; }
 .org-row { display: grid; grid-template-columns: 1fr 70px 70px; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .event-row { display: grid; grid-template-columns: 42px 92px 1fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+.scar-row { grid-template-columns: 100px 1fr 120px; }
 .event-row span, .org-row span { overflow-wrap: anywhere; }
 .muted { color: var(--muted); }
 .chart { width: 100%; height: 180px; border: 1px solid var(--line); background: #fbfdfc; display: block; }
@@ -146,6 +147,10 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
       <div class="band">
         <h2>Metrics</h2>
         <svg id="chart" class="chart" viewBox="0 0 520 180" role="img" aria-label="Metrics chart"></svg>
+      </div>
+      <div class="band">
+        <h2>Historical Scars</h2>
+        <div id="scars"></div>
       </div>
       <div class="band">
         <h2>Recent Events</h2>
@@ -212,6 +217,7 @@ function render(snapshot, metricsPayload, eventsPayload) {
   renderMap(snapshot.world.agents);
   renderOrganizations(snapshot.world.organizations);
   renderLocations(snapshot.world.locations || []);
+  renderScars(snapshot.world);
   renderEvents(eventsPayload.events);
   renderChart(metricsPayload.metrics);
 }
@@ -276,6 +282,28 @@ function renderLocations(locations) {
       </div>
     `;
   }).join("");
+}
+
+function renderScars(world) {
+  const relationshipCrises = Object.entries(world.relationship_crises || {});
+  const blockedRoutes = Object.entries(world.blocked_routes || {});
+  const fractures = Object.entries(world.organization_fractures || {});
+  const rows = [
+    ...relationshipCrises.map(([pair, day]) => ["relationship", pair, `since day ${day}`]),
+    ...blockedRoutes.map(([route, need]) => ["route", route, `repair ${Number(need).toFixed(2)}`]),
+    ...fractures.map(([org, day]) => ["organization", org, `fractured day ${day}`])
+  ];
+  if (!rows.length) {
+    $("scars").innerHTML = `<span class="muted">No active historical scars.</span>`;
+    return;
+  }
+  $("scars").innerHTML = rows.map(([kind, subject, detail]) => `
+    <div class="event-row scar-row">
+      <span>${escapeHtml(kind)}</span>
+      <span>${escapeHtml(subject)}</span>
+      <span>${escapeHtml(detail)}</span>
+    </div>
+  `).join("");
 }
 
 function renderEvents(events) {

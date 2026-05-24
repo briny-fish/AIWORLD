@@ -102,6 +102,32 @@ class InstitutionTests(unittest.TestCase):
             )
         )
 
+    def test_low_cohesion_organization_can_fracture_into_splinter_group(self) -> None:
+        simulation = Simulation(seed=7)
+        council = next(
+            organization
+            for organization in simulation.world.organizations
+            if organization.id == "common_council"
+        )
+        council.cohesion = 0.10
+        for agent in simulation.world.agents[:2]:
+            for other in simulation.world.agents[2:]:
+                agent.relationships[other.id] = 0.08
+        simulation.world.day = 12
+
+        simulation._apply_organization_fractures()
+
+        splinters = [
+            organization
+            for organization in simulation.world.organizations
+            if organization.id.startswith("common_council_splinter")
+        ]
+        self.assertEqual(len(splinters), 1)
+        self.assertEqual(set(splinters[0].members), {"a1", "a2"})
+        self.assertNotIn("a1", council.members)
+        self.assertIn("common_council", simulation.world.organization_fractures)
+        self.assertTrue(any(event.kind == "organization_fracture" for event in simulation.world.event_log))
+
 
 if __name__ == "__main__":
     unittest.main()

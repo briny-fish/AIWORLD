@@ -1,0 +1,83 @@
+[
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "raise sensitivity so the weakest ties become visible historical crises",
+    "params": {
+      "rule": "relationship_crisis_threshold",
+      "value": 0.36
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make reconciliation require deliberate social repair",
+    "params": {
+      "rule": "relationship_repair_threshold",
+      "value": 0.45
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "stress low-cohesion institutions into visible fracture",
+    "params": {
+      "rule": "organization_fracture_threshold",
+      "value": 0.54
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make poor route condition capable of blocking a strained route",
+    "params": {
+      "rule": "route_block_condition_threshold",
+      "value": 0.66
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "turn heavy route strain into a visible route closure",
+    "params": {
+      "rule": "route_block_excess_threshold",
+      "value": 0.4
+    }
+  },
+  {
+    "day": 8,
+    "kind": "disaster",
+    "actor_id": "observer",
+    "reason": "storm pressure after fragile ties and institutions are exposed",
+    "params": {
+      "name": "fracture storm",
+      "severity": 0.28
+    }
+  },
+  {
+    "day": 10,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "surface fragile mid-crisis ties for the observer before recovery can smooth them over",
+    "params": {
+      "rule": "relationship_crisis_threshold",
+      "value": 0.56
+    }
+  },
+  {
+    "day": 18,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "limited material aid for route and shelter repair",
+    "params": {
+      "resource": "materials",
+      "amount": 5.0,
+      "location_id": "workshop"
+    }
+  }
+]

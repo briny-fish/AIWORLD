@@ -12,6 +12,9 @@ SHOCK_EVENT_KINDS = {
     "hunger_crisis",
     "safety_crisis",
     "institutional_crisis",
+    "organization_fracture",
+    "relationship_crisis",
+    "route_blocked",
 }
 
 RESPONSE_TERMS_BY_KIND = {
@@ -58,6 +61,30 @@ RESPONSE_TERMS_BY_KIND = {
         "organization",
         "socialize",
         "trust",
+    },
+    "organization_fracture": {
+        "cohesion",
+        "fracture",
+        "institution",
+        "organization",
+        "repair",
+        "splinter",
+        "trust",
+    },
+    "relationship_crisis": {
+        "crisis",
+        "relationship",
+        "repair",
+        "socialize",
+        "trust",
+    },
+    "route_blocked": {
+        "blocked",
+        "haul",
+        "logistics",
+        "materials",
+        "repair",
+        "route",
     },
 }
 

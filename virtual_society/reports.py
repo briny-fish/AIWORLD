@@ -58,6 +58,7 @@ def build_run_record(
             key: round(value, 3)
             for key, value in world.route_loads.items()
         },
+        "historical_scars": _historical_scars(world),
         "agents": [
             {
                 "id": agent.id,
@@ -118,6 +119,11 @@ def build_run_record(
                     for key, value in location.resources.items()
                 },
                 "connected_location_ids": list(location.connected_location_ids),
+                "blocked_connected_location_ids": [
+                    neighbor_id
+                    for neighbor_id in location.connected_location_ids
+                    if _route_key(location.id, neighbor_id) in world.blocked_routes
+                ],
             }
             for location in world.locations
         ],
@@ -239,6 +245,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     organizations = record.get("organizations", [])
     locations = record.get("locations", [])
     history = record.get("history")
+    historical_scars = record.get("historical_scars", {})
     events = record["events"][-80:]
     title = f"Virtual Society Run | seed {record['seed']} | day {record['days']}"
 
@@ -289,6 +296,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_generated_chains_section(generated_chains)}
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
+    {_historical_scars_section(historical_scars)}
     <section class="band">
       <h2>Metrics</h2>
       {_metrics_chart(metrics)}
@@ -376,9 +384,10 @@ body {
   border-bottom: 2px solid var(--ink);
   padding-bottom: 16px;
 }
-h1, h2 { margin: 0; letter-spacing: 0; }
+h1, h2, h3 { margin: 0; letter-spacing: 0; }
 h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1; }
 h2 { font-size: 18px; margin-bottom: 12px; }
+h3 { font-size: 14px; margin: 12px 0 8px; }
 p { margin: 8px 0 0; color: var(--muted); }
 .status {
   min-width: 220px;
@@ -539,9 +548,106 @@ def _locations_table(locations: list[dict[str, Any]]) -> str:
             f"<td>{escape(_resources_text(location.get('production', {})))}</td>"
             f"<td>{location.get('maintenance_need', 1.0)}</td>"
             f"<td>{escape(', '.join(location['connected_location_ids']))}</td>"
+            f"<td>{escape(', '.join(location.get('blocked_connected_location_ids', [])))}</td>"
             "</tr>"
         )
-    return "<table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+    return "<table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th><th>Blocked</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _historical_scars(world: WorldState) -> dict[str, Any]:
+    agents_by_id = {agent.id: agent for agent in world.agents}
+    relationship_crises = []
+    for pair_key, started_day in sorted(world.relationship_crises.items()):
+        first_id, second_id = pair_key.split("|", 1)
+        first = agents_by_id.get(first_id)
+        second = agents_by_id.get(second_id)
+        first_trust = first.relationships.get(second_id, 0.0) if first is not None else 0.0
+        second_trust = second.relationships.get(first_id, 0.0) if second is not None else 0.0
+        relationship_crises.append(
+            {
+                "pair": pair_key,
+                "started_day": started_day,
+                "agents": [
+                    first.name if first is not None else first_id,
+                    second.name if second is not None else second_id,
+                ],
+                "average_trust": round((first_trust + second_trust) / 2, 3),
+            }
+        )
+
+    return {
+        "relationship_crises": relationship_crises,
+        "blocked_routes": [
+            {"route": key, "repair_need": round(value, 3)}
+            for key, value in sorted(world.blocked_routes.items())
+        ],
+        "organization_fractures": [
+            {"organization_id": key, "day": value}
+            for key, value in sorted(world.organization_fractures.items())
+        ],
+    }
+
+
+def _historical_scars_section(scars: dict[str, Any]) -> str:
+    if not scars:
+        return ""
+    relationship_crises = scars.get("relationship_crises") or []
+    blocked_routes = scars.get("blocked_routes") or []
+    organization_fractures = scars.get("organization_fractures") or []
+    if not relationship_crises and not blocked_routes and not organization_fractures:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Historical Scars</h2>"
+        "<p>Persistent social and spatial damage that will not vanish through passive drift.</p>"
+        f"{_relationship_crisis_table(relationship_crises)}"
+        f"{_blocked_route_table(blocked_routes)}"
+        f"{_organization_fracture_table(organization_fractures)}"
+        "</section>"
+    )
+
+
+def _relationship_crisis_table(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    rows = []
+    for item in items:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(' / '.join(item.get('agents', [])))}</td>"
+            f"<td>{item.get('started_day', '')}</td>"
+            f"<td>{item.get('average_trust', 0)}</td>"
+            "</tr>"
+        )
+    return "<h3>Relationship Crises</h3><table><thead><tr><th>Agents</th><th>Since Day</th><th>Trust</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _blocked_route_table(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    rows = []
+    for item in items:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('route', '')))}</td>"
+            f"<td>{item.get('repair_need', 0)}</td>"
+            "</tr>"
+        )
+    return "<h3>Blocked Routes</h3><table><thead><tr><th>Route</th><th>Repair Need</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _organization_fracture_table(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    rows = []
+    for item in items:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('organization_id', '')))}</td>"
+            f"<td>{item.get('day', '')}</td>"
+            "</tr>"
+        )
+    return "<h3>Organization Fractures</h3><table><thead><tr><th>Organization</th><th>Day</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _history_section(history: dict[str, Any] | None) -> str:
@@ -565,7 +671,16 @@ def _history_table(snapshots: list[dict[str, Any]]) -> str:
         event_counts = snapshot.get("event_counts", {})
         notable_events = sum(
             int(event_counts.get(kind, 0))
-            for kind in ("disaster", "hunger_crisis", "institutional_crisis", "organization", "rationing")
+            for kind in (
+                "disaster",
+                "hunger_crisis",
+                "institutional_crisis",
+                "organization",
+                "organization_fracture",
+                "rationing",
+                "relationship_crisis",
+                "route_blocked",
+            )
         )
         rows.append(
             "<tr>"
@@ -1271,6 +1386,11 @@ def _average(values: Any) -> float:
     if not items:
         return 0.0
     return round(sum(items) / len(items), 3)
+
+
+def _route_key(first_location_id: str, second_location_id: str) -> str:
+    left, right = sorted([first_location_id, second_location_id])
+    return f"{left}|{right}"
 
 
 def _plan_dict(plan: Any) -> dict[str, Any] | None:

@@ -8,8 +8,10 @@ from pathlib import Path
 from typing import Any
 
 from .health import HealthFinding, RunReport
+from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
 from .social_evaluation import SocialFinding, assess_social_dynamics
+from .social_chronicle import build_social_chronicle
 
 
 COMPARISON_METRICS = [
@@ -44,6 +46,8 @@ def build_run_record(
     baseline_comparison: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
+    social_finding_dicts = [item.as_dict() for item in social_findings]
+    social_chronicle = build_social_chronicle(history, social_finding_dicts)
     record = {
         "kind": "run",
         "generated_at": _now(),
@@ -52,13 +56,15 @@ def build_run_record(
         "metrics": [asdict(item) for item in metrics],
         "final_metrics": asdict(metrics[-1]) if metrics else None,
         "findings": [asdict(item) for item in findings],
-        "social_findings": [item.as_dict() for item in social_findings],
+        "social_findings": social_finding_dicts,
         "resources": dict(world.resources),
         "route_loads": {
             key: round(value, 3)
             for key, value in world.route_loads.items()
         },
         "historical_scars": _historical_scars(world),
+        "historical_scar_validation": build_historical_scar_validation(world, history),
+        "social_chronicle": social_chronicle,
         "agents": [
             {
                 "id": agent.id,
@@ -245,6 +251,8 @@ def render_run_html(record: dict[str, Any]) -> str:
     organizations = record.get("organizations", [])
     locations = record.get("locations", [])
     history = record.get("history")
+    social_chronicle = record.get("social_chronicle")
+    historical_scar_validation = record.get("historical_scar_validation")
     historical_scars = record.get("historical_scars", {})
     events = record["events"][-80:]
     title = f"Virtual Society Run | seed {record['seed']} | day {record['days']}"
@@ -296,6 +304,8 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_generated_chains_section(generated_chains)}
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
+    {_social_chronicle_section(social_chronicle)}
+    {_historical_scar_validation_section(historical_scar_validation)}
     {_historical_scars_section(historical_scars)}
     <section class="band">
       <h2>Metrics</h2>
@@ -552,6 +562,78 @@ def _locations_table(locations: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th><th>Blocked</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _social_chronicle_section(chronicle: dict[str, Any] | None) -> str:
+    if not chronicle or not chronicle.get("entries"):
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Social Chronicle</h2>"
+        f"<p>{escape(str(chronicle.get('summary', '')))}</p>"
+        f"{_social_chronicle_table(chronicle.get('entries', []))}"
+        f"{_evaluation_signal_table(chronicle.get('evaluation_signals', []))}"
+        "</section>"
+    )
+
+
+def _social_chronicle_table(entries: list[dict[str, Any]]) -> str:
+    rows = []
+    for entry in entries:
+        evidence = entry.get("evidence") or []
+        rows.append(
+            "<tr>"
+            f"<td>{entry.get('day', '')}</td>"
+            f"<td>{escape(str(entry.get('title', '')))}</td>"
+            f"<td>{escape(str(entry.get('summary', '')))}</td>"
+            f"<td>{escape('; '.join(str(item) for item in evidence[:4]))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Story</th><th>Summary</th><th>Evidence</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _evaluation_signal_table(signals: list[dict[str, Any]]) -> str:
+    if not signals:
+        return ""
+    rows = []
+    for item in signals[:8]:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('severity', '')))}</td>"
+            f"<td>{escape(str(item.get('code', '')))}</td>"
+            f"<td>{escape(str(item.get('description', '')))}</td>"
+            "</tr>"
+        )
+    return "<h3>Evaluation Signals</h3><table><thead><tr><th>Severity</th><th>Code</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _historical_scar_validation_section(validation: dict[str, Any] | None) -> str:
+    if not validation:
+        return ""
+    findings = validation.get("findings", [])
+    if not findings:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Historical Scar Validation</h2>"
+        f"<p>{escape(str(validation.get('summary', '')))}</p>"
+        f"{_historical_scar_validation_table(findings)}"
+        "</section>"
+    )
+
+
+def _historical_scar_validation_table(findings: list[dict[str, Any]]) -> str:
+    rows = []
+    for finding in findings:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(finding.get('status', '')))}</td>"
+            f"<td>{escape(str(finding.get('code', '')))}</td>"
+            f"<td>{escape(str(finding.get('description', '')))}</td>"
+            f"<td>{finding.get('value', 0)}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Status</th><th>Code</th><th>Description</th><th>Value</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _historical_scars(world: WorldState) -> dict[str, Any]:

@@ -30,6 +30,7 @@ from .dialogue_contract import (
 )
 from .dialogue_evaluation import assess_dialogue_follow_through
 from .generative_chain_evaluation import assess_generated_chains
+from .historical_scars import HistoricalScarFinding, build_historical_scar_validation
 from .hybrid_cognition import (
     HybridCognition,
     HybridCognitionConfig,
@@ -58,6 +59,7 @@ from .reflection_contract import (
 from .reflection_evaluation import assess_reflection_follow_through
 from .simulation import Simulation
 from .social_evaluation import SocialFinding, assess_social_dynamics
+from .social_chronicle import ChronicleEntry, build_social_chronicle
 
 __all__ = [
     "Intervention",
@@ -68,7 +70,9 @@ __all__ = [
     "CounterfactualAssessment",
     "CounterfactualBucket",
     "CounterfactualProbeRecord",
+    "ChronicleEntry",
     "DialogueProposal",
+    "HistoricalScarFinding",
     "MemoryItem",
     "LLMCacheRecord",
     "LLMCacheStats",
@@ -102,6 +106,8 @@ __all__ = [
     "assess_cognition_impacts",
     "assess_cognition_outcomes",
     "assess_counterfactual_trace",
+    "build_historical_scar_validation",
+    "build_social_chronicle",
     "compare_plan_counterfactuals",
     "assess_dialogue_follow_through",
     "assess_generated_chains",

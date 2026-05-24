@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-24T15:13:07+00:00",
+  "generated_at": "2026-05-24T15:44:08+00:00",
   "seed": 9,
   "days": 12,
   "metrics": [
@@ -332,6 +332,115 @@
       {
         "organization_id": "common_council_splinter",
         "day": 2
+      }
+    ]
+  },
+  "historical_scar_validation": {
+    "summary": "Historical scar validation passed with 23 active persistent scars.",
+    "active_relationship_crises": 9,
+    "active_blocked_routes": 12,
+    "recorded_organization_fractures": 2,
+    "scar_event_counts": {
+      "organization_fracture": 2,
+      "reconciliation": 0,
+      "relationship_crisis": 9,
+      "route_blocked": 12,
+      "route_reopened": 0
+    },
+    "findings": [
+      {
+        "code": "relationship_crises_persist",
+        "status": "pass",
+        "description": "9 relationship crises remain active and are excluded from passive trust drift until direct reconciliation.",
+        "value": 9.0
+      },
+      {
+        "code": "organization_fractures_persist",
+        "status": "pass",
+        "description": "2 organization fractures are recorded and 2 splinter organizations still exist.",
+        "value": 2.0
+      },
+      {
+        "code": "blocked_routes_affect_paths",
+        "status": "pass",
+        "description": "12 blocked routes are removed from route neighbor lookup and require repair progress before reopening.",
+        "value": 12.0
+      },
+      {
+        "code": "repair_path_pending",
+        "status": "info",
+        "description": "21 active scars remain unrepaired; this preserves a future repair target rather than silently clearing state.",
+        "value": 21.0
+      }
+    ]
+  },
+  "social_chronicle": {
+    "summary": "Chronicle produced 3 entries; 3 entries reference persistent scars. Evaluation signals: shock_trace_weak.",
+    "entries": [
+      {
+        "day": 1,
+        "title": "Institutional fracture",
+        "summary": "Day 1: institutional fracture shaped the society while need held steady to 0.645, trust was 0.55, and cohesion was 0.534. Evidence: 1 organization fractures; 2 route blockages; 2 blocked routes still constrain movement.",
+        "evidence": [
+          "1 organization fractures",
+          "2 route blockages",
+          "2 blocked routes still constrain movement",
+          "1 recorded organization fractures",
+          "Route commons|north_field became blocked after repeated strain and poor condition",
+          "Common Council fractured; Ari, Chen, Gale, Kira formed Common Council Splinter at Commons"
+        ],
+        "metrics": {
+          "average_need": 0.645,
+          "average_trust": 0.55,
+          "institutional_cohesion": 0.534,
+          "crisis_events": 3
+        }
+      },
+      {
+        "day": 7,
+        "title": "Institutional fracture",
+        "summary": "Day 7: institutional fracture shaped the society while need declined to 0.433, trust was 0.556, and cohesion was 0.528. Evidence: 1 organization fractures; 10 route blockages; 3 hunger crises.",
+        "evidence": [
+          "1 organization fractures",
+          "10 route blockages",
+          "3 hunger crises",
+          "12 blocked routes still constrain movement",
+          "2 recorded organization fractures"
+        ],
+        "metrics": {
+          "average_need": 0.433,
+          "average_trust": 0.556,
+          "institutional_cohesion": 0.528,
+          "crisis_events": 17
+        }
+      },
+      {
+        "day": 12,
+        "title": "Relationship crisis",
+        "summary": "Day 12: relationship crisis shaped the society while need declined to 0.356, trust was 0.543, and cohesion was 0.537. Evidence: 9 relationship crises; 5 hunger crises; 1 safety crises.",
+        "evidence": [
+          "9 relationship crises",
+          "5 hunger crises",
+          "1 safety crises",
+          "1 external shocks",
+          "9 active relationship scars",
+          "12 blocked routes still constrain movement"
+        ],
+        "metrics": {
+          "average_need": 0.356,
+          "average_trust": 0.543,
+          "institutional_cohesion": 0.537,
+          "crisis_events": 32
+        }
+      }
+    ],
+    "evaluation_signals": [
+      {
+        "code": "shock_trace_weak",
+        "severity": "warning",
+        "day": 12,
+        "description": "Latest relationship_crisis on day 12 is weakly traceable: memory 100%, reflection 0%, plan response 0%.",
+        "value": 0.5
       }
     ]
   },
@@ -6254,8 +6363,8 @@
   "history": {
     "kind": "history",
     "seed": 9,
-    "interval_days": 3,
-    "snapshot_count": 5,
+    "interval_days": 7,
+    "snapshot_count": 3,
     "summary": "Day 1 to 12; population 12 -> 12; average need 0.645 -> 0.356; trust 0.550 -> 0.543; institutional cohesion 0.534 -> 0.537; new crisis events 29; rationing events 0; organizations observed 10; average location condition 0.636; active relationship crises 9; blocked routes 12.",
     "snapshots": [
       {
@@ -6837,643 +6946,34 @@
       },
       {
         "seed": 9,
-        "day": 3,
-        "summary": "Day 3: population 12, average need 0.643 (steady), trust 0.553, institutional cohesion 0.520, 7 crisis events.",
+        "day": 7,
+        "summary": "Day 7: population 12, average need 0.433 (declining), trust 0.556, institutional cohesion 0.528, 14 crisis events.",
         "metrics": {
-          "day": 3,
-          "population": 12,
-          "food": 2.41,
-          "materials": 8.24,
-          "shelter": 10.21,
-          "average_need": 0.643,
-          "average_trust": 0.553,
-          "average_reputation": 0.507,
-          "institutional_cohesion": 0.52,
-          "crisis_events": 10
-        },
-        "trends": {
-          "average_need": -0.002,
-          "average_trust": 0.003,
-          "average_reputation": 0.004,
-          "institutional_cohesion": -0.014,
-          "food": -11.13,
-          "materials": -2.85,
-          "shelter": 1.78,
-          "crisis_events": 7.0
-        },
-        "resources": {
-          "food": 2.411,
-          "materials": 8.242,
-          "shelter": 10.211
-        },
-        "relationship_crises": {},
-        "blocked_routes": {
-          "commons|east_orchard": 0.387,
-          "commons|north_field": 0.387,
-          "commons|river_pier": 0.696,
-          "commons|shelter_house": 1.0,
-          "commons|woodlot": 1.0,
-          "commons|workshop": 0.696,
-          "north_field|woodlot": 1.0,
-          "shelter_house|workshop": 1.0
-        },
-        "organization_fractures": {
-          "common_council": 1,
-          "common_council_splinter": 2
-        },
-        "route_loads": {
-          "east_orchard|north_field": 2.791,
-          "north_field|woodlot": 3.51,
-          "commons|woodlot": 4.422,
-          "shelter_house|workshop": 3.76,
-          "commons|shelter_house": 3.593,
-          "woodlot|workshop": 0.938,
-          "river_pier|woodlot": 0.85,
-          "clinic|shelter_house": 0.14
-        },
-        "event_counts": {
-          "cooperation": 3,
-          "dialogue": 4,
-          "exchange": 10,
-          "maintenance": 2,
-          "market": 2,
-          "organization_fracture": 1,
-          "plan": 21,
-          "rest": 5,
-          "route_blocked": 6,
-          "route_repair": 2,
-          "route_strain": 2,
-          "social": 4,
-          "transport": 10,
-          "work": 5
-        },
-        "plan_counts": {
-          "farm": 1,
-          "haul": 6,
-          "rest": 3,
-          "socialize": 2
-        },
-        "low_need_agents": [],
-        "organizations": [
-          {
-            "id": "household_north",
-            "name": "North Household",
-            "kind": "household",
-            "home_location_id": "north_field",
-            "members": [
-              "a1",
-              "a2",
-              "a3"
-            ],
-            "norms": [
-              "share_food",
-              "care_for_members"
-            ],
-            "inventory_targets": {
-              "food": 2.4,
-              "materials": 0.3,
-              "shelter": 0.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.4
-            },
-            "cohesion": 0.586,
-            "reputation": 0.507
-          },
-          {
-            "id": "household_south",
-            "name": "South Household",
-            "kind": "household",
-            "home_location_id": "shelter_house",
-            "members": [
-              "a4",
-              "a5",
-              "a6"
-            ],
-            "norms": [
-              "share_food",
-              "care_for_members"
-            ],
-            "inventory_targets": {
-              "food": 2.2,
-              "materials": 0.8,
-              "shelter": 2.5
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.8,
-              "shelter": 0.5
-            },
-            "cohesion": 0.588,
-            "reputation": 0.51
-          },
-          {
-            "id": "common_council",
-            "name": "Common Council",
-            "kind": "council",
-            "home_location_id": "commons",
-            "members": [
-              "a2",
-              "a4",
-              "a5",
-              "a6",
-              "a8",
-              "a9",
-              "a10",
-              "a12"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.49,
-            "reputation": 0.507
-          },
-          {
-            "id": "maker_guild",
-            "name": "Maker Guild",
-            "kind": "guild",
-            "home_location_id": "workshop",
-            "members": [
-              "a2",
-              "a6"
-            ],
-            "norms": [
-              "maintain_tools",
-              "trade_materials"
-            ],
-            "inventory_targets": {
-              "food": 0.8,
-              "materials": 2.2,
-              "shelter": 0.5
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "shelter": 0.7,
-              "food": 0.4
-            },
-            "cohesion": 0.551,
-            "reputation": 0.512
-          },
-          {
-            "id": "household_east",
-            "name": "East Household",
-            "kind": "household",
-            "home_location_id": "east_orchard",
-            "members": [
-              "a7",
-              "a8",
-              "a9"
-            ],
-            "norms": [
-              "share_food",
-              "warn_about_scarcity"
-            ],
-            "inventory_targets": {
-              "food": 3.2,
-              "materials": 0.7,
-              "shelter": 0.4
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.6
-            },
-            "cohesion": 0.568,
-            "reputation": 0.507
-          },
-          {
-            "id": "river_coop",
-            "name": "River Cooperative",
-            "kind": "cooperative",
-            "home_location_id": "river_pier",
-            "members": [
-              "a10",
-              "a11",
-              "a12"
-            ],
-            "norms": [
-              "maintain_routes",
-              "honor_exchange"
-            ],
-            "inventory_targets": {
-              "food": 1.6,
-              "materials": 2.8,
-              "shelter": 0.4
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "food": 0.7,
-              "shelter": 0.3
-            },
-            "cohesion": 0.559,
-            "reputation": 0.508
-          },
-          {
-            "id": "care_circle",
-            "name": "Care Circle",
-            "kind": "care",
-            "home_location_id": "clinic",
-            "members": [
-              "a5",
-              "a8",
-              "a9",
-              "a11"
-            ],
-            "norms": [
-              "protect_vulnerable",
-              "share_warnings"
-            ],
-            "inventory_targets": {
-              "food": 2.4,
-              "materials": 1.0,
-              "shelter": 1.4
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "shelter": 0.8,
-              "materials": 0.5
-            },
-            "cohesion": 0.578,
-            "reputation": 0.507
-          },
-          {
-            "id": "route_keepers",
-            "name": "Route Keepers",
-            "kind": "guild",
-            "home_location_id": "river_pier",
-            "members": [
-              "a2",
-              "a7",
-              "a10",
-              "a12"
-            ],
-            "norms": [
-              "repair_routes",
-              "keep_loads_visible"
-            ],
-            "inventory_targets": {
-              "food": 1.2,
-              "materials": 3.0,
-              "shelter": 0.3
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "food": 0.5
-            },
-            "cohesion": 0.549,
-            "reputation": 0.508
-          },
-          {
-            "id": "common_council_splinter",
-            "name": "Common Council Splinter",
-            "kind": "council_splinter",
-            "home_location_id": "commons",
-            "members": [
-              "a3",
-              "a7"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter",
-              "repair_trust"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.346,
-            "reputation": 0.506
-          },
-          {
-            "id": "common_council_splinter_splinter",
-            "name": "Common Council Splinter Splinter",
-            "kind": "council_splinter_splinter",
-            "home_location_id": "workshop",
-            "members": [
-              "a11",
-              "a1"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter",
-              "repair_trust"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.384,
-            "reputation": 0.507
-          }
-        ],
-        "locations": [
-          {
-            "id": "commons",
-            "name": "Commons",
-            "kind": "civic",
-            "condition": 0.652,
-            "capacity": 18,
-            "production": {
-              "social": 1.15
-            },
-            "maintenance_need": 0.9,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.364,
-              "shelter": 0.754
-            }
-          },
-          {
-            "id": "north_field",
-            "name": "North Field",
-            "kind": "farm",
-            "condition": 0.642,
-            "capacity": 8,
-            "production": {
-              "food": 1.18
-            },
-            "maintenance_need": 1.15,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.5,
-              "shelter": 0.0
-            }
-          },
-          {
-            "id": "woodlot",
-            "name": "Woodlot",
-            "kind": "wildland",
-            "condition": 0.579,
-            "capacity": 6,
-            "production": {
-              "food": 0.35,
-              "materials": 1.22
-            },
-            "maintenance_need": 0.75,
-            "resources": {
-              "food": 0.0,
-              "materials": 1.784,
-              "shelter": 0.0
-            }
-          },
-          {
-            "id": "workshop",
-            "name": "Workshop",
-            "kind": "production",
-            "condition": 0.665,
-            "capacity": 8,
-            "production": {
-              "materials": 0.9,
-              "shelter": 1.16
-            },
-            "maintenance_need": 1.25,
-            "resources": {
-              "food": 0.0,
-              "materials": 1.636,
-              "shelter": 0.755
-            }
-          },
-          {
-            "id": "shelter_house",
-            "name": "Shelter House",
-            "kind": "dwelling",
-            "condition": 0.642,
-            "capacity": 10,
-            "production": {
-              "shelter": 1.0
-            },
-            "maintenance_need": 1.05,
-            "resources": {
-              "food": 2.411,
-              "materials": 0.8,
-              "shelter": 6.942
-            }
-          },
-          {
-            "id": "east_orchard",
-            "name": "East Orchard",
-            "kind": "farm",
-            "condition": 0.626,
-            "capacity": 7,
-            "production": {
-              "food": 1.08,
-              "social": 0.65
-            },
-            "maintenance_need": 1.05,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.8,
-              "shelter": 0.36
-            }
-          },
-          {
-            "id": "river_pier",
-            "name": "River Pier",
-            "kind": "logistics",
-            "condition": 0.615,
-            "capacity": 7,
-            "production": {
-              "food": 0.42,
-              "materials": 1.05
-            },
-            "maintenance_need": 1.2,
-            "resources": {
-              "food": 0.0,
-              "materials": 1.477,
-              "shelter": 0.2
-            }
-          },
-          {
-            "id": "clinic",
-            "name": "Clinic",
-            "kind": "care",
-            "condition": 0.64,
-            "capacity": 6,
-            "production": {
-              "social": 1.1,
-              "shelter": 0.55
-            },
-            "maintenance_need": 1.1,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.881,
-              "shelter": 1.2
-            }
-          }
-        ],
-        "significant_events": [
-          {
-            "day": 3,
-            "kind": "exchange",
-            "actor_id": "maker_guild",
-            "description": "Maker Guild exchanged materials with River Cooperative via Workshop -> River Pier.",
-            "effects": {
-              "materials": 0.355,
-              "route_distance": 2.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "exchange",
-            "actor_id": "maker_guild",
-            "description": "Maker Guild exchanged materials with Route Keepers via Workshop -> River Pier.",
-            "effects": {
-              "materials": 0.355,
-              "route_distance": 2.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "exchange",
-            "actor_id": "household_south",
-            "description": "South Household exchanged food with Common Council via Shelter House -> Commons.",
-            "effects": {
-              "food": 0.229,
-              "route_distance": 1.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "exchange",
-            "actor_id": "household_south",
-            "description": "South Household exchanged shelter with Common Council Splinter Splinter via Shelter House -> Workshop.",
-            "effects": {
-              "shelter": 0.255,
-              "route_distance": 1.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "exchange",
-            "actor_id": "maker_guild",
-            "description": "Maker Guild exchanged materials with Common Council Splinter via Workshop -> Commons.",
-            "effects": {
-              "materials": 0.364,
-              "route_distance": 2.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "market",
-            "actor_id": "common_council",
-            "description": "Organizations completed 5 exchange routes.",
-            "effects": {
-              "exchanges": 5.0,
-              "resources": 1.559
-            }
-          },
-          {
-            "day": 3,
-            "kind": "maintenance",
-            "actor_id": "common_council",
-            "description": "Common maintenance repaired 3 locations.",
-            "effects": {
-              "materials": -0.367,
-              "condition": 0.026,
-              "locations": 3.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "route_strain",
-            "actor_id": "common_council",
-            "description": "4 routes were strained by heavy traffic.",
-            "effects": {
-              "route_excess": 3.0,
-              "routes": 4.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route north_field|woodlot became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route commons|woodlot became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route shelter_house|workshop became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 3,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route commons|shelter_house became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          }
-        ]
-      },
-      {
-        "seed": 9,
-        "day": 6,
-        "summary": "Day 6: population 12, average need 0.515 (declining), trust 0.555, institutional cohesion 0.526, 6 crisis events.",
-        "metrics": {
-          "day": 6,
+          "day": 7,
           "population": 12,
           "food": 5.68,
           "materials": 6.77,
-          "shelter": 9.96,
-          "average_need": 0.515,
-          "average_trust": 0.555,
-          "average_reputation": 0.512,
-          "institutional_cohesion": 0.526,
-          "crisis_events": 16
+          "shelter": 9.88,
+          "average_need": 0.433,
+          "average_trust": 0.556,
+          "average_reputation": 0.515,
+          "institutional_cohesion": 0.528,
+          "crisis_events": 17
         },
         "trends": {
-          "average_need": -0.128,
-          "average_trust": 0.002,
-          "average_reputation": 0.005,
-          "institutional_cohesion": 0.006,
-          "food": 3.27,
-          "materials": -1.47,
-          "shelter": -0.25,
-          "crisis_events": 6.0
+          "average_need": -0.212,
+          "average_trust": 0.006,
+          "average_reputation": 0.012,
+          "institutional_cohesion": -0.006,
+          "food": -7.86,
+          "materials": -4.32,
+          "shelter": 1.45,
+          "crisis_events": 14.0
         },
         "resources": {
           "food": 5.681,
           "materials": 6.767,
-          "shelter": 9.959
+          "shelter": 9.875
         },
         "relationship_crises": {},
         "blocked_routes": {
@@ -7496,50 +6996,76 @@
         },
         "route_loads": {},
         "event_counts": {
-          "cooperation": 5,
-          "dialogue": 1,
-          "exchange": 5,
-          "hunger_crisis": 2,
-          "maintenance": 1,
-          "market": 1,
-          "plan": 30,
-          "plan_blocked": 9,
-          "rest": 25,
-          "route_blocked": 4,
-          "route_repair": 2,
-          "route_strain": 1,
-          "social": 1,
-          "transport": 5,
-          "work": 5
+          "cooperation": 9,
+          "dialogue": 5,
+          "exchange": 15,
+          "hunger_crisis": 3,
+          "maintenance": 3,
+          "market": 3,
+          "organization_fracture": 1,
+          "plan": 63,
+          "plan_blocked": 10,
+          "reflection": 12,
+          "rest": 42,
+          "route_blocked": 10,
+          "route_repair": 4,
+          "route_strain": 3,
+          "social": 5,
+          "transport": 15,
+          "work": 10
         },
         "plan_counts": {
-          "haul": 10,
-          "rest": 2
+          "haul": 11,
+          "rest": 1
         },
         "low_need_agents": [
           {
             "id": "a2",
             "name": "Bo",
-            "average_need": 0.478,
+            "average_need": 0.393,
             "location_id": "shelter_house",
             "active_plan": "haul",
-            "latest_reflection": null
+            "latest_reflection": "day 7: Bo reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
           },
           {
             "id": "a1",
             "name": "Ari",
-            "average_need": 0.487,
+            "average_need": 0.4,
             "location_id": "shelter_house",
             "active_plan": "haul",
-            "latest_reflection": null
+            "latest_reflection": "day 7: Ari reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
           },
           {
-            "id": "a8",
-            "name": "Hana",
-            "average_need": 0.487,
-            "location_id": "commons",
+            "id": "a7",
+            "name": "Gale",
+            "average_need": 0.414,
+            "location_id": "shelter_house",
             "active_plan": "haul",
-            "latest_reflection": null
+            "latest_reflection": "day 7: Gale reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
+          },
+          {
+            "id": "a6",
+            "name": "Faye",
+            "average_need": 0.428,
+            "location_id": "shelter_house",
+            "active_plan": "haul",
+            "latest_reflection": "day 7: Faye reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
+          },
+          {
+            "id": "a10",
+            "name": "Jules",
+            "average_need": 0.429,
+            "location_id": "shelter_house",
+            "active_plan": "haul",
+            "latest_reflection": "day 7: Jules reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
+          },
+          {
+            "id": "a12",
+            "name": "Lio",
+            "average_need": 0.43,
+            "location_id": "shelter_house",
+            "active_plan": "haul",
+            "latest_reflection": "day 7: Lio reflects that 17 crises or shocks require caution; 4 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
           }
         ],
         "organizations": [
@@ -7566,8 +7092,8 @@
               "food": 1.0,
               "materials": 0.4
             },
-            "cohesion": 0.59,
-            "reputation": 0.512
+            "cohesion": 0.593,
+            "reputation": 0.514
           },
           {
             "id": "household_south",
@@ -7593,8 +7119,8 @@
               "materials": 0.8,
               "shelter": 0.5
             },
-            "cohesion": 0.593,
-            "reputation": 0.511
+            "cohesion": 0.595,
+            "reputation": 0.514
           },
           {
             "id": "common_council",
@@ -7625,8 +7151,8 @@
               "materials": 1.0,
               "shelter": 0.3
             },
-            "cohesion": 0.496,
-            "reputation": 0.512
+            "cohesion": 0.499,
+            "reputation": 0.515
           },
           {
             "id": "maker_guild",
@@ -7651,8 +7177,8 @@
               "shelter": 0.7,
               "food": 0.4
             },
-            "cohesion": 0.557,
-            "reputation": 0.512
+            "cohesion": 0.559,
+            "reputation": 0.514
           },
           {
             "id": "household_east",
@@ -7677,8 +7203,8 @@
               "food": 1.0,
               "materials": 0.6
             },
-            "cohesion": 0.573,
-            "reputation": 0.513
+            "cohesion": 0.575,
+            "reputation": 0.515
           },
           {
             "id": "river_coop",
@@ -7704,8 +7230,8 @@
               "food": 0.7,
               "shelter": 0.3
             },
-            "cohesion": 0.564,
-            "reputation": 0.513
+            "cohesion": 0.567,
+            "reputation": 0.515
           },
           {
             "id": "care_circle",
@@ -7732,8 +7258,8 @@
               "shelter": 0.8,
               "materials": 0.5
             },
-            "cohesion": 0.584,
-            "reputation": 0.513
+            "cohesion": 0.585,
+            "reputation": 0.515
           },
           {
             "id": "route_keepers",
@@ -7759,8 +7285,8 @@
               "materials": 1.0,
               "food": 0.5
             },
-            "cohesion": 0.555,
-            "reputation": 0.513
+            "cohesion": 0.558,
+            "reputation": 0.515
           },
           {
             "id": "common_council_splinter",
@@ -7786,8 +7312,8 @@
               "materials": 1.0,
               "shelter": 0.3
             },
-            "cohesion": 0.354,
-            "reputation": 0.512
+            "cohesion": 0.356,
+            "reputation": 0.514
           },
           {
             "id": "common_council_splinter_splinter",
@@ -7813,8 +7339,8 @@
               "materials": 1.0,
               "shelter": 0.3
             },
-            "cohesion": 0.392,
-            "reputation": 0.513
+            "cohesion": 0.394,
+            "reputation": 0.515
           }
         ],
         "locations": [
@@ -7888,7 +7414,7 @@
             "id": "shelter_house",
             "name": "Shelter House",
             "kind": "dwelling",
-            "condition": 0.654,
+            "condition": 0.655,
             "capacity": 10,
             "production": {
               "shelter": 1.0
@@ -7897,7 +7423,7 @@
             "resources": {
               "food": 0.0,
               "materials": 0.8,
-              "shelter": 6.627
+              "shelter": 6.543
             }
           },
           {
@@ -7954,650 +7480,32 @@
         ],
         "significant_events": [
           {
-            "day": 4,
-            "kind": "exchange",
-            "actor_id": "common_council_splinter_splinter",
-            "description": "Common Council Splinter Splinter exchanged materials with Common Council via Workshop -> Commons.",
+            "day": 7,
+            "kind": "reflection",
+            "actor_id": "a1",
+            "description": "Ari reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.",
             "effects": {
-              "materials": 0.179,
-              "route_distance": 4.0
+              "importance": 0.76
             }
           },
           {
-            "day": 4,
-            "kind": "exchange",
-            "actor_id": "household_south",
-            "description": "South Household exchanged shelter with Common Council Splinter Splinter via Shelter House -> Workshop.",
+            "day": 7,
+            "kind": "reflection",
+            "actor_id": "a2",
+            "description": "Bo reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.",
             "effects": {
-              "shelter": 0.063,
-              "route_distance": 4.0
+              "importance": 0.76
             }
           },
           {
-            "day": 4,
-            "kind": "exchange",
-            "actor_id": "common_council_splinter_splinter",
-            "description": "Common Council Splinter Splinter exchanged materials with Common Council Splinter via Workshop -> Commons.",
+            "day": 7,
+            "kind": "reflection",
+            "actor_id": "a3",
+            "description": "Chen reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.",
             "effects": {
-              "materials": 0.179,
-              "route_distance": 4.0
+              "importance": 0.76
             }
           },
-          {
-            "day": 4,
-            "kind": "market",
-            "actor_id": "common_council",
-            "description": "Organizations completed 5 exchange routes.",
-            "effects": {
-              "exchanges": 5.0,
-              "resources": 1.133
-            }
-          },
-          {
-            "day": 4,
-            "kind": "maintenance",
-            "actor_id": "common_council",
-            "description": "Common maintenance repaired 3 locations.",
-            "effects": {
-              "materials": -0.368,
-              "condition": 0.026,
-              "locations": 3.0
-            }
-          },
-          {
-            "day": 4,
-            "kind": "route_strain",
-            "actor_id": "common_council",
-            "description": "5 routes were strained by heavy traffic.",
-            "effects": {
-              "route_excess": 12.921,
-              "routes": 5.0
-            }
-          },
-          {
-            "day": 4,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route east_orchard|north_field became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 4,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route east_orchard|river_pier became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 4,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route clinic|river_pier became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 4,
-            "kind": "route_blocked",
-            "actor_id": "common_council",
-            "description": "Route clinic|commons became blocked after repeated strain and poor condition.",
-            "effects": {
-              "repair_need": 1.0
-            }
-          },
-          {
-            "day": 5,
-            "kind": "hunger_crisis",
-            "actor_id": "society",
-            "description": "Food rationing failed to meet basic nutrition.",
-            "effects": {
-              "nutrition": 0.317,
-              "food_need": -0.08
-            }
-          },
-          {
-            "day": 6,
-            "kind": "hunger_crisis",
-            "actor_id": "society",
-            "description": "Food rationing failed to meet basic nutrition.",
-            "effects": {
-              "nutrition": 0.0,
-              "food_need": -0.22
-            }
-          }
-        ]
-      },
-      {
-        "seed": 9,
-        "day": 9,
-        "summary": "Day 9: population 12, average need 0.400 (declining), trust 0.558, institutional cohesion 0.531, 3 crisis events.",
-        "metrics": {
-          "day": 9,
-          "population": 12,
-          "food": 5.86,
-          "materials": 4.58,
-          "shelter": 8.87,
-          "average_need": 0.4,
-          "average_trust": 0.558,
-          "average_reputation": 0.518,
-          "institutional_cohesion": 0.531,
-          "crisis_events": 19
-        },
-        "trends": {
-          "average_need": -0.115,
-          "average_trust": 0.003,
-          "average_reputation": 0.006,
-          "institutional_cohesion": 0.005,
-          "food": 0.18,
-          "materials": -2.19,
-          "shelter": -1.09,
-          "crisis_events": 3.0
-        },
-        "resources": {
-          "food": 5.865,
-          "materials": 4.583,
-          "shelter": 8.867
-        },
-        "relationship_crises": {},
-        "blocked_routes": {
-          "clinic|commons": 0.695,
-          "clinic|river_pier": 1.0,
-          "commons|east_orchard": 0.082,
-          "commons|north_field": 0.082,
-          "commons|river_pier": 0.391,
-          "commons|shelter_house": 0.695,
-          "commons|woodlot": 0.695,
-          "commons|workshop": 0.391,
-          "east_orchard|north_field": 1.0,
-          "east_orchard|river_pier": 1.0,
-          "north_field|woodlot": 0.695,
-          "shelter_house|workshop": 0.695
-        },
-        "organization_fractures": {
-          "common_council": 1,
-          "common_council_splinter": 2
-        },
-        "route_loads": {},
-        "event_counts": {
-          "cooperation": 3,
-          "disaster": 1,
-          "hunger_crisis": 3,
-          "plan": 32,
-          "plan_blocked": 9,
-          "reflection": 12,
-          "rest": 35,
-          "work": 1
-        },
-        "plan_counts": {
-          "haul": 9,
-          "rest": 3
-        },
-        "low_need_agents": [
-          {
-            "id": "a10",
-            "name": "Jules",
-            "average_need": 0.354,
-            "location_id": "shelter_house",
-            "active_plan": "haul",
-            "latest_reflection": "day 7: Jules reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          },
-          {
-            "id": "a6",
-            "name": "Faye",
-            "average_need": 0.365,
-            "location_id": "shelter_house",
-            "active_plan": "haul",
-            "latest_reflection": "day 7: Faye reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          },
-          {
-            "id": "a2",
-            "name": "Bo",
-            "average_need": 0.379,
-            "location_id": "shelter_house",
-            "active_plan": "haul",
-            "latest_reflection": "day 7: Bo reflects that 17 crises or shocks require caution; 1 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          },
-          {
-            "id": "a7",
-            "name": "Gale",
-            "average_need": 0.385,
-            "location_id": "shelter_house",
-            "active_plan": "rest",
-            "latest_reflection": "day 7: Gale reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          },
-          {
-            "id": "a1",
-            "name": "Ari",
-            "average_need": 0.387,
-            "location_id": "shelter_house",
-            "active_plan": "haul",
-            "latest_reflection": "day 7: Ari reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          },
-          {
-            "id": "a8",
-            "name": "Hana",
-            "average_need": 0.388,
-            "location_id": "shelter_house",
-            "active_plan": "haul",
-            "latest_reflection": "day 7: Hana reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition."
-          }
-        ],
-        "organizations": [
-          {
-            "id": "household_north",
-            "name": "North Household",
-            "kind": "household",
-            "home_location_id": "north_field",
-            "members": [
-              "a1",
-              "a2",
-              "a3"
-            ],
-            "norms": [
-              "share_food",
-              "care_for_members"
-            ],
-            "inventory_targets": {
-              "food": 2.4,
-              "materials": 0.3,
-              "shelter": 0.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.4
-            },
-            "cohesion": 0.591,
-            "reputation": 0.518
-          },
-          {
-            "id": "household_south",
-            "name": "South Household",
-            "kind": "household",
-            "home_location_id": "shelter_house",
-            "members": [
-              "a4",
-              "a5",
-              "a6"
-            ],
-            "norms": [
-              "share_food",
-              "care_for_members"
-            ],
-            "inventory_targets": {
-              "food": 2.2,
-              "materials": 0.8,
-              "shelter": 2.5
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.8,
-              "shelter": 0.5
-            },
-            "cohesion": 0.598,
-            "reputation": 0.517
-          },
-          {
-            "id": "common_council",
-            "name": "Common Council",
-            "kind": "council",
-            "home_location_id": "commons",
-            "members": [
-              "a2",
-              "a4",
-              "a5",
-              "a6",
-              "a8",
-              "a9",
-              "a10",
-              "a12"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.502,
-            "reputation": 0.518
-          },
-          {
-            "id": "maker_guild",
-            "name": "Maker Guild",
-            "kind": "guild",
-            "home_location_id": "workshop",
-            "members": [
-              "a2",
-              "a6"
-            ],
-            "norms": [
-              "maintain_tools",
-              "trade_materials"
-            ],
-            "inventory_targets": {
-              "food": 0.8,
-              "materials": 2.2,
-              "shelter": 0.5
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "shelter": 0.7,
-              "food": 0.4
-            },
-            "cohesion": 0.563,
-            "reputation": 0.518
-          },
-          {
-            "id": "household_east",
-            "name": "East Household",
-            "kind": "household",
-            "home_location_id": "east_orchard",
-            "members": [
-              "a7",
-              "a8",
-              "a9"
-            ],
-            "norms": [
-              "share_food",
-              "warn_about_scarcity"
-            ],
-            "inventory_targets": {
-              "food": 3.2,
-              "materials": 0.7,
-              "shelter": 0.4
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 0.6
-            },
-            "cohesion": 0.578,
-            "reputation": 0.518
-          },
-          {
-            "id": "river_coop",
-            "name": "River Cooperative",
-            "kind": "cooperative",
-            "home_location_id": "river_pier",
-            "members": [
-              "a10",
-              "a11",
-              "a12"
-            ],
-            "norms": [
-              "maintain_routes",
-              "honor_exchange"
-            ],
-            "inventory_targets": {
-              "food": 1.6,
-              "materials": 2.8,
-              "shelter": 0.4
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "food": 0.7,
-              "shelter": 0.3
-            },
-            "cohesion": 0.57,
-            "reputation": 0.519
-          },
-          {
-            "id": "care_circle",
-            "name": "Care Circle",
-            "kind": "care",
-            "home_location_id": "clinic",
-            "members": [
-              "a5",
-              "a8",
-              "a9",
-              "a11"
-            ],
-            "norms": [
-              "protect_vulnerable",
-              "share_warnings"
-            ],
-            "inventory_targets": {
-              "food": 2.4,
-              "materials": 1.0,
-              "shelter": 1.4
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "shelter": 0.8,
-              "materials": 0.5
-            },
-            "cohesion": 0.588,
-            "reputation": 0.518
-          },
-          {
-            "id": "route_keepers",
-            "name": "Route Keepers",
-            "kind": "guild",
-            "home_location_id": "river_pier",
-            "members": [
-              "a2",
-              "a7",
-              "a10",
-              "a12"
-            ],
-            "norms": [
-              "repair_routes",
-              "keep_loads_visible"
-            ],
-            "inventory_targets": {
-              "food": 1.2,
-              "materials": 3.0,
-              "shelter": 0.3
-            },
-            "exchange_preferences": {
-              "materials": 1.0,
-              "food": 0.5
-            },
-            "cohesion": 0.561,
-            "reputation": 0.518
-          },
-          {
-            "id": "common_council_splinter",
-            "name": "Common Council Splinter",
-            "kind": "council_splinter",
-            "home_location_id": "commons",
-            "members": [
-              "a3",
-              "a7"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter",
-              "repair_trust"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.361,
-            "reputation": 0.518
-          },
-          {
-            "id": "common_council_splinter_splinter",
-            "name": "Common Council Splinter Splinter",
-            "kind": "council_splinter_splinter",
-            "home_location_id": "workshop",
-            "members": [
-              "a11",
-              "a1"
-            ],
-            "norms": [
-              "work_contribution",
-              "repair_common_shelter",
-              "repair_trust"
-            ],
-            "inventory_targets": {
-              "food": 6.6,
-              "materials": 2.0,
-              "shelter": 1.0
-            },
-            "exchange_preferences": {
-              "food": 1.0,
-              "materials": 1.0,
-              "shelter": 0.3
-            },
-            "cohesion": 0.398,
-            "reputation": 0.518
-          }
-        ],
-        "locations": [
-          {
-            "id": "commons",
-            "name": "Commons",
-            "kind": "civic",
-            "condition": 0.649,
-            "capacity": 18,
-            "production": {
-              "social": 1.15
-            },
-            "maintenance_need": 0.9,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.723,
-              "shelter": 0.754
-            }
-          },
-          {
-            "id": "north_field",
-            "name": "North Field",
-            "kind": "farm",
-            "condition": 0.646,
-            "capacity": 8,
-            "production": {
-              "food": 1.18
-            },
-            "maintenance_need": 1.15,
-            "resources": {
-              "food": 2.657,
-              "materials": 0.5,
-              "shelter": 0.0
-            }
-          },
-          {
-            "id": "woodlot",
-            "name": "Woodlot",
-            "kind": "wildland",
-            "condition": 0.581,
-            "capacity": 6,
-            "production": {
-              "food": 0.35,
-              "materials": 1.22
-            },
-            "maintenance_need": 0.75,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.873,
-              "shelter": 0.0
-            }
-          },
-          {
-            "id": "workshop",
-            "name": "Workshop",
-            "kind": "production",
-            "condition": 0.664,
-            "capacity": 8,
-            "production": {
-              "materials": 0.9,
-              "shelter": 1.16
-            },
-            "maintenance_need": 1.25,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.002,
-              "shelter": 0.818
-            }
-          },
-          {
-            "id": "shelter_house",
-            "name": "Shelter House",
-            "kind": "dwelling",
-            "condition": 0.663,
-            "capacity": 10,
-            "production": {
-              "shelter": 1.0
-            },
-            "maintenance_need": 1.05,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.8,
-              "shelter": 5.535
-            }
-          },
-          {
-            "id": "east_orchard",
-            "name": "East Orchard",
-            "kind": "farm",
-            "condition": 0.63,
-            "capacity": 7,
-            "production": {
-              "food": 1.08,
-              "social": 0.65
-            },
-            "maintenance_need": 1.05,
-            "resources": {
-              "food": 3.208,
-              "materials": 0.8,
-              "shelter": 0.36
-            }
-          },
-          {
-            "id": "river_pier",
-            "name": "River Pier",
-            "kind": "logistics",
-            "condition": 0.615,
-            "capacity": 7,
-            "production": {
-              "food": 0.42,
-              "materials": 1.05
-            },
-            "maintenance_need": 1.2,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.005,
-              "shelter": 0.2
-            }
-          },
-          {
-            "id": "clinic",
-            "name": "Clinic",
-            "kind": "care",
-            "condition": 0.631,
-            "capacity": 6,
-            "production": {
-              "social": 1.1,
-              "shelter": 0.55
-            },
-            "maintenance_need": 1.1,
-            "resources": {
-              "food": 0.0,
-              "materials": 0.881,
-              "shelter": 1.2
-            }
-          }
-        ],
-        "significant_events": [
           {
             "day": 7,
             "kind": "reflection",
@@ -8678,45 +7586,13 @@
             "effects": {
               "importance": 0.76
             }
-          },
-          {
-            "day": 8,
-            "kind": "disaster",
-            "actor_id": "observer",
-            "description": "fracture storm damaged the society: storm pressure after fragile ties and institutions are exposed.",
-            "effects": {
-              "food": -3.024,
-              "materials": -2.184,
-              "shelter": -0.84,
-              "severity": 0.28
-            }
-          },
-          {
-            "day": 8,
-            "kind": "hunger_crisis",
-            "actor_id": "society",
-            "description": "Food rationing failed to meet basic nutrition.",
-            "effects": {
-              "nutrition": 0.0,
-              "food_need": -0.22
-            }
-          },
-          {
-            "day": 9,
-            "kind": "hunger_crisis",
-            "actor_id": "society",
-            "description": "Food rationing failed to meet basic nutrition.",
-            "effects": {
-              "nutrition": 0.0,
-              "food_need": -0.22
-            }
           }
         ]
       },
       {
         "seed": 9,
         "day": 12,
-        "summary": "Day 12: population 12, average need 0.356 (declining), trust 0.543, institutional cohesion 0.537, 13 crisis events.",
+        "summary": "Day 12: population 12, average need 0.356 (declining), trust 0.543, institutional cohesion 0.537, 15 crisis events.",
         "metrics": {
           "day": 12,
           "population": 12,
@@ -8730,14 +7606,14 @@
           "crisis_events": 32
         },
         "trends": {
-          "average_need": -0.044,
-          "average_trust": -0.015,
-          "average_reputation": 0.006,
-          "institutional_cohesion": 0.006,
-          "food": 0.0,
-          "materials": 0.0,
-          "shelter": -0.25,
-          "crisis_events": 13.0
+          "average_need": -0.077,
+          "average_trust": -0.013,
+          "average_reputation": 0.009,
+          "institutional_cohesion": 0.009,
+          "food": 0.18,
+          "materials": -2.19,
+          "shelter": -1.26,
+          "crisis_events": 15.0
         },
         "resources": {
           "food": 5.865,
@@ -8775,14 +7651,16 @@
         },
         "route_loads": {},
         "event_counts": {
-          "cooperation": 3,
+          "cooperation": 5,
+          "disaster": 1,
           "edict": 1,
-          "hunger_crisis": 3,
-          "plan": 12,
-          "plan_blocked": 5,
+          "hunger_crisis": 5,
+          "plan": 32,
+          "plan_blocked": 13,
           "relationship_crisis": 9,
-          "rest": 36,
-          "safety_crisis": 1
+          "rest": 59,
+          "safety_crisis": 1,
+          "work": 1
         },
         "plan_counts": {
           "haul": 11,

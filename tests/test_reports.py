@@ -538,6 +538,8 @@ class ReportTests(unittest.TestCase):
         html = render_run_html(record)
 
         self.assertIn("History", html)
+        self.assertIn("Social Chronicle", html)
+        self.assertIn("Historical Scar Validation", html)
         self.assertIn("Day 1", html)
 
     def test_run_html_renders_historical_scars(self) -> None:
@@ -551,6 +553,9 @@ class ReportTests(unittest.TestCase):
         html = render_run_html(record)
 
         self.assertIn("Historical Scars", html)
+        self.assertIn("Historical Scar Validation", html)
+        self.assertIn("relationship_crises_persist", html)
+        self.assertIn("blocked_routes_affect_paths", html)
         self.assertIn("Relationship Crises", html)
         self.assertIn("Blocked Routes", html)
         self.assertIn("Organization Fractures", html)

@@ -13,6 +13,7 @@ from .codex_cli_provider import (
 )
 from .cognition_impact_evaluation import assess_cognition_impacts
 from .cognition_outcome_evaluation import assess_cognition_outcomes
+from .counterfactual_evaluation import assess_counterfactual_trace
 from .dialogue import HybridDialogue, HybridDialogueConfig
 from .dialogue_evaluation import assess_dialogue_follow_through
 from .experiment import run_experiment
@@ -269,6 +270,7 @@ def main() -> None:
     findings = assess_metrics(metrics)
     social_findings = assess_social_dynamics(simulation.world)
     cognition_trace = _cognition_trace(cognition)
+    counterfactual_evaluation = assess_counterfactual_trace(cognition_trace).as_dict()
     reflection_trace = _reflection_trace(reflection)
     dialogue_trace = _dialogue_trace(dialogue)
     llm_cache = _llm_cache_summary(cognition, reflection, dialogue)
@@ -330,6 +332,7 @@ def main() -> None:
             findings,
             history=history,
             cognition_trace=cognition_trace,
+            counterfactual_evaluation=counterfactual_evaluation,
             cognition_impacts=cognition_impacts,
             cognition_outcomes=cognition_outcomes,
             reflection_trace=reflection_trace,
@@ -363,6 +366,8 @@ def main() -> None:
             payload["cognition_impacts"] = cognition_impacts
         if cognition_outcomes:
             payload["cognition_outcomes"] = cognition_outcomes
+        if counterfactual_evaluation["total"]:
+            payload["counterfactual_evaluation"] = counterfactual_evaluation
         if reflection_follow_through:
             payload["reflection_follow_through"] = reflection_follow_through
         if dialogue_follow_through:
@@ -391,6 +396,7 @@ def main() -> None:
     if args.show_cognition_stats or isinstance(cognition, HybridCognition):
         _print_cognition_stats(cognition)
         _print_cognition_trace(cognition)
+        _print_counterfactual_evaluation(counterfactual_evaluation)
         _print_cognition_impacts(cognition_impacts)
         _print_cognition_outcomes(cognition_outcomes)
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
@@ -561,6 +567,19 @@ def _print_cognition_impacts(impacts: list[dict]) -> None:
         print(
             f"day {item['day']:>3} | {item['agent_name']:<8} | "
             f"{item['signal']:<36} | {item['summary']}"
+        )
+
+
+def _print_counterfactual_evaluation(evaluation: dict) -> None:
+    if not evaluation.get("total"):
+        return
+    print("\nCounterfactual evaluation:")
+    print(evaluation.get("summary", "No counterfactual summary."))
+    for item in (evaluation.get("by_action_pair") or [])[:5]:
+        print(
+            f"{item['label']:<18} | total={item['total']} "
+            f"accepted={item['accepted']} rejected={item['rejected']} "
+            f"avg_delta={_signed_number(item['average_score_delta'])}"
         )
 
 

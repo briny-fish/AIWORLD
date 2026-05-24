@@ -9,6 +9,12 @@ from .counterfactual_cognition import (
     PlanProbeResult,
     compare_plan_counterfactuals,
 )
+from .counterfactual_evaluation import (
+    CounterfactualAssessment,
+    CounterfactualBucket,
+    CounterfactualProbeRecord,
+    assess_counterfactual_trace,
+)
 from .dialogue import (
     HybridDialogue,
     HybridDialogueConfig,
@@ -59,6 +65,9 @@ __all__ = [
     "PlanCounterfactualComparison",
     "PlanProbeResult",
     "AgentProfile",
+    "CounterfactualAssessment",
+    "CounterfactualBucket",
+    "CounterfactualProbeRecord",
     "DialogueProposal",
     "MemoryItem",
     "LLMCacheRecord",
@@ -92,6 +101,7 @@ __all__ = [
     "build_reflection_context",
     "assess_cognition_impacts",
     "assess_cognition_outcomes",
+    "assess_counterfactual_trace",
     "compare_plan_counterfactuals",
     "assess_dialogue_follow_through",
     "assess_generated_chains",

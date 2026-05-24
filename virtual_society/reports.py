@@ -32,6 +32,7 @@ def build_run_record(
     findings: list[HealthFinding],
     history: dict[str, Any] | None = None,
     cognition_trace: list[dict[str, Any]] | None = None,
+    counterfactual_evaluation: dict[str, Any] | None = None,
     cognition_impacts: list[dict[str, Any]] | None = None,
     cognition_outcomes: list[dict[str, Any]] | None = None,
     reflection_trace: list[dict[str, Any]] | None = None,
@@ -126,6 +127,8 @@ def build_run_record(
         record["history"] = history
     if cognition_trace is not None:
         record["cognition_trace"] = cognition_trace
+    if counterfactual_evaluation is not None:
+        record["counterfactual_evaluation"] = counterfactual_evaluation
     if cognition_impacts is not None:
         record["cognition_impacts"] = cognition_impacts
     if cognition_outcomes is not None:
@@ -222,6 +225,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     findings = record["findings"]
     social_findings = record.get("social_findings", [])
     cognition_trace = record.get("cognition_trace", [])
+    counterfactual_evaluation = record.get("counterfactual_evaluation")
     cognition_impacts = record.get("cognition_impacts", [])
     cognition_outcomes = record.get("cognition_outcomes", [])
     reflection_trace = record.get("reflection_trace", [])
@@ -274,6 +278,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       <div class="finding-row">{''.join(_social_finding_badge(item) for item in social_findings)}</div>
     </section>
     {_llm_cache_section(llm_cache)}
+    {_counterfactual_evaluation_section(counterfactual_evaluation)}
     {_cognition_trace_section(cognition_trace)}
     {_cognition_impacts_section(cognition_impacts)}
     {_cognition_outcomes_section(cognition_outcomes)}
@@ -605,6 +610,64 @@ def _llm_cache_table(items: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Surface</th><th>Mode</th><th>Provider</th><th>Model</th><th>Reads</th><th>Hits</th><th>Misses</th><th>Writes</th><th>Directory</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _counterfactual_evaluation_section(evaluation: dict[str, Any] | None) -> str:
+    if not evaluation or not evaluation.get("total"):
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Counterfactual Evaluation</h2>"
+        f"<p>{escape(str(evaluation.get('summary', '')))}</p>"
+        f"{_counterfactual_overview_table(evaluation)}"
+        f"{_counterfactual_bucket_table('By Agent', evaluation.get('by_agent') or [])}"
+        f"{_counterfactual_bucket_table('By Action Pair', evaluation.get('by_action_pair') or [])}"
+        "</section>"
+    )
+
+
+def _counterfactual_overview_table(evaluation: dict[str, Any]) -> str:
+    rows = []
+    for key, label in (
+        ("total", "Total"),
+        ("accepted", "Accepted"),
+        ("rejected", "Rejected"),
+        ("acceptance_rate", "Acceptance Rate"),
+        ("average_score_delta", "Avg Score Delta"),
+        ("worst_score_delta", "Worst Delta"),
+        ("best_score_delta", "Best Delta"),
+    ):
+        rows.append(
+            "<tr>"
+            f"<td>{escape(label)}</td>"
+            f"<td>{escape(str(evaluation.get(key, 0)))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _counterfactual_bucket_table(title: str, buckets: list[dict[str, Any]]) -> str:
+    if not buckets:
+        return ""
+    rows = []
+    for item in buckets[:12]:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('label', '')))}</td>"
+            f"<td>{item.get('total', 0)}</td>"
+            f"<td>{item.get('accepted', 0)}</td>"
+            f"<td>{item.get('rejected', 0)}</td>"
+            f"<td>{escape(_signed_number(item.get('average_score_delta', 0)))}</td>"
+            f"<td>{escape(_signed_number(item.get('worst_score_delta', 0)))}</td>"
+            f"<td>{escape(_signed_number(item.get('best_score_delta', 0)))}</td>"
+            "</tr>"
+        )
+    return (
+        f"<h3>{escape(title)}</h3>"
+        "<table><thead><tr><th>Label</th><th>Total</th><th>Accepted</th>"
+        "<th>Rejected</th><th>Avg Delta</th><th>Worst</th><th>Best</th></tr></thead>"
+        f"<tbody>{''.join(rows)}</tbody></table>"
+    )
 
 
 def _events_table(events: list[dict[str, Any]]) -> str:

@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-23T16:55:06+00:00",
+  "generated_at": "2026-05-24T13:21:04+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -16417,6 +16417,52 @@
       }
     }
   ],
+  "counterfactual_evaluation": {
+    "total": 1,
+    "accepted": 1,
+    "rejected": 0,
+    "acceptance_rate": 1.0,
+    "average_score_delta": 0.0174,
+    "worst_score_delta": 0.0174,
+    "best_score_delta": 0.0174,
+    "worst_record": {
+      "day": 21,
+      "agent_id": "a1",
+      "agent_name": "Ari",
+      "baseline_action": "farm",
+      "proposed_action": "rest",
+      "recommendation": "proposed",
+      "score_delta": 0.0174,
+      "baseline_score": 4.9813,
+      "proposed_score": 4.9987,
+      "status": "primary"
+    },
+    "by_agent": [
+      {
+        "key": "a1",
+        "label": "Ari",
+        "total": 1,
+        "accepted": 1,
+        "rejected": 0,
+        "average_score_delta": 0.0174,
+        "worst_score_delta": 0.0174,
+        "best_score_delta": 0.0174
+      }
+    ],
+    "by_action_pair": [
+      {
+        "key": "farm->rest",
+        "label": "farm -> rest",
+        "total": 1,
+        "accepted": 1,
+        "rejected": 0,
+        "average_score_delta": 0.0174,
+        "worst_score_delta": 0.0174,
+        "best_score_delta": 0.0174
+      }
+    ],
+    "summary": "Counterfactual probes accepted 1/1 proposals and rejected 0; average score delta +0.0174. Worst case was Ari on day 21: farm -> rest with delta +0.0174."
+  },
   "cognition_impacts": [
     {
       "day": 21,

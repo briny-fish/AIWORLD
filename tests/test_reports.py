@@ -74,6 +74,59 @@ class ReportTests(unittest.TestCase):
         self.assertIn("storm", html)
         self.assertIn("delta +0.04", html)
 
+    def test_build_run_record_can_include_counterfactual_evaluation(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        counterfactual_evaluation = {
+            "total": 1,
+            "accepted": 1,
+            "rejected": 0,
+            "acceptance_rate": 1.0,
+            "average_score_delta": 0.0174,
+            "worst_score_delta": 0.0174,
+            "best_score_delta": 0.0174,
+            "summary": "Counterfactual probes accepted 1/1 proposals and rejected 0.",
+            "by_agent": [
+                {
+                    "key": "a1",
+                    "label": "Ari",
+                    "total": 1,
+                    "accepted": 1,
+                    "rejected": 0,
+                    "average_score_delta": 0.0174,
+                    "worst_score_delta": 0.0174,
+                    "best_score_delta": 0.0174,
+                }
+            ],
+            "by_action_pair": [
+                {
+                    "key": "farm->rest",
+                    "label": "farm -> rest",
+                    "total": 1,
+                    "accepted": 1,
+                    "rejected": 0,
+                    "average_score_delta": 0.0174,
+                    "worst_score_delta": 0.0174,
+                    "best_score_delta": 0.0174,
+                }
+            ],
+        }
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            counterfactual_evaluation=counterfactual_evaluation,
+        )
+        html = render_run_html(record)
+
+        self.assertEqual(record["counterfactual_evaluation"], counterfactual_evaluation)
+        self.assertIn("Counterfactual Evaluation", html)
+        self.assertIn("Acceptance Rate", html)
+        self.assertIn("farm -&gt; rest", html)
+        self.assertIn("+0.0174", html)
+
     def test_build_run_record_can_include_reflection_trace(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(1)

@@ -1,0 +1,76 @@
+[
+  {
+    "day": 7,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.34,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "repair",
+      "priority": 1.0,
+      "reason": "Shared food is still under pressure, but repeated route blocks and low route/location condition are now the practical bottleneck; repairing access should restore later hauling more reliably than pushing a haul attempt while near exhaustion and after a recent exhaustion block.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "repair",
+      "priority": 1.0,
+      "reason": "Shared food is still under pressure, but repeated route blocks and low route/location condition are now the practical bottleneck; repairing access should restore later hauling more reliably than pushing a haul attempt while near exhaustion and after a recent exhaustion block.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "error": "counterfactual accepted: proposed score -31.4949 vs baseline -31.4949",
+    "counterfactual": {
+      "horizon_days": 2,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution",
+        "score": -31.4949,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 5.68,
+          "materials": 6.77,
+          "shelter": 9.71,
+          "average_need": 0.411,
+          "average_trust": 0.556,
+          "average_reputation": 0.515,
+          "institutional_cohesion": 0.528,
+          "crisis_events": 18
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "haul",
+        "target_id": null,
+        "reason": "repair blocked by workshop material shortage; hauling materials first",
+        "score": -31.4949,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 5.68,
+          "materials": 6.77,
+          "shelter": 9.71,
+          "average_need": 0.411,
+          "average_trust": 0.556,
+          "average_reputation": 0.515,
+          "institutional_cohesion": 0.528,
+          "crisis_events": 18
+        }
+      },
+      "score_delta": 0.0,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -31.4949 vs baseline -31.4949"
+    }
+  }
+]

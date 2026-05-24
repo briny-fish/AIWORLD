@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Society Run | seed 9 | day 14</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7f7;
+  --ink: #17201f;
+  --muted: #596867;
+  --line: #c8d1cf;
+  --panel: #ffffff;
+  --good: #23785f;
+  --warn: #a15c12;
+  --bad: #a33232;
+  --blue: #2f5d86;
+  --violet: #6e5792;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  line-height: 1.45;
+}
+.shell { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 16px;
+}
+h1, h2, h3 { margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1; }
+h2 { font-size: 18px; margin-bottom: 12px; }
+h3 { font-size: 14px; margin: 12px 0 8px; }
+p { margin: 8px 0 0; color: var(--muted); }
+.status {
+  min-width: 220px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--blue);
+}
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 80px;
+}
+.metric label { display: block; color: var(--muted); font-size: 12px; }
+.metric strong { display: block; font-size: 28px; margin-top: 6px; }
+.band {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.split { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr); gap: 12px; }
+.finding-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f8fbfa;
+  font-size: 13px;
+}
+.critical { color: var(--bad); border-color: var(--bad); }
+.warning { color: var(--warn); border-color: var(--warn); }
+.info { color: var(--good); border-color: var(--good); }
+.chart { width: 100%; height: 260px; display: block; border: 1px solid var(--line); background: #fbfdfc; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.swatch { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: var(--muted); font-size: 12px; font-weight: 700; }
+.bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--blue); }
+@media (max-width: 900px) {
+  .topbar { display: block; }
+  .status { text-align: left; margin-top: 10px; }
+  .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Virtual Society Run</h1>
+        <p>seed 9 · day 14 · generated 2026-05-24T15:56:27+00:00</p>
+      </div>
+      <div class="status">Critical</div>
+    </header>
+    <section class="metric-strip">
+      <div class="metric"><label>Population</label><strong>12</strong></div>
+      <div class="metric"><label>Food</label><strong>5.86</strong></div>
+      <div class="metric"><label>Materials</label><strong>4.58</strong></div>
+      <div class="metric"><label>Shelter</label><strong>8.45</strong></div>
+      <div class="metric"><label>Avg Need</label><strong>0.334</strong></div>
+      <div class="metric"><label>Avg Trust</label><strong>0.505</strong></div>
+      <div class="metric"><label>Avg Reputation</label><strong>0.528</strong></div>
+      <div class="metric"><label>Org Cohesion</label><strong>0.54</strong></div>
+    </section>
+    <section class="band">
+      <h2>Health</h2>
+      <div class="finding-row"><span class="badge critical">low_wellbeing: Average need fell to 0.334.</span><span class="badge warning">crisis_events: 42 crisis events were recorded.</span></div>
+    </section>
+    <section class="band">
+      <h2>Social Evaluation</h2>
+      <div class="finding-row"><span class="badge info">shock_trace_active: Latest relationship_crisis on day 14 is traceable: memory 100%, reflection 100%, plan response 0%.</span></div>
+    </section>
+    <section class="band"><h2>LLM Cache</h2><p>Raw prompt/response cache activity for generated providers in this run.</p><table><thead><tr><th>Surface</th><th>Mode</th><th>Provider</th><th>Model</th><th>Reads</th><th>Hits</th><th>Misses</th><th>Writes</th><th>Directory</th></tr></thead><tbody><tr><td>dialogue</td><td>read-write</td><td>codex-cli</td><td>gpt-5.4-mini</td><td>1</td><td>0</td><td>1</td><td>1</td><td>artifacts\llm-cache-codex-real-history-m19</td></tr></tbody></table></section>
+
+
+
+
+
+
+    <section class="band"><h2>Dialogue Trace</h2><p>calls 1; accepted 1; failures 0; memory grounded 1.</p><table><thead><tr><th>Day</th><th>Speaker</th><th>Partner</th><th>Status</th><th>Focus</th><th>Memory refs</th><th>Codex Dialogue</th><th>Rule Baseline</th><th>Used</th><th>Error</th></tr></thead><tbody><tr><td>1</td><td>Hana</td><td>Dina</td><td>primary</td><td>coordination</td><td>0, 1</td><td>Hana thanked Dina for bringing in materials and tied it to keeping meals fair and routine for the council, while Dina kept the reply brief and practical, saying reliable gathering matters most when shortages start to show.</td><td>Hana and Dina discussed common_council with workable trust. They grounded the talk in day 1: Dina gathered materials. Hana connected it to keep food distribution legitimate; Dina weighed it against adaptability.</td><td>Hana thanked Dina for bringing in materials and tied it to keeping meals fair and routine for the council, while Dina kept the reply brief and practical, saying reliable gathering matters most when shortages start to show.</td><td></td></tr></tbody></table></section>
+    <section class="band"><h2>Dialogue Follow-through</h2><p>Downstream memory, reflection, plan, and rule-baseline differences after accepted generated dialogues.</p><table><thead><tr><th>Day</th><th>Speaker</th><th>Partner</th><th>Focus</th><th>Signal</th><th>Window</th><th>Memory</th><th>Reflection</th><th>Plan</th><th>Reflection deltas</th><th>Plan deltas</th><th>Evidence sample</th><th>Summary</th></tr></thead><tbody><tr><td>1</td><td>Hana</td><td>Dina</td><td>coordination</td><td>memory_reflection_plan_echo</td><td>2-14</td><td>2</td><td>4</td><td>8</td><td>0</td><td>0</td><td>memory: Hana: Hana thanked Dina for bringing in materials and tied it to keeping meals fair and routine for the council, while Dina kept the reply brief and practical, saying reliable gathering matters most when shortages start to show. | reflection: Hana: day 7: Hana reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition. | plan: Hana: day 4: haul | food needs hauling to shared depots; materials need hauling to the workshop; role bias: cook; profile prioritizes food distribution</td><td>After generated dialogue on day 1, Hana and Dina show 2 memory hits, 4 reflection echoes, and 8 plan echoes in days 2-14; no baseline text deltas were found.</td></tr></tbody></table></section>
+
+    <section class="band"><h2>Rule Baseline Comparison</h2><p>Compared with the deterministic rule baseline: average need 0, trust 0, institutional cohesion 0, crisis events 0.</p><table><thead><tr><th>Metric</th><th>Run minus rule baseline</th></tr></thead><tbody><tr><td>population</td><td>0</td></tr><tr><td>food</td><td>0</td></tr><tr><td>materials</td><td>0</td></tr><tr><td>shelter</td><td>0</td></tr><tr><td>average_need</td><td>0</td></tr><tr><td>average_trust</td><td>0</td></tr><tr><td>average_reputation</td><td>0</td></tr><tr><td>institutional_cohesion</td><td>0</td></tr><tr><td>crisis_events</td><td>0</td></tr></tbody></table><p>Rule baseline health: low_wellbeing, crisis_events; social: shock_trace_active.</p></section>
+    <section class="band"><h2>History</h2><p>Day 1 to 14; population 12 -&gt; 12; average need 0.645 -&gt; 0.334; trust 0.550 -&gt; 0.505; institutional cohesion 0.534 -&gt; 0.540; new crisis events 39; rationing events 0; organizations observed 10; average location condition 0.637; active relationship crises 15; blocked routes 12.</p><table><thead><tr><th>Day</th><th>Need</th><th>Trust</th><th>Rep</th><th>Cohesion</th><th>Notable</th><th>Summary</th></tr></thead><tbody><tr><td>1</td><td>0.645</td><td>0.55</td><td>0.503</td><td>0.534</td><td>3</td><td>Day 1: population 12, average need 0.645 (steady), trust 0.550, institutional cohesion 0.534, 3 crisis events.</td></tr><tr><td>7</td><td>0.433</td><td>0.556</td><td>0.515</td><td>0.528</td><td>14</td><td>Day 7: population 12, average need 0.433 (declining), trust 0.556, institutional cohesion 0.528, 14 crisis events.</td></tr><tr><td>14</td><td>0.334</td><td>0.505</td><td>0.528</td><td>0.54</td><td>23</td><td>Day 14: population 12, average need 0.334 (declining), trust 0.505, institutional cohesion 0.540, 25 crisis events.</td></tr></tbody></table></section>
+    <section class="band"><h2>Social Chronicle</h2><p>Chronicle produced 3 entries; 3 entries reference persistent scars. Evaluation signals: shock_trace_active.</p><table><thead><tr><th>Day</th><th>Story</th><th>Summary</th><th>Evidence</th></tr></thead><tbody><tr><td>1</td><td>Institutional fracture</td><td>Day 1: institutional fracture shaped the society while need held steady to 0.645, trust was 0.55, and cohesion was 0.534. Evidence: 1 organization fractures; 2 route blockages; 2 blocked routes still constrain movement.</td><td>1 organization fractures; 2 route blockages; 2 blocked routes still constrain movement; 1 recorded organization fractures</td></tr><tr><td>7</td><td>Institutional fracture</td><td>Day 7: institutional fracture shaped the society while need declined to 0.433, trust was 0.556, and cohesion was 0.528. Evidence: 1 organization fractures; 10 route blockages; 3 hunger crises.</td><td>1 organization fractures; 10 route blockages; 3 hunger crises; 12 blocked routes still constrain movement</td></tr><tr><td>14</td><td>Relationship crisis</td><td>Day 14: relationship crisis shaped the society while need declined to 0.334, trust was 0.505, and cohesion was 0.54. Evidence: 15 relationship crises; 7 hunger crises; 3 safety crises.</td><td>15 relationship crises; 7 hunger crises; 3 safety crises; 1 external shocks</td></tr></tbody></table><h3>Evaluation Signals</h3><table><thead><tr><th>Severity</th><th>Code</th><th>Description</th></tr></thead><tbody><tr><td>info</td><td>shock_trace_active</td><td>Latest relationship_crisis on day 14 is traceable: memory 100%, reflection 100%, plan response 0%.</td></tr></tbody></table></section>
+    <section class="band"><h2>Historical Scar Validation</h2><p>Historical scar validation passed with 29 active persistent scars.</p><table><thead><tr><th>Status</th><th>Code</th><th>Description</th><th>Value</th></tr></thead><tbody><tr><td>pass</td><td>relationship_crises_persist</td><td>15 relationship crises remain active and are excluded from passive trust drift until direct reconciliation.</td><td>15.0</td></tr><tr><td>pass</td><td>organization_fractures_persist</td><td>2 organization fractures are recorded and 2 splinter organizations still exist.</td><td>2.0</td></tr><tr><td>pass</td><td>blocked_routes_affect_paths</td><td>12 blocked routes are removed from route neighbor lookup and require repair progress before reopening.</td><td>12.0</td></tr><tr><td>info</td><td>repair_path_pending</td><td>27 active scars remain unrepaired; this preserves a future repair target rather than silently clearing state.</td><td>27.0</td></tr></tbody></table></section>
+    <section class="band"><h2>Historical Scars</h2><p>Persistent social and spatial damage that will not vanish through passive drift.</p><h3>Relationship Crises</h3><table><thead><tr><th>Agents</th><th>Since Day</th><th>Trust</th></tr></thead><tbody><tr><td>Kira / Lio</td><td>10</td><td>0.388</td></tr><tr><td>Ari / Bo</td><td>12</td><td>0.427</td></tr><tr><td>Bo / Hana</td><td>13</td><td>0.437</td></tr><tr><td>Chen / Jules</td><td>14</td><td>0.451</td></tr><tr><td>Chen / Kira</td><td>10</td><td>0.393</td></tr><tr><td>Chen / Gale</td><td>13</td><td>0.431</td></tr><tr><td>Chen / Ivo</td><td>11</td><td>0.416</td></tr><tr><td>Dina / Faye</td><td>11</td><td>0.414</td></tr><tr><td>Dina / Ivo</td><td>10</td><td>0.393</td></tr><tr><td>Faye / Kira</td><td>14</td><td>0.45</td></tr><tr><td>Faye / Gale</td><td>14</td><td>0.447</td></tr><tr><td>Gale / Kira</td><td>11</td><td>0.396</td></tr><tr><td>Gale / Ivo</td><td>12</td><td>0.425</td></tr><tr><td>Hana / Ivo</td><td>13</td><td>0.441</td></tr><tr><td>Ivo / Jules</td><td>12</td><td>0.426</td></tr></tbody></table><h3>Blocked Routes</h3><table><thead><tr><th>Route</th><th>Repair Need</th></tr></thead><tbody><tr><td>clinic|commons</td><td>0.695</td></tr><tr><td>clinic|river_pier</td><td>1.0</td></tr><tr><td>commons|east_orchard</td><td>0.082</td></tr><tr><td>commons|north_field</td><td>0.082</td></tr><tr><td>commons|river_pier</td><td>0.391</td></tr><tr><td>commons|shelter_house</td><td>0.695</td></tr><tr><td>commons|woodlot</td><td>0.695</td></tr><tr><td>commons|workshop</td><td>0.391</td></tr><tr><td>east_orchard|north_field</td><td>1.0</td></tr><tr><td>east_orchard|river_pier</td><td>1.0</td></tr><tr><td>north_field|woodlot</td><td>0.695</td></tr><tr><td>shelter_house|workshop</td><td>0.695</td></tr></tbody></table><h3>Organization Fractures</h3><table><thead><tr><th>Organization</th><th>Day</th></tr></thead><tbody><tr><td>common_council</td><td>1</td></tr><tr><td>common_council_splinter</td><td>2</td></tr></tbody></table></section>
+    <section class="band">
+      <h2>Metrics</h2>
+
+<svg class="chart" viewBox="0 0 1100 240" role="img" aria-label="Metrics over time">
+  <line x1="24" y1="216" x2="1076" y2="216" stroke="#c9c1b4" />
+  <line x1="24" y1="24" x2="24" y2="216" stroke="#c9c1b4" />
+  <polyline fill="none" stroke="#23785f" stroke-width="3" points="24.0,92.2 104.9,93.1 185.8,92.5 266.8,95.0 347.7,102.1 428.6,117.1 509.5,132.9 590.5,138.4 671.4,139.2 752.3,140.0 833.2,142.5 914.2,147.6 995.1,149.4 1076.0,151.9" />
+  <polyline fill="none" stroke="#2f5d86" stroke-width="3" points="24.0,110.4 104.9,110.2 185.8,109.8 266.8,109.8 347.7,109.6 428.6,109.4 509.5,109.2 590.5,109.1 671.4,108.9 752.3,108.7 833.2,108.3 914.2,111.7 995.1,115.4 1076.0,119.0" />
+  <polyline fill="none" stroke="#6e5792" stroke-width="3" points="24.0,119.4 104.9,119.0 185.8,118.7 266.8,118.3 347.7,118.1 428.6,117.7 509.5,117.1 590.5,116.9 671.4,116.5 752.3,116.2 833.2,115.8 914.2,115.4 995.1,115.0 1076.0,114.6" />
+  <polyline fill="none" stroke="#a33232" stroke-width="3" points="24.0,113.5 104.9,116.7 185.8,116.2 266.8,115.8 347.7,115.4 428.6,115.0 509.5,114.6 590.5,114.4 671.4,114.0 752.3,113.7 833.2,113.3 914.2,112.9 995.1,112.7 1076.0,112.3" />
+  <polyline fill="none" stroke="#a15c12" stroke-width="3" points="24.0,24.0 104.9,122.7 185.8,181.8 266.8,184.7 347.7,135.5 428.6,135.5 509.5,135.5 590.5,132.9 671.4,132.9 752.3,132.9 833.2,132.9 914.2,132.9 995.1,132.9 1076.0,132.9" />
+</svg>
+<div class="legend">
+  <span><i class="swatch" style="background:#23785f"></i>average need</span>
+  <span><i class="swatch" style="background:#2f5d86"></i>average trust</span>
+  <span><i class="swatch" style="background:#6e5792"></i>average reputation</span>
+  <span><i class="swatch" style="background:#a33232"></i>institutional cohesion</span>
+  <span><i class="swatch" style="background:#a15c12"></i>food scaled to run max</span>
+</div>
+    </section>
+    <section class="band">
+      <h2>Organizations</h2>
+      <table><thead><tr><th>Name</th><th>Kind</th><th>Home</th><th>Cohesion</th><th>Rep</th><th>Targets</th><th>Members</th><th>Norms</th></tr></thead><tbody><tr><td>North Household</td><td>household</td><td>north_field</td><td>0.595</td><td>0.527</td><td>food:2.4, materials:0.3</td><td>a1, a2, a3</td><td>share_food, care_for_members</td></tr><tr><td>South Household</td><td>household</td><td>shelter_house</td><td>0.608</td><td>0.527</td><td>food:2.2, materials:0.8, shelter:2.5</td><td>a4, a5, a6</td><td>share_food, care_for_members</td></tr><tr><td>Common Council</td><td>council</td><td>commons</td><td>0.512</td><td>0.528</td><td>food:6.6, materials:2.0, shelter:1.0</td><td>a2, a4, a5, a6, a8, a9, a10, a12</td><td>work_contribution, repair_common_shelter</td></tr><tr><td>Maker Guild</td><td>guild</td><td>workshop</td><td>0.573</td><td>0.528</td><td>food:0.8, materials:2.2, shelter:0.5</td><td>a2, a6</td><td>maintain_tools, trade_materials</td></tr><tr><td>East Household</td><td>household</td><td>east_orchard</td><td>0.587</td><td>0.528</td><td>food:3.2, materials:0.7, shelter:0.4</td><td>a7, a8, a9</td><td>share_food, warn_about_scarcity</td></tr><tr><td>River Cooperative</td><td>cooperative</td><td>river_pier</td><td>0.574</td><td>0.528</td><td>food:1.6, materials:2.8, shelter:0.4</td><td>a10, a11, a12</td><td>maintain_routes, honor_exchange</td></tr><tr><td>Care Circle</td><td>care</td><td>clinic</td><td>0.598</td><td>0.528</td><td>food:2.4, materials:1.0, shelter:1.4</td><td>a5, a8, a9, a11</td><td>protect_vulnerable, share_warnings</td></tr><tr><td>Route Keepers</td><td>guild</td><td>river_pier</td><td>0.57</td><td>0.528</td><td>food:1.2, materials:3.0, shelter:0.3</td><td>a2, a7, a10, a12</td><td>repair_routes, keep_loads_visible</td></tr><tr><td>Common Council Splinter</td><td>council_splinter</td><td>commons</td><td>0.372</td><td>0.527</td><td>food:6.6, materials:2.0, shelter:1.0</td><td>a3, a7</td><td>work_contribution, repair_common_shelter, repair_trust</td></tr><tr><td>Common Council Splinter Splinter</td><td>council_splinter_splinter</td><td>workshop</td><td>0.409</td><td>0.528</td><td>food:6.6, materials:2.0, shelter:1.0</td><td>a11, a1</td><td>work_contribution, repair_common_shelter, repair_trust</td></tr></tbody></table>
+    </section>
+    <section class="band">
+      <h2>Locations</h2>
+      <table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th><th>Blocked</th></tr></thead><tbody><tr><td>Commons</td><td>civic</td><td><div class="bar"><span style="width:65%"></span></div>0.65</td><td>18</td><td>materials:0.723, shelter:0.754</td><td>social:1.15</td><td>0.9</td><td>north_field, woodlot, workshop, shelter_house, east_orchard, river_pier, clinic</td><td>north_field, woodlot, workshop, shelter_house, east_orchard, river_pier, clinic</td></tr><tr><td>North Field</td><td>farm</td><td><div class="bar"><span style="width:64%"></span></div>0.646</td><td>8</td><td>food:2.657, materials:0.5</td><td>food:1.18</td><td>1.15</td><td>commons, woodlot, east_orchard</td><td>commons, woodlot, east_orchard</td></tr><tr><td>Woodlot</td><td>wildland</td><td><div class="bar"><span style="width:58%"></span></div>0.584</td><td>6</td><td>materials:0.873</td><td>food:0.35, materials:1.22</td><td>0.75</td><td>commons, north_field, workshop, river_pier</td><td>commons, north_field</td></tr><tr><td>Workshop</td><td>production</td><td><div class="bar"><span style="width:66%"></span></div>0.663</td><td>8</td><td>materials:0.002, shelter:0.818</td><td>materials:0.9, shelter:1.16</td><td>1.25</td><td>commons, woodlot, shelter_house</td><td>commons, shelter_house</td></tr><tr><td>Shelter House</td><td>dwelling</td><td><div class="bar"><span style="width:67%"></span></div>0.677</td><td>10</td><td>materials:0.8, shelter:5.115</td><td>shelter:1.0</td><td>1.05</td><td>commons, workshop, clinic</td><td>commons, workshop</td></tr><tr><td>East Orchard</td><td>farm</td><td><div class="bar"><span style="width:63%"></span></div>0.631</td><td>7</td><td>food:3.208, materials:0.8, shelter:0.36</td><td>food:1.08, social:0.65</td><td>1.05</td><td>commons, north_field, river_pier</td><td>commons, north_field, river_pier</td></tr><tr><td>River Pier</td><td>logistics</td><td><div class="bar"><span style="width:61%"></span></div>0.616</td><td>7</td><td>materials:0.005, shelter:0.2</td><td>food:0.42, materials:1.05</td><td>1.2</td><td>commons, woodlot, east_orchard, clinic</td><td>commons, east_orchard, clinic</td></tr><tr><td>Clinic</td><td>care</td><td><div class="bar"><span style="width:63%"></span></div>0.632</td><td>6</td><td>materials:0.881, shelter:1.2</td><td>shelter:0.55, social:1.1</td><td>1.1</td><td>commons, shelter_house, river_pier</td><td>commons, river_pier</td></tr></tbody></table>
+    </section>
+    <section class="split">
+      <div class="band">
+        <h2>Agents</h2>
+        <table><thead><tr><th>Name</th><th>Role</th><th>Need</th><th>Trust</th><th>Rep</th><th>Location</th><th>Orgs</th><th>Plan</th><th>Latest Reflection</th></tr></thead><tbody><tr><td>Ari</td><td>farmer</td><td>0.304</td><td>0.433</td><td>0.528</td><td>shelter_house</td><td>household_north, common_council_splinter_splinter</td><td>haul</td><td>day 14: Ari reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Bo</td><td>builder</td><td>0.309</td><td>0.546</td><td>0.528</td><td>shelter_house</td><td>household_north, common_council, maker_guild, route_keepers</td><td>haul</td><td>day 14: Bo reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Chen</td><td>mediator</td><td>0.376</td><td>0.459</td><td>0.526</td><td>shelter_house</td><td>household_north, common_council_splinter</td><td>rest</td><td>day 14: Chen reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Dina</td><td>forager</td><td>0.355</td><td>0.528</td><td>0.526</td><td>shelter_house</td><td>household_south, common_council</td><td>rest</td><td>day 14: Dina reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Eli</td><td>caretaker</td><td>0.364</td><td>0.543</td><td>0.528</td><td>shelter_house</td><td>household_south, common_council, care_circle</td><td>haul</td><td>day 14: Eli reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Faye</td><td>maker</td><td>0.295</td><td>0.522</td><td>0.528</td><td>shelter_house</td><td>household_south, common_council, maker_guild</td><td>haul</td><td>day 14: Faye reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Gale</td><td>scout</td><td>0.302</td><td>0.469</td><td>0.528</td><td>shelter_house</td><td>household_east, route_keepers, common_council_splinter</td><td>haul</td><td>day 14: Gale reflects that 23 crises or shocks require caution; 1 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Hana</td><td>cook</td><td>0.318</td><td>0.52</td><td>0.53</td><td>shelter_house</td><td>common_council, household_east, care_circle</td><td>haul</td><td>day 14: Hana reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Ivo</td><td>healer</td><td>0.357</td><td>0.498</td><td>0.528</td><td>shelter_house</td><td>common_council, household_east, care_circle</td><td>haul</td><td>day 14: Ivo reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Jules</td><td>trader</td><td>0.334</td><td>0.5</td><td>0.528</td><td>shelter_house</td><td>common_council, river_coop, route_keepers</td><td>rest</td><td>day 14: Jules reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Kira</td><td>organizer</td><td>0.358</td><td>0.471</td><td>0.528</td><td>shelter_house</td><td>river_coop, care_circle, common_council_splinter_splinter</td><td>rest</td><td>day 14: Kira reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>Lio</td><td>apprentice</td><td>0.342</td><td>0.57</td><td>0.528</td><td>shelter_house</td><td>common_council, river_coop, route_keepers</td><td>haul</td><td>day 14: Lio reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr></tbody></table>
+      </div>
+      <div class="band">
+        <h2>Recent Events</h2>
+        <table><thead><tr><th>Day</th><th>Kind</th><th>Actor</th><th>Description</th></tr></thead><tbody><tr><td>14</td><td>reflection</td><td>a12</td><td>Lio reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a11</td><td>Kira reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a10</td><td>Jules reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a9</td><td>Ivo reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a8</td><td>Hana reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a7</td><td>Gale reflects that 23 crises or shocks require caution; 1 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a6</td><td>Faye reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a5</td><td>Eli reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a4</td><td>Dina reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a3</td><td>Chen reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a2</td><td>Bo reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>reflection</td><td>a1</td><td>Ari reflects that 23 crises or shocks require caution; most salient memory: Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>relationship_crisis</td><td>society</td><td>Chen and Jules entered a relationship crisis; trust fell to 0.451.</td></tr><tr><td>14</td><td>relationship_crisis</td><td>society</td><td>Faye and Kira entered a relationship crisis; trust fell to 0.450.</td></tr><tr><td>14</td><td>relationship_crisis</td><td>society</td><td>Faye and Gale entered a relationship crisis; trust fell to 0.447.</td></tr><tr><td>14</td><td>safety_crisis</td><td>society</td><td>Low shared wellbeing weakened safety and trust.</td></tr><tr><td>14</td><td>hunger_crisis</td><td>society</td><td>Food rationing failed to meet basic nutrition.</td></tr><tr><td>14</td><td>cooperation</td><td>society</td><td>8 agents coordinated on haul.</td></tr><tr><td>14</td><td>rest</td><td>a3</td><td>Chen rested.</td></tr><tr><td>14</td><td>plan</td><td>a3</td><td>Chen planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>14</td><td>plan_blocked</td><td>a3</td><td>Chen&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>14</td><td>rest</td><td>a1</td><td>Ari found no useful hauling route.</td></tr><tr><td>14</td><td>plan</td><td>a1</td><td>Ari planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient</td></tr><tr><td>14</td><td>rest</td><td>a11</td><td>Kira rested.</td></tr><tr><td>14</td><td>plan</td><td>a11</td><td>Kira planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>14</td><td>plan_blocked</td><td>a11</td><td>Kira&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>14</td><td>rest</td><td>a4</td><td>Dina rested.</td></tr><tr><td>14</td><td>plan</td><td>a4</td><td>Dina planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>14</td><td>plan_blocked</td><td>a4</td><td>Dina&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>14</td><td>rest</td><td>a6</td><td>Faye found no useful hauling route.</td></tr><tr><td>14</td><td>rest</td><td>a12</td><td>Lio found no useful hauling route.</td></tr><tr><td>14</td><td>plan</td><td>a12</td><td>Lio planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient</td></tr><tr><td>14</td><td>rest</td><td>a8</td><td>Hana found no useful hauling route.</td></tr><tr><td>14</td><td>rest</td><td>a2</td><td>Bo found no useful hauling route.</td></tr><tr><td>14</td><td>plan</td><td>a2</td><td>Bo planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient</td></tr><tr><td>14</td><td>rest</td><td>a7</td><td>Gale found no useful hauling route.</td></tr><tr><td>14</td><td>rest</td><td>a5</td><td>Eli found no useful hauling route.</td></tr><tr><td>14</td><td>plan</td><td>a5</td><td>Eli planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient</td></tr><tr><td>14</td><td>rest</td><td>a9</td><td>Ivo found no useful hauling route.</td></tr><tr><td>14</td><td>plan</td><td>a9</td><td>Ivo planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient</td></tr><tr><td>14</td><td>rest</td><td>a10</td><td>Jules rested.</td></tr><tr><td>14</td><td>plan</td><td>a10</td><td>Jules planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>14</td><td>plan_blocked</td><td>a10</td><td>Jules&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>13</td><td>relationship_crisis</td><td>society</td><td>Hana and Ivo entered a relationship crisis; trust fell to 0.459.</td></tr><tr><td>13</td><td>relationship_crisis</td><td>society</td><td>Bo and Hana entered a relationship crisis; trust fell to 0.455.</td></tr><tr><td>13</td><td>relationship_crisis</td><td>society</td><td>Chen and Gale entered a relationship crisis; trust fell to 0.451.</td></tr><tr><td>13</td><td>safety_crisis</td><td>society</td><td>Low shared wellbeing weakened safety and trust.</td></tr><tr><td>13</td><td>hunger_crisis</td><td>society</td><td>Food rationing failed to meet basic nutrition.</td></tr><tr><td>13</td><td>cooperation</td><td>society</td><td>7 agents coordinated on haul.</td></tr><tr><td>13</td><td>rest</td><td>a6</td><td>Faye found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a5</td><td>Eli rested.</td></tr><tr><td>13</td><td>plan</td><td>a5</td><td>Eli planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>13</td><td>plan_blocked</td><td>a5</td><td>Eli&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>13</td><td>rest</td><td>a4</td><td>Dina found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a8</td><td>Hana found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a3</td><td>Chen found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a7</td><td>Gale found no useful hauling route.</td></tr><tr><td>13</td><td>plan</td><td>a7</td><td>Gale planned to haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient</td></tr><tr><td>13</td><td>rest</td><td>a11</td><td>Kira found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a1</td><td>Ari rested.</td></tr><tr><td>13</td><td>plan</td><td>a1</td><td>Ari planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>13</td><td>plan_blocked</td><td>a1</td><td>Ari&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>13</td><td>rest</td><td>a9</td><td>Ivo rested.</td></tr><tr><td>13</td><td>plan</td><td>a9</td><td>Ivo planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>13</td><td>plan_blocked</td><td>a9</td><td>Ivo&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>13</td><td>rest</td><td>a10</td><td>Jules found no useful hauling route.</td></tr><tr><td>13</td><td>rest</td><td>a12</td><td>Lio rested.</td></tr><tr><td>13</td><td>plan</td><td>a12</td><td>Lio planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>13</td><td>plan_blocked</td><td>a12</td><td>Lio&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>13</td><td>rest</td><td>a2</td><td>Bo rested.</td></tr><tr><td>13</td><td>plan</td><td>a2</td><td>Bo planned to rest: work plan blocked by exhaustion; resting first</td></tr><tr><td>13</td><td>plan_blocked</td><td>a2</td><td>Bo&#x27;s plan to haul was blocked; now plans to rest.</td></tr><tr><td>12</td><td>relationship_crisis</td><td>society</td><td>Ari and Bo entered a relationship crisis; trust fell to 0.464.</td></tr><tr><td>12</td><td>relationship_crisis</td><td>society</td><td>Ivo and Jules entered a relationship crisis; trust fell to 0.464.</td></tr><tr><td>12</td><td>relationship_crisis</td><td>society</td><td>Gale and Ivo entered a relationship crisis; trust fell to 0.462.</td></tr><tr><td>12</td><td>safety_crisis</td><td>society</td><td>Low shared wellbeing weakened safety and trust.</td></tr><tr><td>12</td><td>hunger_crisis</td><td>society</td><td>Food rationing failed to meet basic nutrition.</td></tr><tr><td>12</td><td>cooperation</td><td>society</td><td>11 agents coordinated on haul.</td></tr><tr><td>12</td><td>rest</td><td>a1</td><td>Ari found no useful hauling route.</td></tr><tr><td>12</td><td>rest</td><td>a6</td><td>Faye found no useful hauling route.</td></tr></tbody></table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

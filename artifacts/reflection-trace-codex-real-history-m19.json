@@ -1,0 +1,18 @@
+[
+  {
+    "day": 7,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_reflection": "Ari reflects that 17 crises or shocks require caution; 2 social or institutional moments shaped trust; 3 work memories show where effort has been spent; most salient memory: Food rationing failed to meet basic nutrition.",
+    "proposed_reflection": "Ari should stay focused on scarcity and shock: repeated hunger crises show that food rationing is not meeting basic needs, while blocked routes have kept repair and hauling work constrained. Given Ari’s commitment to food security, steady labor, and practical trust, the immediate priority is to keep pushing dependable food and material movement while treating the situation cautiously and concretely.",
+    "used_reflection": "Ari should stay focused on scarcity and shock: repeated hunger crises show that food rationing is not meeting basic needs, while blocked routes have kept repair and hauling work constrained. Given Ari’s commitment to food security, steady labor, and practical trust, the immediate priority is to keep pushing dependable food and material movement while treating the situation cautiously and concretely.",
+    "focus": "scarcity",
+    "memory_refs": [
+      0,
+      3,
+      11
+    ],
+    "error": null
+  }
+]

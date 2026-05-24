@@ -1,0 +1,19 @@
+[
+  {
+    "day": 1,
+    "speaker_id": "a8",
+    "speaker_name": "Hana",
+    "partner_id": "a4",
+    "partner_name": "Dina",
+    "status": "primary",
+    "baseline_dialogue": "Hana and Dina discussed common_council with workable trust. They grounded the talk in day 1: Dina gathered materials. Hana connected it to keep food distribution legitimate; Dina weighed it against adaptability.",
+    "proposed_dialogue": "Hana thanked Dina for bringing in materials and tied it to keeping meals fair and routine for the council, while Dina kept the reply brief and practical, saying reliable gathering matters most when shortages start to show.",
+    "used_dialogue": "Hana thanked Dina for bringing in materials and tied it to keeping meals fair and routine for the council, while Dina kept the reply brief and practical, saying reliable gathering matters most when shortages start to show.",
+    "focus": "coordination",
+    "memory_refs": [
+      0,
+      1
+    ],
+    "error": null
+  }
+]

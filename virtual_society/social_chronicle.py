@@ -19,6 +19,7 @@ class ChronicleEntry:
 def build_social_chronicle(
     history: dict[str, Any] | None,
     social_findings: list[dict[str, Any]] | None = None,
+    observer_intents: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     if not history or not history.get("snapshots"):
         return {
@@ -27,10 +28,18 @@ def build_social_chronicle(
             "evaluation_signals": social_findings or [],
         }
 
-    entries = [
-        _entry_from_snapshot(snapshot)
-        for snapshot in history.get("snapshots", [])
-    ]
+    observer_intents = observer_intents or []
+    entries = []
+    previous_day = 0
+    for snapshot in history.get("snapshots", []):
+        day = int(snapshot.get("day", 0))
+        entries.append(
+            _entry_from_snapshot(
+                snapshot,
+                _observer_intents_for_window(observer_intents, previous_day, day),
+            )
+        )
+        previous_day = day
     return {
         "summary": _chronicle_summary(entries, social_findings or []),
         "entries": [entry.as_dict() for entry in entries],
@@ -38,12 +47,15 @@ def build_social_chronicle(
     }
 
 
-def _entry_from_snapshot(snapshot: dict[str, Any]) -> ChronicleEntry:
+def _entry_from_snapshot(
+    snapshot: dict[str, Any],
+    observer_intents: list[dict[str, Any]],
+) -> ChronicleEntry:
     event_counts = snapshot.get("event_counts", {})
     significant_events = snapshot.get("significant_events", [])
     metrics = snapshot.get("metrics", {})
-    title = _title(event_counts)
-    evidence = _evidence_lines(snapshot, significant_events)
+    title = _title(event_counts, observer_intents)
+    evidence = _evidence_lines(snapshot, significant_events, observer_intents)
     summary = _summary(snapshot, title, evidence)
     return ChronicleEntry(
         day=int(snapshot.get("day", 0)),
@@ -59,7 +71,10 @@ def _entry_from_snapshot(snapshot: dict[str, Any]) -> ChronicleEntry:
     )
 
 
-def _title(event_counts: dict[str, Any]) -> str:
+def _title(
+    event_counts: dict[str, Any],
+    observer_intents: list[dict[str, Any]],
+) -> str:
     if int(event_counts.get("organization_fracture", 0)):
         return "Institutional fracture"
     if int(event_counts.get("relationship_crisis", 0)):
@@ -72,6 +87,8 @@ def _title(event_counts: dict[str, Any]) -> str:
         return "External shock"
     if int(event_counts.get("hunger_crisis", 0)) or int(event_counts.get("safety_crisis", 0)):
         return "Shared crisis"
+    if observer_intents:
+        return "Observer-influenced adaptation"
     if int(event_counts.get("dialogue", 0)) or int(event_counts.get("reflection", 0)):
         return "Social interpretation"
     return "Routine adaptation"
@@ -80,9 +97,11 @@ def _title(event_counts: dict[str, Any]) -> str:
 def _evidence_lines(
     snapshot: dict[str, Any],
     events: list[dict[str, Any]],
+    observer_intents: list[dict[str, Any]],
 ) -> list[str]:
     event_counts = snapshot.get("event_counts", {})
     lines: list[str] = []
+    lines.extend(_observer_evidence_lines(observer_intents))
     for kind, label in (
         ("relationship_crisis", "relationship crises"),
         ("reconciliation", "reconciliations"),
@@ -122,6 +141,50 @@ def _evidence_lines(
     ][-2:]
     lines.extend(examples)
     return lines[:6]
+
+
+def _observer_intents_for_window(
+    observer_intents: list[dict[str, Any]],
+    previous_day: int,
+    day: int,
+) -> list[dict[str, Any]]:
+    return [
+        item
+        for item in observer_intents
+        if previous_day < int(item.get("day", 0)) <= day
+    ]
+
+
+def _observer_evidence_lines(observer_intents: list[dict[str, Any]]) -> list[str]:
+    lines = []
+    for item in observer_intents[-3:]:
+        intent = str(item.get("intent", "observer")).replace("_", " ")
+        targets = [str(value) for value in item.get("target_agents") or []]
+        target_text = _target_text(targets)
+        plan_hits = int(item.get("plan_hits", 0) or 0)
+        memory_hits = int(item.get("memory_hits", 0) or 0)
+        signal = str(item.get("signal", ""))
+        if signal == "intent_memory_plan_echo":
+            lines.append(
+                f"observer intent {intent} reached {target_text}; "
+                f"{plan_hits} plans echoed it"
+            )
+        elif memory_hits:
+            lines.append(
+                f"observer intent {intent} became shared memory for "
+                f"{memory_hits} targeted agents"
+            )
+        else:
+            lines.append(f"observer intent {intent} was broadcast")
+    return lines
+
+
+def _target_text(targets: list[str]) -> str:
+    if not targets:
+        return "targeted agents"
+    if len(targets) <= 4:
+        return ", ".join(targets)
+    return f"{', '.join(targets[:4])}, +{len(targets) - 4} more"
 
 
 def _summary(
@@ -171,8 +234,22 @@ def _chronicle_summary(
         for item in social_findings[:3]
         if item.get("code")
     )
+    observer_entries = sum(
+        1
+        for entry in entries
+        if any("observer intent" in evidence for evidence in entry.evidence)
+    )
+    observer_suffix = (
+        f" {observer_entries} entries include observer impact."
+        if observer_entries
+        else ""
+    )
     suffix = f" Evaluation signals: {signals}." if signals else ""
-    return f"Chronicle produced {len(entries)} entries; {scar_entries} entries reference persistent scars.{suffix}"
+    return (
+        f"Chronicle produced {len(entries)} entries; "
+        f"{scar_entries} entries reference persistent scars."
+        f"{observer_suffix}{suffix}"
+    )
 
 
 def _direction(delta: float) -> str:

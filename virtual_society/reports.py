@@ -48,8 +48,12 @@ def build_run_record(
 ) -> dict[str, Any]:
     social_findings = assess_social_dynamics(world)
     social_finding_dicts = [item.as_dict() for item in social_findings]
-    social_chronicle = build_social_chronicle(history, social_finding_dicts)
     observer_intents = [item.as_dict() for item in assess_observer_intents(world)]
+    social_chronicle = build_social_chronicle(
+        history,
+        social_finding_dicts,
+        observer_intents,
+    )
     record = {
         "kind": "run",
         "generated_at": _now(),

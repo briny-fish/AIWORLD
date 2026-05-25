@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-25T06:01:37+00:00",
+  "generated_at": "2026-05-25T06:16:55+00:00",
   "seed": 9,
   "days": 21,
   "metrics": [
@@ -372,7 +372,7 @@
     ]
   },
   "social_chronicle": {
-    "summary": "Chronicle produced 4 entries; 3 entries reference persistent scars. Evaluation signals: shock_trace_active.",
+    "summary": "Chronicle produced 4 entries; 3 entries reference persistent scars. 1 entries include observer impact. Evaluation signals: shock_trace_active.",
     "entries": [
       {
         "day": 1,
@@ -394,8 +394,9 @@
       {
         "day": 7,
         "title": "Route network scarred",
-        "summary": "Day 7: route network scarred shaped the society while need declined to 0.569, trust was 0.56, and cohesion was 0.57. Evidence: 9 route blockages; 6 route reopenings; 2 hunger crises.",
+        "summary": "Day 7: route network scarred shaped the society while need declined to 0.569, trust was 0.56, and cohesion was 0.57. Evidence: observer intent repair routes reached Ari, Gale, Jules; 3 plans echoed it; 9 route blockages; 6 route reopenings.",
         "evidence": [
+          "observer intent repair routes reached Ari, Gale, Jules; 3 plans echoed it",
           "9 route blockages",
           "6 route reopenings",
           "2 hunger crises",

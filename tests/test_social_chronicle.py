@@ -54,6 +54,46 @@ class SocialChronicleTests(unittest.TestCase):
         self.assertEqual(chronicle["entries"], [])
         self.assertIn("No history snapshots", chronicle["summary"])
 
+    def test_chronicle_includes_observer_intent_as_story_evidence(self) -> None:
+        history = {
+            "snapshots": [
+                {
+                    "day": 7,
+                    "metrics": {
+                        "average_need": 0.58,
+                        "average_trust": 0.56,
+                        "institutional_cohesion": 0.57,
+                        "crisis_events": 4,
+                    },
+                    "trends": {"average_need": -0.04},
+                    "event_counts": {"route_blocked": 2},
+                    "relationship_crises": {},
+                    "blocked_routes": {"commons|north_field": 0.7},
+                    "organization_fractures": {},
+                    "significant_events": [],
+                }
+            ]
+        }
+
+        chronicle = build_social_chronicle(
+            history,
+            observer_intents=[
+                {
+                    "day": 6,
+                    "intent": "repair_routes",
+                    "signal": "intent_memory_plan_echo",
+                    "target_agents": ["Ari", "Gale", "Jules"],
+                    "memory_hits": 3,
+                    "plan_hits": 3,
+                }
+            ],
+        )
+
+        entry = chronicle["entries"][0]
+        self.assertIn("observer intent repair routes", entry["summary"])
+        self.assertIn("Ari, Gale, Jules", entry["evidence"][0])
+        self.assertIn("3 plans echoed it", entry["evidence"][0])
+
 
 if __name__ == "__main__":
     unittest.main()

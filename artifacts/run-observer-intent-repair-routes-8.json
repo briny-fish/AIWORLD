@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-25T06:01:37+00:00",
+  "generated_at": "2026-05-25T06:16:54+00:00",
   "seed": 9,
   "days": 8,
   "metrics": [
@@ -202,7 +202,7 @@
     ]
   },
   "social_chronicle": {
-    "summary": "Chronicle produced 3 entries; 3 entries reference persistent scars. Evaluation signals: shock_trace_weak.",
+    "summary": "Chronicle produced 3 entries; 3 entries reference persistent scars. 1 entries include observer impact. Evaluation signals: shock_trace_weak.",
     "entries": [
       {
         "day": 1,
@@ -241,14 +241,14 @@
       {
         "day": 8,
         "title": "Route network scarred",
-        "summary": "Day 8: route network scarred shaped the society while need declined to 0.579, trust was 0.562, and cohesion was 0.573. Evidence: 3 route blockages; 10 route reopenings; 2 hunger crises.",
+        "summary": "Day 8: route network scarred shaped the society while need declined to 0.579, trust was 0.562, and cohesion was 0.573. Evidence: observer intent repair routes reached Ari, Gale, Jules; 3 plans echoed it; 3 route blockages; 10 route reopenings.",
         "evidence": [
+          "observer intent repair routes reached Ari, Gale, Jules; 3 plans echoed it",
           "3 route blockages",
           "10 route reopenings",
           "2 hunger crises",
           "3 blocked routes still constrain movement",
-          "Route north_field|woodlot became blocked after repeated strain and poor condition",
-          "Route commons|woodlot became blocked after repeated strain and poor condition"
+          "Route north_field|woodlot became blocked after repeated strain and poor condition"
         ],
         "metrics": {
           "average_need": 0.579,

@@ -41,6 +41,7 @@ from .interventions import Intervention
 from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
+from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
 from .openai_provider import OpenAICognition
 from .api import SimulationService
 from .reflection import (
@@ -77,6 +78,7 @@ __all__ = [
     "LLMCacheRecord",
     "LLMCacheStats",
     "LLMCallCache",
+    "ObserverIntentFinding",
     "OpenAICognition",
     "SocialFinding",
     "CodexCliCognition",
@@ -106,6 +108,7 @@ __all__ = [
     "assess_cognition_impacts",
     "assess_cognition_outcomes",
     "assess_counterfactual_trace",
+    "assess_observer_intents",
     "build_historical_scar_validation",
     "build_social_chronicle",
     "compare_plan_counterfactuals",

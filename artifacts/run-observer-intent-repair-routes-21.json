@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-24T16:09:35+00:00",
+  "generated_at": "2026-05-25T06:01:37+00:00",
   "seed": 9,
   "days": 21,
   "metrics": [
@@ -451,6 +451,29 @@
       }
     ]
   },
+  "observer_intents": [
+    {
+      "day": 6,
+      "intent": "repair_routes",
+      "signal": "intent_memory_plan_echo",
+      "expected_targets": 3,
+      "memory_hits": 3,
+      "plan_hits": 3,
+      "window_start": 6,
+      "window_end": 13,
+      "target_agents": [
+        "Ari",
+        "Gale",
+        "Jules"
+      ],
+      "plan_evidence": [
+        "Ari: day 8: repair | reflection keeps recent shock salient; observer intent emphasizes route repair; blocked routes make observer intent actionable",
+        "Gale: day 6: repair | observer intent emphasizes route repair; blocked routes make observer intent actionable",
+        "Jules: day 6: repair | observer intent emphasizes route repair; blocked routes make observer intent actionable"
+      ],
+      "summary": "Observer intent repair_routes produced signal intent_memory_plan_echo: 3/3 targets hold the memory and 3 target plans echo the intent."
+    }
+  ],
   "agents": [
     {
       "id": "a1",

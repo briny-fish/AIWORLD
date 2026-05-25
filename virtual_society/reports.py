@@ -10,6 +10,7 @@ from typing import Any
 from .health import HealthFinding, RunReport
 from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
+from .observer_intent_evaluation import assess_observer_intents
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import build_social_chronicle
 
@@ -48,6 +49,7 @@ def build_run_record(
     social_findings = assess_social_dynamics(world)
     social_finding_dicts = [item.as_dict() for item in social_findings]
     social_chronicle = build_social_chronicle(history, social_finding_dicts)
+    observer_intents = [item.as_dict() for item in assess_observer_intents(world)]
     record = {
         "kind": "run",
         "generated_at": _now(),
@@ -65,6 +67,7 @@ def build_run_record(
         "historical_scars": _historical_scars(world),
         "historical_scar_validation": build_historical_scar_validation(world, history),
         "social_chronicle": social_chronicle,
+        "observer_intents": observer_intents,
         "agents": [
             {
                 "id": agent.id,
@@ -252,6 +255,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     locations = record.get("locations", [])
     history = record.get("history")
     social_chronicle = record.get("social_chronicle")
+    observer_intents = record.get("observer_intents", [])
     historical_scar_validation = record.get("historical_scar_validation")
     historical_scars = record.get("historical_scars", {})
     events = record["events"][-80:]
@@ -305,6 +309,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     {_social_chronicle_section(social_chronicle)}
+    {_observer_intent_section(observer_intents)}
     {_historical_scar_validation_section(historical_scar_validation)}
     {_historical_scars_section(historical_scars)}
     <section class="band">
@@ -605,6 +610,43 @@ def _evaluation_signal_table(signals: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<h3>Evaluation Signals</h3><table><thead><tr><th>Severity</th><th>Code</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _observer_intent_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Observer Intent Follow-through</h2>"
+        "<p>Targeted observer broadcasts linked to agent memories and later plans.</p>"
+        f"{_observer_intent_table(items)}"
+        "</section>"
+    )
+
+
+def _observer_intent_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item.get('day', '')}</td>"
+            f"<td>{escape(str(item.get('intent', '')))}</td>"
+            f"<td>{escape(str(item.get('signal', '')))}</td>"
+            f"<td>{item.get('memory_hits', 0)}/{item.get('expected_targets', 0)}</td>"
+            f"<td>{item.get('plan_hits', 0)}</td>"
+            f"<td>{escape(', '.join(item.get('target_agents') or []))}</td>"
+            f"<td>{escape(_observer_intent_evidence_text(item))}</td>"
+            f"<td>{escape(str(item.get('summary', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Intent</th><th>Signal</th><th>Memory</th><th>Plans</th><th>Targets</th><th>Evidence</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _observer_intent_evidence_text(item: dict[str, Any]) -> str:
+    evidence = item.get("plan_evidence") or []
+    if not evidence:
+        return "none"
+    return " | ".join(str(value) for value in evidence[:3])
 
 
 def _historical_scar_validation_section(validation: dict[str, Any] | None) -> str:

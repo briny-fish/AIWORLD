@@ -7,6 +7,7 @@ from virtual_society import Simulation
 from virtual_society.experiment import run_experiment
 from virtual_society.health import assess_metrics
 from virtual_society.history import HistoryRecorder
+from virtual_society.interventions import Intervention
 from virtual_society.reports import (
     build_experiment_record,
     build_rule_baseline_comparison,
@@ -560,6 +561,33 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Blocked Routes", html)
         self.assertIn("Organization Fractures", html)
         self.assertIn("commons|north_field", html)
+
+    def test_run_html_renders_observer_intent_follow_through(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(
+            1,
+            interventions=[
+                Intervention(
+                    day=1,
+                    kind="broadcast",
+                    params={
+                        "intent": "repair_routes",
+                        "target_agent_ids": ["a1"],
+                        "message": "Reopen blocked routes.",
+                    },
+                )
+            ],
+        )
+        simulation.world.agents[0].plan_history.append(
+            "day 1: repair | observer intent emphasizes route repair"
+        )
+
+        record = build_run_record(7, metrics, simulation.world, assess_metrics(metrics))
+        html = render_run_html(record)
+
+        self.assertIn("Observer Intent Follow-through", html)
+        self.assertIn("intent_memory_plan_echo", html)
+        self.assertIn("repair_routes", html)
 
     def test_experiment_html_renders_seed_comparison(self) -> None:
         reports = run_experiment(seeds=[1, 2], days=10)

@@ -47,6 +47,7 @@ class CodexCliCognition:
         timeout_seconds: int = 180,
         workdir: str | None = None,
         cache: LLMCallCache | None = None,
+        compact_context: bool = True,
         run_command: RunCommand | None = None,
     ) -> None:
         self.codex_path = codex_path or resolve_codex_cli()
@@ -55,6 +56,7 @@ class CodexCliCognition:
         self.timeout_seconds = timeout_seconds
         self.workdir = workdir
         self.cache = cache
+        self.compact_context = compact_context
         self._run_command = run_command or self._default_run_command
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
@@ -66,7 +68,14 @@ class CodexCliCognition:
         world: WorldState,
         baseline_plan: Plan | None,
     ) -> Plan:
-        context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
+        context = build_cognition_context(
+            agent,
+            world,
+            event_limit=8 if self.compact_context else 12,
+            memory_limit=6 if self.compact_context else 8,
+            baseline_plan=baseline_plan,
+            compact=self.compact_context,
+        )
         prompt = (
             f"{render_plan_prompt(context)}\n\n"
             "Return JSON only. No markdown. No prose before or after the JSON."

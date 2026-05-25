@@ -1,0 +1,33 @@
+[
+  {
+    "day": 8,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "repair",
+      "priority": 0.65,
+      "reason": "reflection keeps recent shock salient; observer intent emphasizes route repair; blocked routes make observer intent actionable",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "repair",
+      "priority": 0.65,
+      "reason": "Recent shock and route-block memories still matter, and the baseline repair plan fits current evidence: routes have been reopening through common repair, while shared food/material/shelter gaps are not active. Energy is low, but not at the exhaustion threshold, and rest is only justified by near-threshold exhaustion or a clear exhaustion block; the recent block is relevant, but the current situation still supports one day of repair for shared resilience.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "repair",
+      "priority": 0.65,
+      "reason": "Recent shock and route-block memories still matter, and the baseline repair plan fits current evidence: routes have been reopening through common repair, while shared food/material/shelter gaps are not active. Energy is low, but not at the exhaustion threshold, and rest is only justified by near-threshold exhaustion or a clear exhaustion block; the recent block is relevant, but the current situation still supports one day of repair for shared resilience.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": false,
+    "error": null,
+    "counterfactual": null
+  }
+]

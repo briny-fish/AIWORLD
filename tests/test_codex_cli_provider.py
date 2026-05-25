@@ -42,6 +42,8 @@ class CodexCliProviderTests(unittest.TestCase):
         self.assertIn("gpt-5.4-mini", commands[0])
         self.assertIn('model_reasoning_effort="low"', commands[0])
         self.assertIn("decision_pressure", commands[0][-1])
+        self.assertIn("exhaustion_work_threshold", commands[0][-1])
+        self.assertNotIn("relationship_daily_drift", commands[0][-1])
 
     def test_provider_can_include_baseline_plan_in_prompt(self) -> None:
         commands: list[list[str]] = []

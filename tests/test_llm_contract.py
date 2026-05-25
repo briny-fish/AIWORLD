@@ -60,6 +60,20 @@ class LLMContractTests(unittest.TestCase):
             baseline.action.value,
         )
 
+    def test_compact_context_keeps_decision_facts_without_full_rules(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.run(3)
+        agent = simulation.world.agents[0]
+
+        full = build_cognition_context(agent, simulation.world)
+        compact = build_cognition_context(agent, simulation.world, compact=True)
+
+        self.assertIn("exhaustion_work_threshold", compact.world["rules"])
+        self.assertNotIn("relationship_daily_drift", compact.world["rules"])
+        self.assertIn("connected_location_ids", compact.world["locations"][0])
+        self.assertNotIn("production", compact.world["locations"][0])
+        self.assertLess(len(render_plan_prompt(compact)), len(render_plan_prompt(full)))
+
     def test_parse_plan_response_accepts_valid_plan(self) -> None:
         plan = parse_plan_response(
             {

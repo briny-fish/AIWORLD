@@ -8,6 +8,22 @@ from .generative_memory import memory_dicts, retrieve_memories
 from .model import Action, Agent, Plan, WorldState
 
 
+COMPACT_RULE_KEYS = {
+    "exhaustion_work_threshold",
+    "food_per_agent",
+    "shelter_safety_ratio",
+    "haul_capacity",
+    "route_base_energy_cost",
+    "route_hop_energy_cost",
+    "route_block_condition_threshold",
+    "route_repair_material_cost",
+    "route_repair_progress",
+    "relationship_crisis_threshold",
+    "relationship_repair_threshold",
+    "organization_fracture_threshold",
+}
+
+
 @dataclass(frozen=True)
 class CognitionContext:
     agent: dict[str, Any]
@@ -33,6 +49,7 @@ def build_cognition_context(
     event_limit: int = 12,
     memory_limit: int = 8,
     baseline_plan: Plan | None = None,
+    compact: bool = False,
 ) -> CognitionContext:
     organizations = [
         organization
@@ -46,6 +63,10 @@ def build_cognition_context(
         current_day=world.day,
         limit=memory_limit,
     )
+    retrieved_memory_dicts = memory_dicts(retrieved)
+    if compact:
+        retrieved_memory_dicts = _compact_retrieved_memories(retrieved_memory_dicts)
+
     return CognitionContext(
         agent={
             "id": agent.id,
@@ -67,25 +88,9 @@ def build_cognition_context(
             "population": world.population,
             "resources": dict(world.resources),
             "route_loads": dict(world.route_loads),
-            "rules": asdict(world.rules),
+            "rules": _rules_dict(world, compact),
             "locations": [
-                {
-                    "id": location.id,
-                    "name": location.name,
-                    "kind": location.kind,
-                    "condition": round(location.condition, 3),
-                    "capacity": location.capacity,
-                    "production": {
-                        key: round(value, 3)
-                        for key, value in location.production.items()
-                    },
-                    "maintenance_need": round(location.maintenance_need, 3),
-                    "resources": {
-                        key: round(value, 3)
-                        for key, value in location.resources.items()
-                    },
-                    "connected_location_ids": list(location.connected_location_ids),
-                }
+                _location_dict(location, compact)
                 for location in world.locations
             ],
             "agent_organizations": [
@@ -111,7 +116,7 @@ def build_cognition_context(
         },
         recent_events=[asdict(event) for event in world.event_log[-event_limit:]],
         memories=agent.memories[-memory_limit:],
-        retrieved_memories=memory_dicts(retrieved),
+        retrieved_memories=retrieved_memory_dicts,
         allowed_actions=[action.value for action in Action],
         baseline_plan=_plan_dict(baseline_plan) if baseline_plan is not None else None,
         decision_pressure=_decision_pressure(agent, world, baseline_plan),
@@ -183,6 +188,59 @@ def _average(values: Any) -> float:
     if not items:
         return 0.0
     return round(sum(items) / len(items), 3)
+
+
+def _rules_dict(world: WorldState, compact: bool) -> dict[str, Any]:
+    rules = asdict(world.rules)
+    if not compact:
+        return rules
+    return {
+        key: value
+        for key, value in rules.items()
+        if key in COMPACT_RULE_KEYS
+    }
+
+
+def _location_dict(location: Any, compact: bool) -> dict[str, Any]:
+    base = {
+        "id": location.id,
+        "name": location.name,
+        "kind": location.kind,
+        "condition": round(location.condition, 3),
+        "resources": {
+            key: round(value, 3)
+            for key, value in location.resources.items()
+        },
+        "connected_location_ids": list(location.connected_location_ids),
+    }
+    if compact:
+        return base
+    return {
+        **base,
+        "capacity": location.capacity,
+        "production": {
+            key: round(value, 3)
+            for key, value in location.production.items()
+        },
+        "maintenance_need": round(location.maintenance_need, 3),
+    }
+
+
+def _compact_retrieved_memories(
+    memories: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    compacted = []
+    for memory in memories:
+        compacted.append(
+            {
+                "day": memory.get("day"),
+                "kind": memory.get("kind"),
+                "text": memory.get("text"),
+                "importance": memory.get("importance"),
+                "actor_id": memory.get("actor_id"),
+            }
+        )
+    return compacted
 
 
 def _memory_query(agent: Agent, world: WorldState) -> str:

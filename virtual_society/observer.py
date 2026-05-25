@@ -63,6 +63,15 @@ select {
   padding: 8px 10px;
   font-weight: 700;
 }
+input {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-weight: 700;
+}
 .intent-controls {
   display: flex;
   flex-wrap: wrap;
@@ -141,6 +150,7 @@ select {
       <div id="status" class="status">Connecting</div>
     </header>
     <section class="controls" aria-label="Controls">
+      <input id="observerName" value="The Envoy" aria-label="Observer name">
       <button id="step1">Step 1 Day</button>
       <button id="step7">Step 7 Days</button>
       <button id="food">Add Food</button>
@@ -434,9 +444,17 @@ function intentMessage(intent) {
   return messages[intent] || "Coordinate the next response.";
 }
 
+function observerActorId() {
+  const input = $("observerName");
+  const name = (input?.value || "observer").trim() || "observer";
+  localStorage.setItem("virtualSocietyObserverName", name);
+  return name.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\\s+/g, "_") || "observer";
+}
+
 function sendObserverIntent() {
   const intent = $("intent").value;
   const targetIds = selectedTargetIds();
+  const actorId = observerActorId();
   const params = {
     intent,
     tone: "hope",
@@ -450,7 +468,8 @@ function sendObserverIntent() {
       days: 1,
       interventions: [{
         kind: "broadcast",
-        reason: `observer intent ${intent}`,
+        actor_id: actorId,
+        reason: `${actorId} intent ${intent}`,
         params
       }]
     })
@@ -459,11 +478,13 @@ function sendObserverIntent() {
 
 $("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
 $("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
-$("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", reason: "observer food aid", params: { resource: "food", amount: 5 } }] }) })));
-$("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", reason: "observer encouragement", params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
-$("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", reason: "observer stress test", params: { name: "storm", severity: 0.35 } }] }) })));
+$("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", actor_id: observerActorId(), reason: `${observerActorId()} food aid`, params: { resource: "food", amount: 5 } }] }) })));
+$("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", actor_id: observerActorId(), reason: `${observerActorId()} encouragement`, params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
+$("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", actor_id: observerActorId(), reason: `${observerActorId()} stress test`, params: { name: "storm", severity: 0.35 } }] }) })));
 $("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: 7 }) })));
 $("sendIntent").addEventListener("click", () => act(sendObserverIntent));
+const savedObserverName = localStorage.getItem("virtualSocietyObserverName");
+if (savedObserverName) $("observerName").value = savedObserverName;
 $("map").addEventListener("click", (event) => {
   const node = event.target.closest(".agent-node");
   if (!node) return;

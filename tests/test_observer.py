@@ -1,6 +1,7 @@
 import unittest
 
 from virtual_society.observer import render_observer_html
+from virtual_society.observer3d import render_observer3d_html
 
 
 class ObserverTests(unittest.TestCase):
@@ -19,6 +20,16 @@ class ObserverTests(unittest.TestCase):
         self.assertIn('id="intentTarget"', html)
         self.assertIn('id="sendIntent"', html)
         self.assertIn("sendObserverIntent", html)
+        self.assertIn('id="observerName"', html)
+        self.assertIn("observerActorId", html)
+        self.assertIn("actor_id", html)
+
+    def test_3d_observer_renders_named_observer_controls(self) -> None:
+        html = render_observer3d_html()
+
+        self.assertIn('id="observerName"', html)
+        self.assertIn("observerActorId", html)
+        self.assertIn("actor_id", html)
 
 
 if __name__ == "__main__":

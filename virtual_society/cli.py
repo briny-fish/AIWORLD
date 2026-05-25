@@ -27,6 +27,7 @@ from .llm_contract import build_cognition_context, render_plan_prompt
 from .llm_cache import LLMCallCache
 from .model import WorldState
 from .openai_provider import OpenAICognition
+from .reason_richness_evaluation import assess_reason_richness
 from .reflection import HybridReflection, HybridReflectionConfig
 from .reflection_evaluation import assess_reflection_follow_through
 from .reports import (
@@ -304,6 +305,10 @@ def main() -> None:
         item.as_dict()
         for item in assess_choice_tensions(simulation.world, cognition_trace)
     ]
+    reason_richness = [
+        item.as_dict()
+        for item in assess_reason_richness(cognition_trace)
+    ]
     reflection_follow_through = [
         item.as_dict()
         for item in assess_reflection_follow_through(
@@ -340,6 +345,7 @@ def main() -> None:
             counterfactual_evaluation=counterfactual_evaluation,
             cognition_impacts=cognition_impacts,
             cognition_outcomes=cognition_outcomes,
+            reason_richness=reason_richness,
             reflection_trace=reflection_trace,
             reflection_follow_through=reflection_follow_through,
             dialogue_trace=dialogue_trace,
@@ -373,6 +379,8 @@ def main() -> None:
             payload["cognition_outcomes"] = cognition_outcomes
         if choice_tensions:
             payload["choice_tensions"] = choice_tensions
+        if reason_richness:
+            payload["reason_richness"] = reason_richness
         if counterfactual_evaluation["total"]:
             payload["counterfactual_evaluation"] = counterfactual_evaluation
         if reflection_follow_through:
@@ -407,6 +415,7 @@ def main() -> None:
         _print_cognition_impacts(cognition_impacts)
         _print_cognition_outcomes(cognition_outcomes)
         _print_choice_tensions(choice_tensions)
+        _print_reason_richness(reason_richness)
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
         _print_reflection_stats(reflection)
         _print_reflection_trace(reflection)
@@ -619,6 +628,20 @@ def _print_choice_tensions(items: list[dict]) -> None:
             f"baseline={item.get('baseline_action') or 'none'} "
             f"used={item.get('used_action') or 'none'} "
             f"competing={', '.join(item.get('competing_groups') or [])}"
+        )
+
+
+def _print_reason_richness(items: list[dict]) -> None:
+    if not items:
+        return
+    print("\nReason richness:")
+    for item in items[-5:]:
+        print(
+            f"day {item['day']:>3} | {item['agent_name']:<8} | "
+            f"{item['signal']:<48} | "
+            f"generated={item.get('generated_score', 0)} "
+            f"baseline={item.get('baseline_score', 0)} "
+            f"groups={', '.join(item.get('generated_groups') or [])}"
         )
 
 

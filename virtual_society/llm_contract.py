@@ -8,6 +8,8 @@ from .generative_memory import memory_dicts, retrieve_memories
 from .model import Action, Agent, Plan, WorldState
 
 
+PLAN_PROMPT_VERSION = "cognition-plan-v3-social-pressure"
+
 COMPACT_RULE_KEYS = {
     "exhaustion_work_threshold",
     "food_per_agent",
@@ -26,6 +28,7 @@ COMPACT_RULE_KEYS = {
 
 @dataclass(frozen=True)
 class CognitionContext:
+    prompt_version: str
     agent: dict[str, Any]
     world: dict[str, Any]
     recent_events: list[dict[str, Any]]
@@ -68,6 +71,7 @@ def build_cognition_context(
         retrieved_memory_dicts = _compact_retrieved_memories(retrieved_memory_dicts)
 
     return CognitionContext(
+        prompt_version=PLAN_PROMPT_VERSION,
         agent={
             "id": agent.id,
             "name": agent.name,
@@ -127,6 +131,7 @@ def render_plan_prompt(context: CognitionContext) -> str:
     payload = json.dumps(context.as_dict(), ensure_ascii=False, indent=2)
     return (
         "You are a cognition module for a deterministic virtual society.\n"
+        f"Prompt version: {context.prompt_version}.\n"
         "Return exactly one JSON object with keys: action, priority, reason, "
         "target_id, horizon_days.\n"
         "The action must be one of the allowed_actions. Do not invent world facts.\n"

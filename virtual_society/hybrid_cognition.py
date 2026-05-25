@@ -4,6 +4,7 @@ from dataclasses import asdict, dataclass, field
 
 from .cognition import CognitionProvider, RuleBasedCognition
 from .counterfactual_cognition import compare_plan_counterfactuals
+from .llm_contract import PLAN_PROMPT_VERSION
 from .model import Action, Agent, Plan, WorldState
 
 
@@ -41,6 +42,7 @@ class HybridCognitionTrace:
     used_plan: dict
     diverged_from_baseline: bool
     proposed_diverged_from_baseline: bool = False
+    prompt_version: str = PLAN_PROMPT_VERSION
     error: str | None = None
     counterfactual: dict | None = None
 
@@ -77,6 +79,7 @@ class HybridCognition:
             self.stats.llm_failures += 1
             self.stats.fallback_calls += 1
             self._remember_error(exc)
+            error = _truncate_error(str(exc))
             self._record_trace(
                 agent=agent,
                 world=world,
@@ -84,7 +87,7 @@ class HybridCognition:
                 baseline_plan=baseline_plan,
                 proposed_plan=None,
                 used_plan=baseline_plan,
-                error=str(exc),
+                error=error,
             )
             return baseline_plan
 
@@ -203,7 +206,7 @@ class HybridCognition:
         return world.day % self.config.every_days == 0
 
     def _remember_error(self, exc: Exception) -> None:
-        self.stats.last_errors.append(str(exc))
+        self.stats.last_errors.append(_truncate_error(str(exc)))
         del self.stats.last_errors[:-5]
 
     def _record_trace(
@@ -232,6 +235,7 @@ class HybridCognition:
                     if proposed_plan is not None
                     else False
                 ),
+                prompt_version=_prompt_version(self.primary),
                 error=error,
                 counterfactual=counterfactual,
             )
@@ -250,6 +254,17 @@ def _plan_dict(plan: Plan) -> dict:
         "target_id": plan.target_id,
         "horizon_days": plan.horizon_days,
     }
+
+
+def _prompt_version(provider: CognitionProvider) -> str:
+    return str(getattr(provider, "prompt_version", PLAN_PROMPT_VERSION))
+
+
+def _truncate_error(value: str, limit: int = 600) -> str:
+    compact = value.strip().replace("\r\n", "\n")
+    if len(compact) <= limit:
+        return compact
+    return compact[:limit] + "... <truncated>"
 
 
 def _plan_differs(first: Plan, second: Plan) -> bool:

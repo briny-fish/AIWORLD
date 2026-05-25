@@ -2,6 +2,7 @@ import unittest
 
 from virtual_society.cognition import RuleBasedCognition
 from virtual_society.hybrid_cognition import HybridCognition, HybridCognitionConfig
+from virtual_society.llm_contract import PLAN_PROMPT_VERSION
 from virtual_society.model import Action, Plan
 from virtual_society import Simulation
 
@@ -28,12 +29,13 @@ class BaselineAwareProvider(FixedProvider):
 
 
 class FailingProvider:
-    def __init__(self) -> None:
+    def __init__(self, message: str = "provider failed") -> None:
         self.calls = 0
+        self.message = message
 
     def propose_plan(self, agent, world):
         self.calls += 1
-        raise RuntimeError("provider failed")
+        raise RuntimeError(self.message)
 
 
 class HybridCognitionTests(unittest.TestCase):
@@ -62,6 +64,7 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(hybrid.trace[0].used_plan["action"], "rest")
         self.assertTrue(hybrid.trace[0].diverged_from_baseline)
         self.assertTrue(hybrid.trace[0].proposed_diverged_from_baseline)
+        self.assertEqual(hybrid.trace[0].prompt_version, PLAN_PROMPT_VERSION)
 
     def test_falls_back_after_primary_failure(self) -> None:
         primary = FailingProvider()
@@ -82,6 +85,21 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(hybrid.trace[0].status, "fallback_after_error")
         self.assertIsNone(hybrid.trace[0].proposed_plan)
         self.assertIn("provider failed", hybrid.trace[0].error or "")
+
+    def test_failure_errors_are_truncated_in_trace(self) -> None:
+        primary = FailingProvider("x" * 2000)
+        hybrid = HybridCognition(
+            primary=primary,
+            fallback=RuleBasedCognition(),
+            config=HybridCognitionConfig(agent_ids={"a1"}, every_days=1, max_calls=1),
+        )
+        simulation = Simulation(seed=7, cognition=hybrid)
+
+        simulation.run(1)
+
+        self.assertLess(len(hybrid.trace[0].error or ""), 700)
+        self.assertIn("<truncated>", hybrid.trace[0].error or "")
+        self.assertLess(len(hybrid.stats.last_errors[0]), 700)
 
     def test_zero_budget_never_calls_primary(self) -> None:
         primary = FixedProvider(Action.REST)

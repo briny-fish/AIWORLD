@@ -1,0 +1,103 @@
+[
+  {
+    "day": 8,
+    "agent_id": "a2",
+    "agent_name": "Bo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 2.89,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Active relationship crisis with Ari is still open (trust 0.481), and a remembered observer intent explicitly called for reconciling with Ari before the route dispute hardens. Energy is not near exhaustion, so social repair is higher value than resting now.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Active relationship crisis with Ari is still open (trust 0.481), and a remembered observer intent explicitly called for reconciling with Ari before the route dispute hardens. Energy is not near exhaustion, so social repair is higher value than resting now.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -78.5491 vs baseline -78.5621",
+    "counterfactual": {
+      "horizon_days": 2,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+        "score": -78.5621,
+        "metrics": {
+          "day": 10,
+          "population": 12,
+          "food": 16.26,
+          "materials": 4.08,
+          "shelter": 10.15,
+          "average_need": 0.457,
+          "average_trust": 0.572,
+          "average_reputation": 0.522,
+          "institutional_cohesion": 0.579,
+          "crisis_events": 42
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a1",
+        "reason": "Active relationship crisis with Ari is still open (trust 0.481), and a remembered observer intent explicitly called for reconciling with Ari before the route dispute hardens. Energy is not near exhaustion, so social repair is higher value than resting now.",
+        "score": -78.5491,
+        "metrics": {
+          "day": 10,
+          "population": 12,
+          "food": 16.26,
+          "materials": 4.08,
+          "shelter": 10.15,
+          "average_need": 0.461,
+          "average_trust": 0.573,
+          "average_reputation": 0.522,
+          "institutional_cohesion": 0.579,
+          "crisis_events": 42
+        }
+      },
+      "score_delta": 0.013,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -78.5491 vs baseline -78.5621"
+    }
+  },
+  {
+    "day": 8,
+    "agent_id": "a11",
+    "agent_name": "Kira",
+    "status": "fallback_after_error",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 2.89,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": null,
+    "used_plan": {
+      "action": "haul",
+      "priority": 2.89,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": false,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "LLM cache miss for cognition in read-only mode",
+    "counterfactual": null
+  }
+]

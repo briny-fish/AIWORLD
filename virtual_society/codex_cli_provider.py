@@ -15,7 +15,7 @@ from .dialogue_contract import (
     parse_dialogue_response,
     render_dialogue_prompt,
 )
-from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
+from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import Agent, Plan, WorldState
 from .reflection_contract import (
     ReflectionProposal,
@@ -57,6 +57,7 @@ class CodexCliCognition:
         self.workdir = workdir
         self.cache = cache
         self.compact_context = compact_context
+        self.prompt_version = PLAN_PROMPT_VERSION
         self._run_command = run_command or self._default_run_command
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
@@ -367,7 +368,12 @@ def _response_for_prompt(
     with tempfile.TemporaryDirectory() as directory:
         output_path = str(Path(directory) / output_filename)
         command = provider._build_command(output_path, prompt)
-        result = provider._run_command(command, provider.timeout_seconds)
+        try:
+            result = provider._run_command(command, provider.timeout_seconds)
+        except subprocess.TimeoutExpired as exc:
+            raise CodexCliCognitionError(
+                f"codex exec timed out after {provider.timeout_seconds}s on {surface}"
+            ) from exc
 
         if result.returncode != 0:
             raise CodexCliCognitionError(

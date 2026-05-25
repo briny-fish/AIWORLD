@@ -7,7 +7,7 @@ import urllib.request
 from collections.abc import Callable
 from typing import Any
 
-from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
+from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import Action, Agent, Plan, WorldState
 
 
@@ -31,6 +31,7 @@ class OpenAICognition:
         self.timeout_seconds = timeout_seconds
         self.base_url = base_url
         self.http_post = http_post
+        self.prompt_version = PLAN_PROMPT_VERSION
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
         return self.propose_plan_with_baseline(agent, world, None)

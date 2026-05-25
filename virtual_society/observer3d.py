@@ -90,6 +90,15 @@ select {
   font-weight: 700;
   padding: 8px;
 }
+input {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 8px;
+}
 option { color: #17201f; }
 .intent-controls {
   display: grid;
@@ -147,6 +156,7 @@ option { color: #17201f; }
   </section>
   <section class="hud top-right hud-panel">
     <h2>Controls</h2>
+    <input id="observerName" value="The Envoy" aria-label="Observer name">
     <div class="controls">
       <button id="step1">1 Day</button>
       <button id="step7">7 Days</button>
@@ -717,9 +727,17 @@ function intentMessage(intent) {
   return messages[intent] || "Coordinate the next response.";
 }
 
+function observerActorId() {
+  const input = document.getElementById("observerName");
+  const name = (input?.value || "observer").trim() || "observer";
+  localStorage.setItem("virtualSocietyObserverName", name);
+  return name.replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\\s+/g, "_") || "observer";
+}
+
 function sendObserverIntent() {
   const intent = document.getElementById("intent").value;
   const targetIds = selectedTargetIds();
+  const actorId = observerActorId();
   const params = {
     intent,
     tone: "hope",
@@ -733,7 +751,8 @@ function sendObserverIntent() {
       days: 1,
       interventions: [{
         kind: "broadcast",
-        reason: `3D observer intent ${intent}`,
+        actor_id: actorId,
+        reason: `${actorId} 3D intent ${intent}`,
         params
       }]
     })
@@ -742,11 +761,13 @@ function sendObserverIntent() {
 
 document.getElementById("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
 document.getElementById("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
-document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", reason: "3D observer food aid", params: { resource: "food", amount: 5 } }] }) })));
-document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", reason: "3D observer encouragement", params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
-document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", reason: "3D observer stress test", params: { name: "storm", severity: 0.35 } }] }) })));
+document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", actor_id: observerActorId(), reason: `${observerActorId()} 3D food aid`, params: { resource: "food", amount: 5 } }] }) })));
+document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", actor_id: observerActorId(), reason: `${observerActorId()} 3D encouragement`, params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
+document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", actor_id: observerActorId(), reason: `${observerActorId()} 3D stress test`, params: { name: "storm", severity: 0.35 } }] }) })));
 document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7 }) })));
 document.getElementById("sendIntent").addEventListener("click", () => act(sendObserverIntent));
+const savedObserverName = localStorage.getItem("virtualSocietyObserverName");
+if (savedObserverName) document.getElementById("observerName").value = savedObserverName;
 renderer.domElement.addEventListener("pointerdown", onPointerDown);
 window.addEventListener("resize", resize);
 

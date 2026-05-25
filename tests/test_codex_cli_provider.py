@@ -87,6 +87,24 @@ class CodexCliProviderTests(unittest.TestCase):
         with self.assertRaises(CodexCliCognitionError):
             provider.propose_plan(simulation.world.agents[0], simulation.world)
 
+    def test_provider_reports_timeout_without_prompt_payload(self) -> None:
+        def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
+            raise subprocess.TimeoutExpired(command, timeout_seconds)
+
+        simulation = Simulation(seed=7)
+        provider = CodexCliCognition(
+            codex_path="codex.exe",
+            timeout_seconds=12,
+            run_command=fake_run,
+        )
+
+        with self.assertRaises(CodexCliCognitionError) as context:
+            provider.propose_plan(simulation.world.agents[0], simulation.world)
+
+        message = str(context.exception)
+        self.assertIn("timed out after 12s", message)
+        self.assertNotIn("Context:", message)
+
     def test_provider_rejects_invalid_plan_json(self) -> None:
         def fake_run(command: list[str], timeout_seconds: int) -> subprocess.CompletedProcess[str]:
             output_path = command[command.index("--output-last-message") + 1]

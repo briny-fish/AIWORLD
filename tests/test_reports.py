@@ -589,6 +589,32 @@ class ReportTests(unittest.TestCase):
         self.assertIn("intent_memory_plan_echo", html)
         self.assertIn("repair_routes", html)
 
+    def test_run_html_renders_named_observer_memory(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(
+            1,
+            interventions=[
+                Intervention(
+                    day=1,
+                    kind="broadcast",
+                    actor_id="The_Envoy",
+                    reason="named observer test",
+                    params={
+                        "tone": "hope",
+                        "message": "Hold together.",
+                    },
+                )
+            ],
+        )
+
+        record = build_run_record(7, metrics, simulation.world, assess_metrics(metrics))
+        html = render_run_html(record)
+
+        self.assertIn("observer_memory", record)
+        self.assertEqual(record["observer_memory"][0]["actor_id"], "The_Envoy")
+        self.assertIn("Observer Memory", html)
+        self.assertIn("The_Envoy", html)
+
     def test_run_html_renders_choice_tension_evaluation(self) -> None:
         simulation = Simulation(seed=7)
         metrics = simulation.run(
@@ -638,6 +664,47 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Choice Tension Evaluation", html)
         self.assertIn("choice_tension_baseline_aligned_with_tradeoff", html)
         self.assertIn("repair_routes", html)
+
+    def test_run_html_renders_reason_richness_evaluation(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(1)
+        cognition_trace = [
+            {
+                "day": 1,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "prompt_version": "test-prompt",
+                "baseline_plan": {
+                    "action": "farm",
+                    "reason": "food stores are low",
+                },
+                "proposed_plan": {
+                    "action": "farm",
+                    "reason": (
+                        "Ari remembered observer intent and weighed household "
+                        "trust against food pressure before farming."
+                    ),
+                },
+                "used_plan": {
+                    "action": "farm",
+                    "reason": "same",
+                },
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            cognition_trace=cognition_trace,
+        )
+        html = render_run_html(record)
+
+        self.assertIn("Reason Richness Evaluation", html)
+        self.assertIn("reason_richness_generated_richer", html)
+        self.assertIn("test-prompt", html)
 
     def test_experiment_html_renders_seed_comparison(self) -> None:
         reports = run_experiment(seeds=[1, 2], days=10)

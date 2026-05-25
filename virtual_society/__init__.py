@@ -40,10 +40,11 @@ from .hybrid_cognition import (
 )
 from .interventions import Intervention
 from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
-from .llm_contract import build_cognition_context, parse_plan_response, render_plan_prompt
+from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
 from .openai_provider import OpenAICognition
+from .reason_richness_evaluation import ReasonRichnessFinding, assess_reason_richness
 from .api import SimulationService
 from .reflection import (
     HybridReflection,
@@ -68,6 +69,7 @@ __all__ = [
     "Plan",
     "PlanCounterfactualComparison",
     "PlanProbeResult",
+    "PLAN_PROMPT_VERSION",
     "AgentProfile",
     "CounterfactualAssessment",
     "CounterfactualBucket",
@@ -99,6 +101,7 @@ __all__ = [
     "HybridReflectionStats",
     "HybridReflectionTrace",
     "ReflectionProposal",
+    "ReasonRichnessFinding",
     "RuleBasedCognition",
     "RuleBasedDialogue",
     "RuleBasedReflection",
@@ -112,6 +115,7 @@ __all__ = [
     "assess_choice_tensions",
     "assess_counterfactual_trace",
     "assess_observer_intents",
+    "assess_reason_richness",
     "build_historical_scar_validation",
     "build_social_chronicle",
     "compare_plan_counterfactuals",

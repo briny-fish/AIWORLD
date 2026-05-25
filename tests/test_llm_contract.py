@@ -1,6 +1,7 @@
 import unittest
 
 from virtual_society.llm_contract import (
+    PLAN_PROMPT_VERSION,
     PlanParseError,
     build_cognition_context,
     parse_plan_response,
@@ -20,6 +21,7 @@ class LLMContractTests(unittest.TestCase):
         context = build_cognition_context(agent, simulation.world)
 
         self.assertIn(Action.FARM.value, context.allowed_actions)
+        self.assertEqual(context.prompt_version, PLAN_PROMPT_VERSION)
         self.assertEqual(context.agent["id"], agent.id)
         self.assertEqual(context.world["day"], 3)
         self.assertIn("profile", context.agent)
@@ -42,6 +44,7 @@ class LLMContractTests(unittest.TestCase):
         prompt = render_plan_prompt(context)
 
         self.assertIn("Return exactly one JSON object", prompt)
+        self.assertIn(PLAN_PROMPT_VERSION, prompt)
         self.assertIn("allowed_actions", prompt)
         self.assertIn("Use target_id only for socialize plans", prompt)
         self.assertIn("baseline_plan", prompt)

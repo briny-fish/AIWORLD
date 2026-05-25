@@ -12,6 +12,7 @@ from .health import HealthFinding, RunReport
 from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
 from .observer_intent_evaluation import assess_observer_intents
+from .reason_richness_evaluation import assess_reason_richness
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import build_social_chronicle
 
@@ -39,6 +40,7 @@ def build_run_record(
     counterfactual_evaluation: dict[str, Any] | None = None,
     cognition_impacts: list[dict[str, Any]] | None = None,
     cognition_outcomes: list[dict[str, Any]] | None = None,
+    reason_richness: list[dict[str, Any]] | None = None,
     reflection_trace: list[dict[str, Any]] | None = None,
     reflection_follow_through: list[dict[str, Any]] | None = None,
     dialogue_trace: list[dict[str, Any]] | None = None,
@@ -53,6 +55,10 @@ def build_run_record(
     choice_tensions = [
         item.as_dict()
         for item in assess_choice_tensions(world, cognition_trace or [])
+    ]
+    reason_richness_items = reason_richness or [
+        item.as_dict()
+        for item in assess_reason_richness(cognition_trace or [])
     ]
     social_chronicle = build_social_chronicle(
         history,
@@ -77,7 +83,9 @@ def build_run_record(
         "historical_scar_validation": build_historical_scar_validation(world, history),
         "social_chronicle": social_chronicle,
         "observer_intents": observer_intents,
+        "observer_memory": _observer_memory(world),
         "choice_tensions": choice_tensions,
+        "reason_richness": reason_richness_items,
         "agents": [
             {
                 "id": agent.id,
@@ -254,6 +262,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     cognition_impacts = record.get("cognition_impacts", [])
     cognition_outcomes = record.get("cognition_outcomes", [])
     choice_tensions = record.get("choice_tensions", [])
+    reason_richness = record.get("reason_richness", [])
     reflection_trace = record.get("reflection_trace", [])
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
@@ -267,6 +276,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     history = record.get("history")
     social_chronicle = record.get("social_chronicle")
     observer_intents = record.get("observer_intents", [])
+    observer_memory = record.get("observer_memory", [])
     historical_scar_validation = record.get("historical_scar_validation")
     historical_scars = record.get("historical_scars", {})
     events = record["events"][-80:]
@@ -313,6 +323,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_cognition_impacts_section(cognition_impacts)}
     {_cognition_outcomes_section(cognition_outcomes)}
     {_choice_tension_section(choice_tensions)}
+    {_reason_richness_section(reason_richness)}
     {_reflection_trace_section(reflection_trace)}
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
@@ -322,6 +333,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_history_section(history)}
     {_social_chronicle_section(social_chronicle)}
     {_observer_intent_section(observer_intents)}
+    {_observer_memory_section(observer_memory)}
     {_historical_scar_validation_section(historical_scar_validation)}
     {_historical_scars_section(historical_scars)}
     <section class="band">
@@ -661,6 +673,32 @@ def _observer_intent_evidence_text(item: dict[str, Any]) -> str:
     return " | ".join(str(value) for value in evidence[:3])
 
 
+def _observer_memory_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Observer Memory</h2>"
+        "<p>Named observer interventions that entered the event log and can become agent memory.</p>"
+        f"{_observer_memory_table(items)}"
+        "</section>"
+    )
+
+
+def _observer_memory_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item.get('day', '')}</td>"
+            f"<td>{escape(str(item.get('actor_id', '')))}</td>"
+            f"<td>{escape(str(item.get('kind', '')))}</td>"
+            f"<td>{escape(str(item.get('description', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Observer</th><th>Kind</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
 def _historical_scar_validation_section(validation: dict[str, Any] | None) -> str:
     if not validation:
         return ""
@@ -722,6 +760,36 @@ def _historical_scars(world: WorldState) -> dict[str, Any]:
             for key, value in sorted(world.organization_fractures.items())
         ],
     }
+
+
+def _observer_memory(world: WorldState) -> list[dict[str, Any]]:
+    agent_ids = {agent.id for agent in world.agents}
+    organization_ids = {organization.id for organization in world.organizations}
+    observer_events = []
+    for event in world.event_log:
+        if event.actor_id in agent_ids or event.actor_id in organization_ids:
+            continue
+        if event.actor_id in {"society", "common_council"}:
+            continue
+        if event.kind not in {
+            "intervention",
+            "broadcast",
+            "disaster",
+            "edict",
+            "arrival",
+            "organization",
+        }:
+            continue
+        observer_events.append(
+            {
+                "day": event.day,
+                "actor_id": event.actor_id,
+                "kind": event.kind,
+                "description": event.description,
+                "effects": dict(event.effects),
+            }
+        )
+    return observer_events
 
 
 def _historical_scars_section(scars: dict[str, Any]) -> str:
@@ -958,6 +1026,7 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
             "<tr>"
             f"<td>{item['day']}</td>"
             f"<td>{escape(item['agent_name'])}</td>"
+            f"<td>{escape(str(item.get('prompt_version') or 'unknown'))}</td>"
             f"<td>{escape(item['status'])}</td>"
             f"<td>{escape(_plan_summary(proposed))}</td>"
             f"<td>{escape(_plan_summary(baseline))}</td>"
@@ -967,7 +1036,7 @@ def _cognition_trace_table(trace: list[dict[str, Any]]) -> str:
             f"<td>{escape(str(item.get('error') or ''))}</td>"
             "</tr>"
         )
-    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Counterfactual</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Prompt</th><th>Status</th><th>Codex Plan</th><th>Rule Baseline</th><th>Used</th><th>Diverged</th><th>Counterfactual</th><th>Error</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _cognition_impacts_section(items: list[dict[str, Any]]) -> str:
@@ -1104,6 +1173,41 @@ def _choice_tension_table(items: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Agent</th><th>Signal</th><th>Baseline</th><th>Used</th><th>Competing</th><th>Mentioned</th><th>Observer Intent</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _reason_richness_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Reason Richness Evaluation</h2>"
+        "<p>Generated cognition reasons scored by concrete evidence groups: "
+        "identity, memory, relationship, organization, observer intent, "
+        "historical scars, resources, tradeoffs, and specific targets.</p>"
+        f"{_reason_richness_table(items)}"
+        "</section>"
+    )
+
+
+def _reason_richness_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item.get('day', '')}</td>"
+            f"<td>{escape(str(item.get('agent_name', '')))}</td>"
+            f"<td>{escape(str(item.get('prompt_version') or 'unknown'))}</td>"
+            f"<td>{escape(str(item.get('signal', '')))}</td>"
+            f"<td>{escape(str(item.get('generated_score', 0)))}</td>"
+            f"<td>{escape(str(item.get('baseline_score', 0)))}</td>"
+            f"<td>{escape(', '.join(item.get('generated_groups') or []))}</td>"
+            f"<td>{escape(', '.join(item.get('baseline_groups') or []))}</td>"
+            f"<td>{escape(str(item.get('action_changed', False)))}</td>"
+            f"<td>{escape(str(item.get('target_changed', False)))}</td>"
+            f"<td>{escape(str(item.get('summary', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Prompt</th><th>Signal</th><th>Generated</th><th>Baseline</th><th>Generated Groups</th><th>Baseline Groups</th><th>Action</th><th>Target</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _reflection_trace_section(trace: list[dict[str, Any]]) -> str:

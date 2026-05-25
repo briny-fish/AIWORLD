@@ -7,6 +7,7 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from .choice_tension_evaluation import assess_choice_tensions
 from .health import HealthFinding, RunReport
 from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
@@ -49,6 +50,10 @@ def build_run_record(
     social_findings = assess_social_dynamics(world)
     social_finding_dicts = [item.as_dict() for item in social_findings]
     observer_intents = [item.as_dict() for item in assess_observer_intents(world)]
+    choice_tensions = [
+        item.as_dict()
+        for item in assess_choice_tensions(world, cognition_trace or [])
+    ]
     social_chronicle = build_social_chronicle(
         history,
         social_finding_dicts,
@@ -72,6 +77,7 @@ def build_run_record(
         "historical_scar_validation": build_historical_scar_validation(world, history),
         "social_chronicle": social_chronicle,
         "observer_intents": observer_intents,
+        "choice_tensions": choice_tensions,
         "agents": [
             {
                 "id": agent.id,
@@ -247,6 +253,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     counterfactual_evaluation = record.get("counterfactual_evaluation")
     cognition_impacts = record.get("cognition_impacts", [])
     cognition_outcomes = record.get("cognition_outcomes", [])
+    choice_tensions = record.get("choice_tensions", [])
     reflection_trace = record.get("reflection_trace", [])
     reflection_follow_through = record.get("reflection_follow_through", [])
     dialogue_trace = record.get("dialogue_trace", [])
@@ -305,6 +312,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_cognition_trace_section(cognition_trace)}
     {_cognition_impacts_section(cognition_impacts)}
     {_cognition_outcomes_section(cognition_outcomes)}
+    {_choice_tension_section(choice_tensions)}
     {_reflection_trace_section(reflection_trace)}
     {_reflection_follow_through_section(reflection_follow_through)}
     {_dialogue_trace_section(dialogue_trace)}
@@ -1064,6 +1072,38 @@ def _cognition_outcome_windows_text(item: dict[str, Any]) -> str:
             f"food {_signed_number(deltas.get('food', 0))}"
         )
     return " | ".join(parts) or "none"
+
+
+def _choice_tension_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Choice Tension Evaluation</h2>"
+        "<p>Generated cognition calls where social history, observer intent, "
+        "and resource pressure pull toward different actions.</p>"
+        f"{_choice_tension_table(items)}"
+        "</section>"
+    )
+
+
+def _choice_tension_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[-20:]:
+        rows.append(
+            "<tr>"
+            f"<td>{item.get('day', '')}</td>"
+            f"<td>{escape(str(item.get('agent_name', '')))}</td>"
+            f"<td>{escape(str(item.get('signal', '')))}</td>"
+            f"<td>{escape(str(item.get('baseline_action') or 'none'))}</td>"
+            f"<td>{escape(str(item.get('used_action') or 'none'))}</td>"
+            f"<td>{escape(', '.join(item.get('competing_groups') or []))}</td>"
+            f"<td>{escape(', '.join(item.get('mentioned_groups') or []))}</td>"
+            f"<td>{escape(', '.join(item.get('observer_intents') or []))}</td>"
+            f"<td>{escape(str(item.get('summary', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Day</th><th>Agent</th><th>Signal</th><th>Baseline</th><th>Used</th><th>Competing</th><th>Mentioned</th><th>Observer Intent</th><th>Summary</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
 
 
 def _reflection_trace_section(trace: list[dict[str, Any]]) -> str:

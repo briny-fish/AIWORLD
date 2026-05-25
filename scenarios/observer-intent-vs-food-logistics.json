@@ -1,0 +1,57 @@
+[
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make route overload produce persistent scars",
+    "params": {
+      "rule": "route_block_condition_threshold",
+      "value": 0.66
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make strained traffic close weak routes",
+    "params": {
+      "rule": "route_block_excess_threshold",
+      "value": 0.4
+    }
+  },
+  {
+    "day": 5,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "give repair work enough material room to be executable",
+    "params": {
+      "resource": "materials",
+      "amount": 8.0,
+      "location_id": "workshop"
+    }
+  },
+  {
+    "day": 6,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "stabilize food enough that logistics competes with repair instead of famine dominating",
+    "params": {
+      "resource": "food",
+      "amount": 10.0,
+      "location_id": "commons"
+    }
+  },
+  {
+    "day": 6,
+    "kind": "broadcast",
+    "actor_id": "observer",
+    "reason": "ask Bo to weigh route repair against food logistics",
+    "params": {
+      "intent": "repair_routes",
+      "tone": "hope",
+      "strength": 0.12,
+      "target_agent_ids": ["a2"],
+      "message": "Bo, reopen blocked routes even while food logistics still look urgent; the workshop and north field need reliable access."
+    }
+  }
+]

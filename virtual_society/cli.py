@@ -11,6 +11,7 @@ from .codex_cli_provider import (
     CodexCliReflection,
     resolve_codex_cli,
 )
+from .choice_tension_evaluation import assess_choice_tensions
 from .cognition_impact_evaluation import assess_cognition_impacts
 from .cognition_outcome_evaluation import assess_cognition_outcomes
 from .counterfactual_evaluation import assess_counterfactual_trace
@@ -299,6 +300,10 @@ def main() -> None:
             cognition_impacts,
         )
     ]
+    choice_tensions = [
+        item.as_dict()
+        for item in assess_choice_tensions(simulation.world, cognition_trace)
+    ]
     reflection_follow_through = [
         item.as_dict()
         for item in assess_reflection_follow_through(
@@ -366,6 +371,8 @@ def main() -> None:
             payload["cognition_impacts"] = cognition_impacts
         if cognition_outcomes:
             payload["cognition_outcomes"] = cognition_outcomes
+        if choice_tensions:
+            payload["choice_tensions"] = choice_tensions
         if counterfactual_evaluation["total"]:
             payload["counterfactual_evaluation"] = counterfactual_evaluation
         if reflection_follow_through:
@@ -399,6 +406,7 @@ def main() -> None:
         _print_counterfactual_evaluation(counterfactual_evaluation)
         _print_cognition_impacts(cognition_impacts)
         _print_cognition_outcomes(cognition_outcomes)
+        _print_choice_tensions(choice_tensions)
     if args.show_reflection_stats or isinstance(reflection, HybridReflection):
         _print_reflection_stats(reflection)
         _print_reflection_trace(reflection)
@@ -597,6 +605,20 @@ def _print_cognition_outcomes(outcomes: list[dict]) -> None:
             f"trust={_signed_number(deltas.get('average_trust', 0))} "
             f"food={_signed_number(deltas.get('food', 0))} "
             f"shelter={_signed_number(deltas.get('shelter', 0))}"
+        )
+
+
+def _print_choice_tensions(items: list[dict]) -> None:
+    if not items:
+        return
+    print("\nChoice tension:")
+    for item in items[-5:]:
+        print(
+            f"day {item['day']:>3} | {item['agent_name']:<8} | "
+            f"{item['signal']:<48} | "
+            f"baseline={item.get('baseline_action') or 'none'} "
+            f"used={item.get('used_action') or 'none'} "
+            f"competing={', '.join(item.get('competing_groups') or [])}"
         )
 
 

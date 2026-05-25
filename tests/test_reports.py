@@ -589,6 +589,56 @@ class ReportTests(unittest.TestCase):
         self.assertIn("intent_memory_plan_echo", html)
         self.assertIn("repair_routes", html)
 
+    def test_run_html_renders_choice_tension_evaluation(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(
+            1,
+            interventions=[
+                Intervention(
+                    day=1,
+                    kind="broadcast",
+                    params={
+                        "intent": "repair_routes",
+                        "target_agent_ids": ["a2"],
+                        "message": "Reopen blocked routes.",
+                    },
+                )
+            ],
+        )
+        cognition_trace = [
+            {
+                "day": 1,
+                "agent_id": "a2",
+                "agent_name": "Bo",
+                "status": "primary",
+                "baseline_plan": {
+                    "action": "haul",
+                    "reason": "food needs hauling to shared depots",
+                },
+                "proposed_plan": {
+                    "action": "haul",
+                    "reason": "Food pressure remains urgent, but blocked routes matter.",
+                },
+                "used_plan": {
+                    "action": "haul",
+                    "reason": "Food pressure remains urgent, but blocked routes matter.",
+                },
+            }
+        ]
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            cognition_trace=cognition_trace,
+        )
+        html = render_run_html(record)
+
+        self.assertIn("Choice Tension Evaluation", html)
+        self.assertIn("choice_tension_baseline_aligned_with_tradeoff", html)
+        self.assertIn("repair_routes", html)
+
     def test_experiment_html_renders_seed_comparison(self) -> None:
         reports = run_experiment(seeds=[1, 2], days=10)
         record = build_experiment_record(reports)

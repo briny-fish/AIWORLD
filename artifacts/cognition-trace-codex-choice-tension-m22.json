@@ -1,0 +1,33 @@
+[
+  {
+    "day": 8,
+    "agent_id": "a2",
+    "agent_name": "Bo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 2.638,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "haul",
+      "priority": 1.0,
+      "reason": "Shared food stores are below pressure threshold, and the recent hunger crisis plus Bo's reflection on blocked routes makes hauling food to shared depots the most evidence-backed contribution now; energy is low but not near exhaustion, so rest is not the primary choice.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "haul",
+      "priority": 1.0,
+      "reason": "Shared food stores are below pressure threshold, and the recent hunger crisis plus Bo's reflection on blocked routes makes hauling food to shared depots the most evidence-backed contribution now; energy is low but not near exhaustion, so rest is not the primary choice.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": false,
+    "error": null,
+    "counterfactual": null
+  }
+]

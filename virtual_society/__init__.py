@@ -1,6 +1,7 @@
 """Virtual society simulation core."""
 
 from .codex_cli_provider import CodexCliCognition, CodexCliDialogue, CodexCliReflection
+from .choice_tension_evaluation import ChoiceTensionFinding, assess_choice_tensions
 from .cognition import RuleBasedCognition
 from .cognition_impact_evaluation import assess_cognition_impacts
 from .cognition_outcome_evaluation import assess_cognition_outcomes
@@ -72,6 +73,7 @@ __all__ = [
     "CounterfactualBucket",
     "CounterfactualProbeRecord",
     "ChronicleEntry",
+    "ChoiceTensionFinding",
     "DialogueProposal",
     "HistoricalScarFinding",
     "MemoryItem",
@@ -107,6 +109,7 @@ __all__ = [
     "build_reflection_context",
     "assess_cognition_impacts",
     "assess_cognition_outcomes",
+    "assess_choice_tensions",
     "assess_counterfactual_trace",
     "assess_observer_intents",
     "build_historical_scar_validation",

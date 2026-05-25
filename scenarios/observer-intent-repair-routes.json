@@ -1,0 +1,46 @@
+[
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make poor route condition capable of blocking a strained route",
+    "params": {
+      "rule": "route_block_condition_threshold",
+      "value": 0.66
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "turn heavy route strain into a visible route closure",
+    "params": {
+      "rule": "route_block_excess_threshold",
+      "value": 0.4
+    }
+  },
+  {
+    "day": 5,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "give route repair intent enough material room to matter",
+    "params": {
+      "resource": "materials",
+      "amount": 8.0,
+      "location_id": "workshop"
+    }
+  },
+  {
+    "day": 6,
+    "kind": "broadcast",
+    "actor_id": "observer",
+    "reason": "observer asks specific residents to prioritize reopening blocked routes",
+    "params": {
+      "intent": "repair_routes",
+      "tone": "hope",
+      "strength": 0.12,
+      "target_agent_ids": ["a1", "a7", "a10"],
+      "message": "Reopen the blocked routes before more hauling; make the north field and workshop reachable again."
+    }
+  }
+]

@@ -3,6 +3,7 @@ import unittest
 from virtual_society.experiment import run_experiment
 from virtual_society.interventions import Intervention
 from virtual_society import Simulation
+from virtual_society.cognition import RuleBasedCognition
 from virtual_society.model import Action, Plan
 
 
@@ -116,6 +117,73 @@ class SimulationTests(unittest.TestCase):
 
         self.assertEqual(simulation.world.rules.food_per_agent, 0.8)
         self.assertEqual(simulation.world.event_log[0].kind, "edict")
+
+    def test_broadcast_intent_can_target_agent_memory(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.world.day = 1
+        target = simulation.world.agents[0]
+        other = simulation.world.agents[1]
+
+        simulation.apply_intervention(
+            Intervention(
+                day=1,
+                kind="broadcast",
+                params={
+                    "intent": "repair_routes",
+                    "tone": "hope",
+                    "strength": 0.1,
+                    "message": "Reopen blocked routes before hauling more food.",
+                    "target_agent_ids": [target.id],
+                },
+            )
+        )
+
+        event = simulation.world.event_log[-1]
+        self.assertEqual(event.kind, "broadcast")
+        self.assertIn("intent repair_routes", event.description)
+        self.assertEqual(event.effects["target_count"], 1.0)
+        self.assertTrue(
+            any(memory.kind == "broadcast" for memory in target.memory_stream)
+        )
+        self.assertFalse(
+            any(memory.kind == "broadcast" for memory in other.memory_stream)
+        )
+
+    def test_observer_repair_intent_biases_later_plan(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.world.day = 1
+        agent = simulation.world.agents[0]
+        other = simulation.world.agents[1]
+        simulation.world.resources.update(
+            {"food": 100.0, "materials": 100.0, "shelter": 100.0}
+        )
+        simulation.world.blocked_routes["commons|north_field"] = 1.0
+        agent.needs.food = 0.8
+        agent.needs.energy = 0.8
+        agent.needs.safety = 0.8
+        agent.needs.belonging = 0.8
+        agent.needs.meaning = 0.8
+
+        simulation.apply_intervention(
+            Intervention(
+                day=1,
+                kind="broadcast",
+                params={
+                    "intent": "repair_routes",
+                    "tone": "neutral",
+                    "strength": 0.12,
+                    "message": "Please reopen the blocked north route.",
+                    "target_agent_ids": [agent.id],
+                },
+            )
+        )
+
+        plan = RuleBasedCognition().propose_plan(agent, simulation.world)
+        other_plan = RuleBasedCognition().propose_plan(other, simulation.world)
+
+        self.assertEqual(plan.action, Action.REPAIR)
+        self.assertIn("observer intent emphasizes route repair", plan.reason)
+        self.assertNotIn("observer intent emphasizes route repair", other_plan.reason)
 
     def test_relationship_crisis_blocks_passive_repair_until_social_action(self) -> None:
         simulation = Simulation(seed=7)

@@ -221,7 +221,7 @@ class RuleBasedCognition:
     ) -> None:
         retrieved = retrieve_memories(
             agent,
-            "food scarcity hunger disaster damage repair hope exchange trust",
+            "food scarcity hunger disaster damage repair route hope exchange trust observer intent reconcile coordinate",
             current_day=world.day,
             limit=8,
         )
@@ -230,6 +230,12 @@ class RuleBasedCognition:
             recent_memory = " ".join(agent.memories[-8:]).lower()
         recent_events = " ".join(event.description for event in world.event_log[-12:]).lower()
         context = f"{recent_memory} {recent_events}"
+        recent_broadcasts = " ".join(
+            memory.text
+            for memory in agent.memory_stream[-12:]
+            if memory.kind == "broadcast"
+        ).lower()
+        intent_context = f"{recent_memory} {recent_broadcasts}"
 
         if "went hungry" in context or "food scarcity" in context:
             scores[Action.FARM] += 0.35
@@ -249,6 +255,31 @@ class RuleBasedCognition:
         if "broadcast hope" in context or "recover together" in context:
             scores[Action.SOCIALIZE] += 0.08
             reasons[Action.SOCIALIZE].append("recent hopeful message favors coordination")
+        if (
+            "intent repair_routes" in intent_context
+            or "intent_repair_routes" in intent_context
+            or "reopen routes" in intent_context
+        ):
+            scores[Action.REPAIR] += 0.28
+            reasons[Action.REPAIR].append("observer intent emphasizes route repair")
+            if world.blocked_routes:
+                scores[Action.REPAIR] += 0.20
+                reasons[Action.REPAIR].append("blocked routes make observer intent actionable")
+        if (
+            "intent reconcile_relationships" in intent_context
+            or "intent_reconcile_relationships" in intent_context
+            or "repair trust" in intent_context
+        ):
+            scores[Action.SOCIALIZE] += 0.24
+            reasons[Action.SOCIALIZE].append("observer intent emphasizes relationship repair")
+        if "intent protect_food" in intent_context or "intent_protect_food" in intent_context:
+            scores[Action.FARM] += 0.18
+            scores[Action.HAUL] += 0.12
+            reasons[Action.FARM].append("observer intent emphasizes food security")
+            reasons[Action.HAUL].append("observer intent emphasizes food distribution")
+        if "intent coordinate" in intent_context or "intent_coordinate" in intent_context:
+            scores[Action.SOCIALIZE] += 0.14
+            reasons[Action.SOCIALIZE].append("observer intent emphasizes coordination")
 
     def _score_social_context(
         self,

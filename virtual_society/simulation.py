@@ -1841,29 +1841,63 @@ class Simulation:
         message = str(intervention.params.get("message", ""))
         tone = str(intervention.params.get("tone", "neutral"))
         strength = _clamp(float(intervention.params.get("strength", 0.05)), 0.0, 0.25)
+        intent = _normalized_intent(intervention.params.get("intent"))
+        recipients = self._broadcast_recipients(intervention)
 
         if tone == "hope":
-            for agent in self.world.agents:
+            for agent in recipients:
                 agent.needs.meaning += strength
                 agent.needs.belonging += strength * 0.5
                 agent.needs.clamp()
         elif tone == "fear":
-            for agent in self.world.agents:
+            for agent in recipients:
                 agent.needs.safety -= strength
                 agent.needs.meaning -= strength * 0.4
                 agent.needs.clamp()
         else:
-            for agent in self.world.agents:
+            for agent in recipients:
                 agent.needs.meaning += strength * 0.25
                 agent.needs.clamp()
 
-        self._record(
+        if intent == "repair_routes":
+            for agent in recipients:
+                agent.needs.meaning += strength * 0.35
+                agent.needs.safety += strength * 0.15
+                agent.needs.clamp()
+        elif intent == "reconcile_relationships":
+            for agent in recipients:
+                agent.needs.belonging += strength * 0.6
+                agent.needs.meaning += strength * 0.2
+                agent.needs.clamp()
+        elif intent == "protect_food":
+            for agent in recipients:
+                agent.needs.safety += strength * 0.1
+                agent.needs.meaning += strength * 0.25
+                agent.needs.clamp()
+
+        effects = {
+            "strength": strength,
+            "target_count": float(len(recipients)),
+        }
+        if intent:
+            effects[f"intent_{intent}"] = strength
+        target_text = _broadcast_target_text(recipients, self.world.agents)
+        intent_text = f" intent {intent}" if intent else ""
+        event = self._record(
             "broadcast",
             intervention.actor_id,
-            f"{intervention.actor_id} broadcast {tone} message: {message}",
-            {"strength": strength},
-            remember_all=True,
+            f"{intervention.actor_id} broadcast{intent_text} {tone} message to {target_text}: {message}",
+            effects,
+            remember_actor=False,
         )
+        for agent in recipients:
+            self._remember(agent, event)
+
+    def _broadcast_recipients(self, intervention: Intervention) -> list[Agent]:
+        target_ids = set(_string_list(intervention.params.get("target_agent_ids")))
+        if not target_ids:
+            return list(self.world.agents)
+        return [agent for agent in self.world.agents if agent.id in target_ids]
 
     def _apply_reflections(self) -> None:
         interval = self.world.rules.reflection_interval_days
@@ -2389,6 +2423,35 @@ def _float_dict(value: object) -> dict[str, float]:
         except (TypeError, ValueError):
             continue
     return result
+
+
+def _normalized_intent(value: object) -> str:
+    raw = str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    aliases = {
+        "repair": "repair_routes",
+        "repair_route": "repair_routes",
+        "repair_routes": "repair_routes",
+        "reopen_routes": "repair_routes",
+        "routes": "repair_routes",
+        "reconcile": "reconcile_relationships",
+        "reconcile_relationships": "reconcile_relationships",
+        "repair_trust": "reconcile_relationships",
+        "trust": "reconcile_relationships",
+        "food": "protect_food",
+        "protect_food": "protect_food",
+        "food_security": "protect_food",
+        "coordinate": "coordinate",
+        "coordination": "coordinate",
+    }
+    return aliases.get(raw, raw)
+
+
+def _broadcast_target_text(recipients: list[Agent], agents: list[Agent]) -> str:
+    if len(recipients) == len(agents):
+        return "everyone"
+    if not recipients:
+        return "no matching agents"
+    return ", ".join(agent.name for agent in recipients)
 
 
 def _clamp(value: float, minimum: float, maximum: float) -> float:

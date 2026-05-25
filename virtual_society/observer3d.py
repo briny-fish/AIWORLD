@@ -81,6 +81,23 @@ button {
 }
 button:hover { border-color: var(--blue); color: var(--blue); }
 button.danger:hover { border-color: var(--red); color: var(--red); }
+select {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 8px;
+}
+option { color: #17201f; }
+.intent-controls {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 8px;
+}
+.intent-controls button { grid-column: 1 / -1; }
 .list { display: grid; gap: 7px; max-height: 190px; overflow: auto; }
 .row {
   display: grid;
@@ -137,6 +154,19 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
       <button id="hope">Broadcast</button>
       <button id="storm" class="danger">Storm</button>
       <button id="reset" class="danger">Reset</button>
+    </div>
+    <div class="intent-controls" aria-label="Observer intent">
+      <select id="intent">
+        <option value="repair_routes">Repair Routes</option>
+        <option value="reconcile_relationships">Reconcile</option>
+        <option value="protect_food">Protect Food</option>
+        <option value="coordinate">Coordinate</option>
+      </select>
+      <select id="intentTarget">
+        <option value="selected">Selected Agent</option>
+        <option value="all">Everyone</option>
+      </select>
+      <button id="sendIntent">Send Intent</button>
     </div>
     <div class="hint">Click an agent in the scene to inspect current needs, plan, reputation, and organizations.</div>
   </section>
@@ -310,7 +340,17 @@ function renderHud(snapshot, metricsPayload, eventsPayload) {
       <span>${escapeHtml(event.description)}</span>
     </div>
   `).join("");
+  renderIntentTarget(snapshot.world.agents);
   renderDetail();
+}
+
+function renderIntentTarget(agents) {
+  if (selectedAgentId && !agents.some((agent) => agent.id === selectedAgentId)) {
+    selectedAgentId = null;
+  }
+  const target = document.getElementById("intentTarget");
+  const selected = agents.find((agent) => agent.id === selectedAgentId);
+  target.options[0].textContent = selected ? selected.name : "Selected Agent";
 }
 
 function renderScene(snapshot) {
@@ -569,6 +609,7 @@ function onPointerDown(event) {
   if (hit) {
     selectedAgentId = hit.object.userData.agentId;
     renderScene(latestSnapshot);
+    renderIntentTarget(latestSnapshot.world.agents);
     renderDetail();
   }
 }
@@ -661,12 +702,51 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function selectedTargetIds() {
+  if (document.getElementById("intentTarget").value !== "selected") return [];
+  return selectedAgentId ? [selectedAgentId] : [];
+}
+
+function intentMessage(intent) {
+  const messages = {
+    repair_routes: "Reopen blocked routes before more hauling.",
+    reconcile_relationships: "Repair trust before the crisis becomes normal.",
+    protect_food: "Protect food security and keep distribution visible.",
+    coordinate: "Coordinate openly before small failures become shared crises."
+  };
+  return messages[intent] || "Coordinate the next response.";
+}
+
+function sendObserverIntent() {
+  const intent = document.getElementById("intent").value;
+  const targetIds = selectedTargetIds();
+  const params = {
+    intent,
+    tone: "hope",
+    strength: 0.10,
+    message: intentMessage(intent)
+  };
+  if (targetIds.length) params.target_agent_ids = targetIds;
+  return api("/step", {
+    method: "POST",
+    body: JSON.stringify({
+      days: 1,
+      interventions: [{
+        kind: "broadcast",
+        reason: `3D observer intent ${intent}`,
+        params
+      }]
+    })
+  });
+}
+
 document.getElementById("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
 document.getElementById("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
 document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", reason: "3D observer food aid", params: { resource: "food", amount: 5 } }] }) })));
 document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", reason: "3D observer encouragement", params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
 document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", reason: "3D observer stress test", params: { name: "storm", severity: 0.35 } }] }) })));
 document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7 }) })));
+document.getElementById("sendIntent").addEventListener("click", () => act(sendObserverIntent));
 renderer.domElement.addEventListener("pointerdown", onPointerDown);
 window.addEventListener("resize", resize);
 

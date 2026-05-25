@@ -54,6 +54,21 @@ button {
 }
 button:hover { border-color: var(--blue); color: var(--blue); }
 button.danger:hover { border-color: var(--red); color: var(--red); }
+select {
+  min-height: 36px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-weight: 700;
+}
+.intent-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
 .metric-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(125px, 1fr));
@@ -98,8 +113,11 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
   background: #ffffff;
   padding: 7px;
   box-shadow: 0 4px 14px rgba(23,32,31,0.12);
+  text-align: left;
+  cursor: pointer;
 }
 .agent-node.low { border-color: var(--amber); }
+.agent-node.selected { border-color: var(--green); box-shadow: 0 0 0 3px rgba(35,120,95,0.22), 0 4px 14px rgba(23,32,31,0.12); }
 .agent-node strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
 .agent-node span { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; overflow-wrap: anywhere; }
 .org-row { display: grid; grid-template-columns: 1fr 70px 70px; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); }
@@ -129,6 +147,19 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
       <button id="hope">Hope Broadcast</button>
       <button id="storm" class="danger">Storm</button>
       <button id="reset" class="danger">Reset</button>
+      <div class="intent-controls" aria-label="Observer intent">
+        <select id="intent">
+          <option value="repair_routes">Repair Routes</option>
+          <option value="reconcile_relationships">Reconcile</option>
+          <option value="protect_food">Protect Food</option>
+          <option value="coordinate">Coordinate</option>
+        </select>
+        <select id="intentTarget">
+          <option value="selected">Selected Agent</option>
+          <option value="all">Everyone</option>
+        </select>
+        <button id="sendIntent">Send Intent</button>
+      </div>
     </section>
     <section id="metrics" class="metric-strip"></section>
     <section class="grid">
@@ -159,7 +190,7 @@ button.danger:hover { border-color: var(--red); color: var(--red); }
     </section>
   </main>
   <script>
-const state = { snapshot: null, metrics: [], busy: false };
+const state = { snapshot: null, metrics: [], busy: false, selectedAgentId: null };
 
 const $ = (id) => document.getElementById(id);
 
@@ -215,6 +246,7 @@ function render(snapshot, metricsPayload, eventsPayload) {
     tile("Cohesion", final.institutional_cohesion)
   ].join("");
   renderMap(snapshot.world.agents);
+  renderIntentTarget(snapshot.world.agents);
   renderOrganizations(snapshot.world.organizations);
   renderLocations(snapshot.world.locations || []);
   renderScars(snapshot.world);
@@ -238,7 +270,12 @@ function renderMap(agents) {
     const need = averageNeed(agent.needs);
     const plan = agent.active_plan ? agent.active_plan.action : "none";
     const reflection = latestReflection(agent);
-    return `<div class="agent-node ${need < 0.5 ? "low" : ""}" style="left:${x}%;top:${y}%">
+    const classes = [
+      "agent-node",
+      need < 0.5 ? "low" : "",
+      agent.id === state.selectedAgentId ? "selected" : ""
+    ].filter(Boolean).join(" ");
+    return `<div class="${classes}" data-agent-id="${escapeHtml(agent.id)}" role="button" tabindex="0" style="left:${x}%;top:${y}%">
       <strong>${escapeHtml(agent.name)}</strong>
       <span>${escapeHtml(agent.role)} | ${escapeHtml(plan)}</span>
       <span>${escapeHtml(agent.location_id || "unknown")}</span>
@@ -247,6 +284,15 @@ function renderMap(agents) {
       <span>${escapeHtml(reflection)}</span>
     </div>`;
   }).join("");
+}
+
+function renderIntentTarget(agents) {
+  if (state.selectedAgentId && !agents.some((agent) => agent.id === state.selectedAgentId)) {
+    state.selectedAgentId = null;
+  }
+  const target = $("intentTarget");
+  const selected = agents.find((agent) => agent.id === state.selectedAgentId);
+  target.options[0].textContent = selected ? selected.name : "Selected Agent";
 }
 
 function renderOrganizations(organizations) {
@@ -364,7 +410,7 @@ function clamp(value, min, max) {
 }
 
 function escapeHtml(value) {
-  return value.replace(/[&<>"']/g, (char) => ({
+  return String(value).replace(/[&<>"']/g, (char) => ({
     "&": "&amp;",
     "<": "&lt;",
     ">": "&gt;",
@@ -373,12 +419,67 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function selectedTargetIds() {
+  if ($("intentTarget").value !== "selected") return [];
+  return state.selectedAgentId ? [state.selectedAgentId] : [];
+}
+
+function intentMessage(intent) {
+  const messages = {
+    repair_routes: "Reopen blocked routes before more hauling.",
+    reconcile_relationships: "Repair trust before the crisis becomes normal.",
+    protect_food: "Protect food security and keep distribution visible.",
+    coordinate: "Coordinate openly before small failures become shared crises."
+  };
+  return messages[intent] || "Coordinate the next response.";
+}
+
+function sendObserverIntent() {
+  const intent = $("intent").value;
+  const targetIds = selectedTargetIds();
+  const params = {
+    intent,
+    tone: "hope",
+    strength: 0.10,
+    message: intentMessage(intent)
+  };
+  if (targetIds.length) params.target_agent_ids = targetIds;
+  return api("/step", {
+    method: "POST",
+    body: JSON.stringify({
+      days: 1,
+      interventions: [{
+        kind: "broadcast",
+        reason: `observer intent ${intent}`,
+        params
+      }]
+    })
+  });
+}
+
 $("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
 $("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
 $("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", reason: "observer food aid", params: { resource: "food", amount: 5 } }] }) })));
 $("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", reason: "observer encouragement", params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
 $("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", reason: "observer stress test", params: { name: "storm", severity: 0.35 } }] }) })));
 $("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: 7 }) })));
+$("sendIntent").addEventListener("click", () => act(sendObserverIntent));
+$("map").addEventListener("click", (event) => {
+  const node = event.target.closest(".agent-node");
+  if (!node) return;
+  state.selectedAgentId = node.dataset.agentId;
+  renderMap(state.snapshot.world.agents);
+  renderIntentTarget(state.snapshot.world.agents);
+});
+$("map").addEventListener("keydown", (event) => {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  const node = event.target.closest(".agent-node");
+  if (!node) return;
+  event.preventDefault();
+  state.selectedAgentId = node.dataset.agentId;
+  renderMap(state.snapshot.world.agents);
+  renderIntentTarget(state.snapshot.world.agents);
+});
 
 refresh();
   </script>

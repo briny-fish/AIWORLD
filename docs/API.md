@@ -93,6 +93,31 @@ python -m virtual_society.cli --serve --seed 7 --snapshot-every 30
 }
 ```
 
+### Observer Intent Broadcast
+
+The narrowed participation path uses `broadcast` with structured `intent`.
+It does not directly edit world state. It writes a remembered observer message
+to target agents; later cognition may turn that memory into a plan, and the
+Simulation Core still validates execution.
+
+```json
+{
+  "kind": "broadcast",
+  "reason": "observer intent repair_routes",
+  "params": {
+    "intent": "repair_routes",
+    "tone": "hope",
+    "strength": 0.1,
+    "target_agent_ids": ["a1", "a7"],
+    "message": "Reopen blocked routes before more hauling."
+  }
+}
+```
+
+Supported intent values: `repair_routes`, `reconcile_relationships`,
+`protect_food`, and `coordinate`. Omit `target_agent_ids` to broadcast to all
+agents.
+
 `POST /reset`
 
 重置服务里的模拟。

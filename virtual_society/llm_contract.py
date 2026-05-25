@@ -138,7 +138,10 @@ def render_plan_prompt(context: CognitionContext) -> str:
         "is at or near the exhaustion threshold, recent work was blocked by "
         "exhaustion, or rest clearly protects later shared outcomes. Under food, "
         "material, shelter, or shock pressure, weigh personal recovery against "
-        "shared production and repair needs.\n"
+        "shared production and repair needs. Active relationship crises, "
+        "organization fractures, and remembered observer intents are real "
+        "decision evidence; when choosing socialize, use a concrete target_id "
+        "from active_relationship_crises or weakest_relationships.\n"
         "The simulation core will validate the plan before execution.\n\n"
         f"Context:\n{payload}"
     )
@@ -276,6 +279,11 @@ def _decision_pressure(
     energy_margin = agent.needs.energy - world.rules.exhaustion_work_threshold
     recent_plan_text = " ".join(agent.plan_history[-4:]).lower()
     recent_exhaustion_block = "blocked by exhaustion" in recent_plan_text
+    active_relationship_crises = _active_relationship_crises(agent, world)
+    weakest_relationships = _weakest_relationships(agent, world)
+    organization_pressures = _organization_pressures(agent, world)
+    remembered_observer_intents = _remembered_observer_intents(agent, world)
+    blocked_routes = _blocked_routes(world)
 
     pressures: list[str] = []
     if food_gap > 0:
@@ -286,6 +294,14 @@ def _decision_pressure(
         pressures.append("shared shelter is below safety floor")
     if any(event.kind == "disaster" for event in world.event_log[-10:]):
         pressures.append("recent disaster remains socially salient")
+    if active_relationship_crises:
+        pressures.append("agent is in active relationship crises that require direct social repair")
+    if any(item["cohesion"] < 0.50 or item["fractured"] for item in organization_pressures):
+        pressures.append("agent organizations show weak cohesion or fracture pressure")
+    if remembered_observer_intents:
+        pressures.append("agent remembers recent observer intent")
+    if blocked_routes:
+        pressures.append("blocked routes create persistent logistics and repair pressure")
     if not pressures:
         pressures.append("no severe shared resource pressure detected")
 
@@ -293,6 +309,7 @@ def _decision_pressure(
         "baseline_plan is the plan deterministic cognition would use now",
         "diverge only when agent-local evidence or social pressure justifies it",
         "productive or repair actions matter more when resource gaps are active",
+        "socialize can be justified by active relationship crises or organization fracture risk",
         "rest is justified by near-threshold energy or recent exhaustion blocks",
     ]
 
@@ -308,9 +325,150 @@ def _decision_pressure(
         "energy_margin": round(energy_margin, 3),
         "near_exhaustion": energy_margin <= 0.05,
         "recent_exhaustion_block": recent_exhaustion_block,
+        "active_relationship_crises": active_relationship_crises,
+        "weakest_relationships": weakest_relationships,
+        "organization_pressures": organization_pressures,
+        "remembered_observer_intents": remembered_observer_intents,
+        "blocked_routes": blocked_routes,
         "shared_pressures": pressures,
         "guidance": guidance,
     }
+
+
+def _active_relationship_crises(
+    agent: Agent,
+    world: WorldState,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    crises = []
+    for pair_key, started_day in sorted(world.relationship_crises.items()):
+        pair = pair_key.split("|")
+        if len(pair) != 2 or agent.id not in pair:
+            continue
+        other_id = pair[1] if pair[0] == agent.id else pair[0]
+        other = _find_agent(world, other_id)
+        trust = _pair_trust(agent, other)
+        crises.append(
+            {
+                "other_agent_id": other_id,
+                "other_agent_name": other.name if other is not None else other_id,
+                "started_day": started_day,
+                "trust": round(trust, 3),
+            }
+        )
+    return sorted(crises, key=lambda item: (item["trust"], item["started_day"]))[:limit]
+
+
+def _weakest_relationships(
+    agent: Agent,
+    world: WorldState,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    relationships = []
+    for other_id, trust in agent.relationships.items():
+        other = _find_agent(world, other_id)
+        pair_key = _relationship_key(agent.id, other_id)
+        relationships.append(
+            {
+                "agent_id": other_id,
+                "agent_name": other.name if other is not None else other_id,
+                "trust": round(trust, 3),
+                "in_crisis": pair_key in world.relationship_crises,
+            }
+        )
+    return sorted(relationships, key=lambda item: (item["trust"], item["agent_id"]))[:limit]
+
+
+def _organization_pressures(agent: Agent, world: WorldState) -> list[dict[str, Any]]:
+    pressures = []
+    for organization in world.organizations:
+        if organization.id not in agent.organization_ids:
+            continue
+        fractured_day = world.organization_fractures.get(organization.id)
+        pressures.append(
+            {
+                "id": organization.id,
+                "name": organization.name,
+                "cohesion": round(organization.cohesion, 3),
+                "fractured": fractured_day is not None or "splinter" in organization.id,
+                "fractured_day": fractured_day,
+                "member_count": len(organization.members),
+                "norms": list(organization.norms[:4]),
+            }
+        )
+    return sorted(pressures, key=lambda item: (item["cohesion"], item["id"]))
+
+
+def _remembered_observer_intents(
+    agent: Agent,
+    world: WorldState,
+    horizon_days: int = 7,
+    limit: int = 5,
+) -> list[dict[str, Any]]:
+    intents = []
+    for event in world.event_log:
+        if event.kind != "broadcast":
+            continue
+        if world.day < event.day or world.day - event.day > horizon_days:
+            continue
+        if not any(
+            memory.day == event.day
+            and memory.kind == event.kind
+            and memory.text == event.description
+            for memory in agent.memory_stream
+        ):
+            continue
+        intent = _intent_from_event(event)
+        if not intent:
+            continue
+        intents.append(
+            {
+                "day": event.day,
+                "intent": intent,
+                "description": event.description,
+            }
+        )
+    return intents[-limit:]
+
+
+def _blocked_routes(
+    world: WorldState,
+    limit: int = 8,
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "route": route_key,
+            "repair_need": round(repair_need, 3),
+        }
+        for route_key, repair_need in sorted(world.blocked_routes.items())[:limit]
+    ]
+
+
+def _intent_from_event(event: Any) -> str:
+    for key in event.effects:
+        if key.startswith("intent_"):
+            return key.removeprefix("intent_")
+    return ""
+
+
+def _pair_trust(agent: Agent, other: Agent | None) -> float:
+    if other is None:
+        return 0.50
+    return (
+        agent.relationships.get(other.id, 0.50)
+        + other.relationships.get(agent.id, 0.50)
+    ) / 2
+
+
+def _find_agent(world: WorldState, agent_id: str) -> Agent | None:
+    for candidate in world.agents:
+        if candidate.id == agent_id:
+            return candidate
+    return None
+
+
+def _relationship_key(first_id: str, second_id: str) -> str:
+    return "|".join(sorted([first_id, second_id]))
 
 
 def _plan_dict(plan: Plan) -> dict[str, Any]:

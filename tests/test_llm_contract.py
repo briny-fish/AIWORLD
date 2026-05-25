@@ -6,6 +6,7 @@ from virtual_society.llm_contract import (
     parse_plan_response,
     render_plan_prompt,
 )
+from virtual_society.interventions import Intervention
 from virtual_society.model import Action
 from virtual_society import Simulation
 
@@ -27,6 +28,10 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("retrieved_memories", context.as_dict())
         self.assertIn("decision_pressure", context.as_dict())
         self.assertIn("food_gap", context.decision_pressure)
+        self.assertIn("active_relationship_crises", context.decision_pressure)
+        self.assertIn("organization_pressures", context.decision_pressure)
+        self.assertIn("remembered_observer_intents", context.decision_pressure)
+        self.assertIn("blocked_routes", context.decision_pressure)
         self.assertTrue(context.world["locations"])
         self.assertTrue(context.world["agent_organizations"])
 
@@ -41,6 +46,7 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("Use target_id only for socialize plans", prompt)
         self.assertIn("baseline_plan", prompt)
         self.assertIn("shared production and repair needs", prompt)
+        self.assertIn("active_relationship_crises", prompt)
 
     def test_context_can_include_rule_baseline_plan(self) -> None:
         simulation = Simulation(seed=7)
@@ -73,6 +79,34 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("connected_location_ids", compact.world["locations"][0])
         self.assertNotIn("production", compact.world["locations"][0])
         self.assertLess(len(render_plan_prompt(compact)), len(render_plan_prompt(full)))
+
+    def test_decision_pressure_exposes_social_history_and_observer_intent(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.world.relationship_crises["a1|a2"] = 1
+        simulation.run(
+            1,
+            interventions=[
+                Intervention(
+                    day=1,
+                    kind="broadcast",
+                    params={
+                        "intent": "reconcile_relationships",
+                        "target_agent_ids": ["a1"],
+                        "message": "Ari, repair trust with Bo.",
+                    },
+                )
+            ],
+        )
+        agent = simulation.world.agents[0]
+
+        context = build_cognition_context(agent, simulation.world)
+
+        crises = context.decision_pressure["active_relationship_crises"]
+        self.assertEqual(crises[0]["other_agent_id"], "a2")
+        self.assertEqual(crises[0]["other_agent_name"], "Bo")
+        intents = context.decision_pressure["remembered_observer_intents"]
+        self.assertEqual(intents[0]["intent"], "reconcile_relationships")
+        self.assertTrue(context.decision_pressure["weakest_relationships"])
 
     def test_parse_plan_response_accepts_valid_plan(self) -> None:
         plan = parse_plan_response(

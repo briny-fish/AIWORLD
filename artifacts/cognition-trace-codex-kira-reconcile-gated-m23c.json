@@ -1,0 +1,76 @@
+[
+  {
+    "day": 8,
+    "agent_id": "a11",
+    "agent_name": "Kira",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 2.89,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Active relationship crises are a real pressure here, and remembered observer intent explicitly asked Kira to repair trust before cooperation hardens into factions. Energy is above exhaustion threshold, so rest is not justified; the social repair need outweighs routine hauling today.",
+      "target_id": "a10",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Active relationship crises are a real pressure here, and remembered observer intent explicitly asked Kira to repair trust before cooperation hardens into factions. Energy is above exhaustion threshold, so rest is not justified; the social repair need outweighs routine hauling today.",
+      "target_id": "a10",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "error": "counterfactual accepted: proposed score -78.5431 vs baseline -78.5501",
+    "counterfactual": {
+      "horizon_days": 2,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; materials need hauling to the workshop; reflection keeps recent shock salient",
+        "score": -78.5501,
+        "metrics": {
+          "day": 10,
+          "population": 12,
+          "food": 16.26,
+          "materials": 4.08,
+          "shelter": 10.15,
+          "average_need": 0.461,
+          "average_trust": 0.572,
+          "average_reputation": 0.522,
+          "institutional_cohesion": 0.579,
+          "crisis_events": 42
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a10",
+        "reason": "Active relationship crises are a real pressure here, and remembered observer intent explicitly asked Kira to repair trust before cooperation hardens into factions. Energy is above exhaustion threshold, so rest is not justified; the social repair need outweighs routine hauling today.",
+        "score": -78.5431,
+        "metrics": {
+          "day": 10,
+          "population": 12,
+          "food": 16.26,
+          "materials": 4.08,
+          "shelter": 10.15,
+          "average_need": 0.463,
+          "average_trust": 0.573,
+          "average_reputation": 0.522,
+          "institutional_cohesion": 0.579,
+          "crisis_events": 42
+        }
+      },
+      "score_delta": 0.007,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -78.5431 vs baseline -78.5501"
+    }
+  }
+]

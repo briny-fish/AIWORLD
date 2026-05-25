@@ -1,0 +1,100 @@
+[
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "keep the probe from collapsing into an exhaustion-only decision",
+    "params": {
+      "rule": "energy_decay",
+      "value": 0.04
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "surface fragile ties as active relationship crises before resource pressure dominates",
+    "params": {
+      "rule": "relationship_crisis_threshold",
+      "value": 0.58
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make reconciliation require deliberate social repair",
+    "params": {
+      "rule": "relationship_repair_threshold",
+      "value": 0.56
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "make poor route condition capable of blocking a strained route",
+    "params": {
+      "rule": "route_block_condition_threshold",
+      "value": 0.66
+    }
+  },
+  {
+    "day": 1,
+    "kind": "edict",
+    "actor_id": "observer",
+    "reason": "turn heavy route strain into a visible route closure",
+    "params": {
+      "rule": "route_block_excess_threshold",
+      "value": 0.4
+    }
+  },
+  {
+    "day": 5,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "remote harvest creates urgent depot logistics instead of pure famine",
+    "params": {
+      "resource": "food",
+      "amount": 20.0,
+      "location_id": "north_field"
+    }
+  },
+  {
+    "day": 6,
+    "kind": "resource",
+    "actor_id": "observer",
+    "reason": "small commons reserve keeps the choice from being immediate starvation",
+    "params": {
+      "resource": "food",
+      "amount": 8.0,
+      "location_id": "commons"
+    }
+  },
+  {
+    "day": 6,
+    "kind": "broadcast",
+    "actor_id": "observer",
+    "reason": "ask Bo to weigh a concrete relationship crisis against food logistics",
+    "params": {
+      "target_agent_ids": ["a2"],
+      "intent": "reconcile_relationships",
+      "tone": "neutral",
+      "strength": 0.16,
+      "message": "Bo, repair trust with Ari before the route dispute hardens into a lasting split."
+    }
+  },
+  {
+    "day": 6,
+    "kind": "broadcast",
+    "actor_id": "observer",
+    "reason": "ask Kira to weigh council legitimacy against food logistics",
+    "params": {
+      "target_agent_ids": ["a11"],
+      "intent": "reconcile_relationships",
+      "tone": "neutral",
+      "strength": 0.16,
+      "message": "Kira, use your council role to repair trust with Ari before public cooperation hardens into factions."
+    }
+  }
+]

@@ -706,6 +706,53 @@ class ReportTests(unittest.TestCase):
         self.assertIn("reason_richness_generated_richer", html)
         self.assertIn("test-prompt", html)
 
+    def test_run_html_renders_story_cards(self) -> None:
+        simulation = Simulation(seed=7)
+        recorder = HistoryRecorder(seed=7, interval_days=1)
+        metrics = simulation.run(2, after_step=recorder.capture)
+        history = recorder.record(metrics)
+        cognition_trace = [
+            {
+                "day": 1,
+                "agent_id": "a1",
+                "agent_name": "Ari",
+                "status": "primary",
+                "baseline_plan": {
+                    "action": "haul",
+                    "reason": "resources need hauling",
+                },
+                "proposed_plan": {
+                    "action": "socialize",
+                    "reason": "Ari remembered observer intent and relationship pressure.",
+                },
+                "used_plan": {
+                    "action": "socialize",
+                    "reason": "Ari remembered observer intent and relationship pressure.",
+                },
+                "diverged_from_baseline": True,
+            }
+        ]
+        baseline_comparison = {
+            "summary": "Compared with the deterministic rule baseline: trust +0.02.",
+            "deltas": {"average_need": 0.01, "average_trust": 0.02, "crisis_events": -1},
+        }
+
+        record = build_run_record(
+            7,
+            metrics,
+            simulation.world,
+            assess_metrics(metrics),
+            history=history,
+            cognition_trace=cognition_trace,
+            baseline_comparison=baseline_comparison,
+        )
+        html = render_run_html(record)
+
+        self.assertIn("story_cards", record)
+        self.assertIn("Outcome against rule baseline", html)
+        self.assertIn("Generated cognition changed behavior", html)
+        self.assertIn("Ari haul -&gt; socialize", html)
+
     def test_experiment_html_renders_seed_comparison(self) -> None:
         reports = run_experiment(seeds=[1, 2], days=10)
         record = build_experiment_record(reports)

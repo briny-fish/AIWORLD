@@ -65,6 +65,13 @@ def build_run_record(
         social_finding_dicts,
         observer_intents,
     )
+    story_cards = _story_cards(
+        social_chronicle=social_chronicle,
+        cognition_trace=cognition_trace or [],
+        counterfactual_evaluation=counterfactual_evaluation,
+        reason_richness=reason_richness_items,
+        baseline_comparison=baseline_comparison,
+    )
     record = {
         "kind": "run",
         "generated_at": _now(),
@@ -81,6 +88,7 @@ def build_run_record(
         },
         "historical_scars": _historical_scars(world),
         "historical_scar_validation": build_historical_scar_validation(world, history),
+        "story_cards": story_cards,
         "social_chronicle": social_chronicle,
         "observer_intents": observer_intents,
         "observer_memory": _observer_memory(world),
@@ -270,6 +278,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     generated_chains = record.get("generated_chains", [])
     llm_cache = record.get("llm_cache", [])
     baseline_comparison = record.get("baseline_comparison")
+    story_cards = record.get("story_cards", [])
     agents = record["agents"]
     organizations = record.get("organizations", [])
     locations = record.get("locations", [])
@@ -309,6 +318,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       {_metric_tile("Avg Reputation", final.get("average_reputation"))}
       {_metric_tile("Org Cohesion", final.get("institutional_cohesion"))}
     </section>
+    {_story_cards_section(story_cards)}
     <section class="band">
       <h2>Health</h2>
       <div class="finding-row">{''.join(_finding_badge(item) for item in findings)}</div>
@@ -449,6 +459,22 @@ p { margin: 8px 0 0; color: var(--muted); }
 }
 .metric label { display: block; color: var(--muted); font-size: 12px; }
 .metric strong { display: block; font-size: 28px; margin-top: 6px; }
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.story-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  min-height: 150px;
+}
+.story-card h3 { font-size: 15px; margin: 0 0 8px; }
+.story-card p { margin: 6px 0; }
+.story-card .evidence { color: var(--blue); font-size: 12px; font-weight: 700; }
 .band {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -591,6 +617,146 @@ def _locations_table(locations: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Name</th><th>Kind</th><th>Condition</th><th>Cap</th><th>Resources</th><th>Production</th><th>Maint</th><th>Links</th><th>Blocked</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _story_cards(
+    social_chronicle: dict[str, Any],
+    cognition_trace: list[dict[str, Any]],
+    counterfactual_evaluation: dict[str, Any] | None,
+    reason_richness: list[dict[str, Any]],
+    baseline_comparison: dict[str, Any] | None,
+) -> list[dict[str, str]]:
+    cards: list[dict[str, str]] = []
+    if baseline_comparison:
+        cards.append(
+            {
+                "title": "Outcome against rule baseline",
+                "summary": str(baseline_comparison.get("summary", "")),
+                "evidence": _baseline_story_evidence(baseline_comparison.get("deltas", {})),
+            }
+        )
+
+    divergent = sum(1 for item in cognition_trace if item.get("diverged_from_baseline"))
+    blocked = sum(
+        1
+        for item in cognition_trace
+        if item.get("status") in {"baseline_after_policy", "baseline_after_counterfactual"}
+    )
+    if cognition_trace:
+        cards.append(
+            {
+                "title": "Generated cognition changed behavior",
+                "summary": (
+                    f"{divergent}/{len(cognition_trace)} generated cognition calls "
+                    f"changed the executed plan; {blocked} proposals were blocked by policy."
+                ),
+                "evidence": _cognition_story_evidence(cognition_trace),
+            }
+        )
+
+    if counterfactual_evaluation and counterfactual_evaluation.get("total"):
+        cards.append(
+            {
+                "title": "Counterfactual gate filtered risk",
+                "summary": str(counterfactual_evaluation.get("summary", "")),
+                "evidence": _counterfactual_story_evidence(counterfactual_evaluation),
+            }
+        )
+
+    rich = [
+        item
+        for item in reason_richness
+        if str(item.get("signal", "")).startswith("reason_richness_richer")
+    ]
+    if rich:
+        cards.append(
+            {
+                "title": "Reasons carried social evidence",
+                "summary": (
+                    f"{len(rich)} generated reasons used richer identity, memory, "
+                    "relationship, or scar evidence than the rule baseline."
+                ),
+                "evidence": _reason_story_evidence(rich),
+            }
+        )
+
+    for entry in reversed(social_chronicle.get("entries", [])):
+        if entry.get("title") == "Routine adaptation":
+            continue
+        cards.append(
+            {
+                "title": str(entry.get("title", "Social change")),
+                "summary": str(entry.get("summary", "")),
+                "evidence": "; ".join(str(item) for item in (entry.get("evidence") or [])[:3]),
+            }
+        )
+        break
+
+    return cards[:3]
+
+
+def _story_cards_section(cards: list[dict[str, str]]) -> str:
+    if not cards:
+        return ""
+    items = []
+    for card in cards:
+        items.append(
+            "<article class=\"story-card\">"
+            f"<h3>{escape(card.get('title', 'Story'))}</h3>"
+            f"<p>{escape(card.get('summary', ''))}</p>"
+            f"<p class=\"evidence\">{escape(card.get('evidence', ''))}</p>"
+            "</article>"
+        )
+    return (
+        "<section class=\"story-grid\" aria-label=\"Social story cards\">"
+        + "".join(items)
+        + "</section>"
+    )
+
+
+def _baseline_story_evidence(deltas: dict[str, Any]) -> str:
+    if not deltas:
+        return "No metric deltas recorded."
+    keys = ["average_need", "average_trust", "shelter", "crisis_events"]
+    return "; ".join(
+        f"{key} {_signed_number(deltas[key])}"
+        for key in keys
+        if key in deltas
+    )
+
+
+def _cognition_story_evidence(trace: list[dict[str, Any]]) -> str:
+    examples = []
+    for item in trace:
+        if not item.get("diverged_from_baseline"):
+            continue
+        proposed = item.get("proposed_plan") or {}
+        used = item.get("used_plan") or {}
+        baseline = item.get("baseline_plan") or {}
+        examples.append(
+            f"day {item.get('day')}: {item.get('agent_name')} "
+            f"{baseline.get('action')} -> {used.get('action') or proposed.get('action')}"
+        )
+        if len(examples) >= 3:
+            break
+    return "; ".join(examples) or "No executed plan divergence."
+
+
+def _counterfactual_story_evidence(evaluation: dict[str, Any]) -> str:
+    accepted = evaluation.get("accepted", 0)
+    rejected = evaluation.get("rejected", 0)
+    total = evaluation.get("total", 0)
+    return f"accepted {accepted}/{total}; rejected {rejected}/{total}"
+
+
+def _reason_story_evidence(items: list[dict[str, Any]]) -> str:
+    examples = []
+    for item in items[:3]:
+        groups = ", ".join(item.get("generated_groups") or [])
+        examples.append(
+            f"day {item.get('day')}: {item.get('agent_name')} used {groups}"
+        )
+    return "; ".join(examples)
 
 
 def _social_chronicle_section(chronicle: dict[str, Any] | None) -> str:

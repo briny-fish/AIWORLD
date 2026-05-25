@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-25T13:08:57+00:00",
+  "generated_at": "2026-05-25T13:55:16+00:00",
   "seed": 9,
   "days": 30,
   "metrics": [
@@ -817,6 +817,23 @@
       }
     ]
   },
+  "story_cards": [
+    {
+      "title": "Outcome against rule baseline",
+      "summary": "Compared with the deterministic rule baseline: average need -0.028, trust +0.004, institutional cohesion 0, crisis events +1.",
+      "evidence": "average_need -0.028; average_trust +0.004; shelter -0.53; crisis_events +1"
+    },
+    {
+      "title": "Generated cognition changed behavior",
+      "summary": "8/12 generated cognition calls changed the executed plan; 1 proposals were blocked by policy.",
+      "evidence": "day 6: Ivo haul -> socialize; day 6: Dina haul -> socialize; day 6: Jules haul -> socialize"
+    },
+    {
+      "title": "Counterfactual gate filtered risk",
+      "summary": "Counterfactual probes accepted 8/9 proposals and rejected 1; average score delta +0.443. Worst case was Gale on day 6: haul -> socialize with delta -0.04.",
+      "evidence": "accepted 8/9; rejected 1/9"
+    }
+  ],
   "social_chronicle": {
     "summary": "Chronicle produced 7 entries; 5 entries reference persistent scars. 1 entries include observer impact. Evaluation signals: shock_trace_weak.",
     "entries": [
@@ -16939,14 +16956,14 @@
     {
       "surface": "cognition",
       "provider": "openai-compatible",
-      "mode": "read-write",
+      "mode": "read-only",
       "root_dir": "artifacts\\llm-cache-openai-gpt55-m23",
       "model": "gpt-5.5",
       "reasoning_effort": "low",
       "reads": 12,
-      "hits": 0,
-      "misses": 12,
-      "writes": 12
+      "hits": 12,
+      "misses": 0,
+      "writes": 0
     }
   ],
   "baseline_comparison": {

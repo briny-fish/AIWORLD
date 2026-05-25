@@ -115,6 +115,25 @@ class HybridCognitionTests(unittest.TestCase):
         self.assertEqual(primary.calls, 0)
         self.assertEqual(hybrid.stats.llm_attempts, 0)
 
+    def test_daily_budget_spreads_primary_calls(self) -> None:
+        primary = FixedProvider(Action.HAUL)
+        hybrid = HybridCognition(
+            primary=primary,
+            fallback=RuleBasedCognition(),
+            config=HybridCognitionConfig(
+                every_days=1,
+                max_calls=10,
+                max_calls_per_day=2,
+            ),
+        )
+        simulation = Simulation(seed=7, cognition=hybrid)
+
+        simulation.run(2)
+
+        self.assertEqual(primary.calls, 4)
+        self.assertEqual(hybrid.stats.llm_attempts, 4)
+        self.assertEqual([item.day for item in hybrid.trace], [1, 1, 2, 2])
+
     def test_passes_rule_baseline_to_baseline_aware_provider(self) -> None:
         primary = BaselineAwareProvider(Action.REST)
         hybrid = HybridCognition(

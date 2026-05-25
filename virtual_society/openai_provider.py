@@ -8,6 +8,7 @@ from collections.abc import Callable
 from typing import Any
 
 from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
+from .llm_cache import LLMCallCache
 from .model import Action, Agent, Plan, WorldState
 
 
@@ -16,20 +17,32 @@ class OpenAICognitionError(RuntimeError):
 
 
 class OpenAICognition:
-    """OpenAI Responses API provider for structured agent plans."""
+    """OpenAI-compatible Responses API provider for structured agent plans."""
 
     def __init__(
         self,
         api_key: str | None = None,
         model: str | None = None,
         timeout_seconds: int = 60,
-        base_url: str = "https://api.openai.com/v1/responses",
+        base_url: str | None = None,
+        reasoning_effort: str | None = None,
+        cache: LLMCallCache | None = None,
         http_post: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
     ) -> None:
-        self.api_key = api_key or os.environ.get("OPENAI_API_KEY")
+        self.api_key = (
+            api_key
+            or os.environ.get("OPENAI_API_KEY")
+            or os.environ.get("VIRTUAL_SOCIETY_OPENAI_API_KEY")
+        )
         self.model = model or os.environ.get("OPENAI_MODEL", "gpt-5.2")
         self.timeout_seconds = timeout_seconds
-        self.base_url = base_url
+        self.base_url = _resolve_responses_url(
+            base_url
+            or os.environ.get("OPENAI_BASE_URL")
+            or os.environ.get("VIRTUAL_SOCIETY_OPENAI_BASE_URL")
+        )
+        self.reasoning_effort = reasoning_effort or os.environ.get("OPENAI_REASONING_EFFORT", "")
+        self.cache = cache
         self.http_post = http_post
         self.prompt_version = PLAN_PROMPT_VERSION
 
@@ -47,6 +60,12 @@ class OpenAICognition:
 
         context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
         prompt = render_plan_prompt(context)
+        cached = self._read_cache(prompt)
+        if cached is not None:
+            return _parse_response_text(cached)
+        if self.cache is not None and self.cache.mode == "read-only":
+            raise OpenAICognitionError("LLM cache miss for cognition in read-only mode")
+
         payload = {
             "model": self.model,
             "input": prompt,
@@ -59,13 +78,12 @@ class OpenAICognition:
                 }
             },
         }
+        if self.reasoning_effort:
+            payload["reasoning"] = {"effort": self.reasoning_effort}
         response = self.http_post(payload) if self.http_post is not None else self._post(payload)
         text = _extract_output_text(response)
-        try:
-            data = json.loads(text)
-        except json.JSONDecodeError as exc:
-            raise OpenAICognitionError("OpenAI response did not contain valid JSON") from exc
-        return parse_plan_response(data)
+        self._write_cache(prompt, text)
+        return _parse_response_text(text)
 
     def _post(self, payload: dict[str, Any]) -> dict[str, Any]:
         body = json.dumps(payload).encode("utf-8")
@@ -86,6 +104,27 @@ class OpenAICognition:
             raise OpenAICognitionError(f"OpenAI API request failed: {exc.code} {detail}") from exc
         except urllib.error.URLError as exc:
             raise OpenAICognitionError(f"OpenAI API request failed: {exc}") from exc
+
+    def _read_cache(self, prompt: str) -> str | None:
+        if self.cache is None:
+            return None
+        return self.cache.read(
+            "cognition",
+            self.model,
+            self.reasoning_effort or "default",
+            prompt,
+        )
+
+    def _write_cache(self, prompt: str, text: str) -> None:
+        if self.cache is None:
+            return
+        self.cache.write(
+            "cognition",
+            self.model,
+            self.reasoning_effort or "default",
+            prompt,
+            text,
+        )
 
 
 def _plan_schema() -> dict[str, Any]:
@@ -119,6 +158,23 @@ def _plan_schema() -> dict[str, Any]:
             },
         },
     }
+
+
+def _resolve_responses_url(base_url: str | None) -> str:
+    url = (base_url or "https://api.openai.com/v1/responses").rstrip("/")
+    if url.endswith("/responses"):
+        return url
+    if url.endswith("/v1"):
+        return f"{url}/responses"
+    return f"{url}/v1/responses"
+
+
+def _parse_response_text(text: str) -> Plan:
+    try:
+        data = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise OpenAICognitionError("OpenAI response did not contain valid JSON") from exc
+    return parse_plan_response(data)
 
 
 def _extract_output_text(response: dict[str, Any]) -> str:

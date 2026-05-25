@@ -87,7 +87,7 @@ def main() -> None:
         "--llm-cache-mode",
         choices=["off", "read-write", "read-only", "refresh"],
         default="off",
-        help="LLM cache mode for local Codex CLI providers.",
+        help="LLM cache mode for generated providers.",
     )
     parser.add_argument(
         "--cognition",
@@ -99,6 +99,12 @@ def main() -> None:
     parser.add_argument("--llm-every-days", type=int, default=7, help="Call LLM provider only on days divisible by N.")
     parser.add_argument("--llm-min-day", type=int, default=1, help="Earliest day allowed for LLM provider calls.")
     parser.add_argument("--llm-max-calls", type=int, default=1, help="Maximum LLM provider calls in one run.")
+    parser.add_argument(
+        "--llm-max-calls-per-day",
+        type=int,
+        default=0,
+        help="Maximum LLM provider calls per simulated day. Use 0 for no daily cap.",
+    )
     parser.add_argument("--llm-max-failures", type=int, default=1, help="Maximum LLM provider failures before fallback only.")
     parser.add_argument(
         "--llm-counterfactual-days",
@@ -114,6 +120,15 @@ def main() -> None:
     )
     parser.add_argument("--openai-model", default="gpt-5.2", help="OpenAI model for --cognition hybrid-openai.")
     parser.add_argument("--openai-timeout", type=int, default=60, help="OpenAI provider timeout in seconds.")
+    parser.add_argument(
+        "--openai-base-url",
+        help="OpenAI-compatible base URL. Accepts either https://host/v1 or https://host/v1/responses.",
+    )
+    parser.add_argument(
+        "--openai-reasoning-effort",
+        default="",
+        help="Optional Responses API reasoning effort, for example low or medium.",
+    )
     parser.add_argument("--show-cognition-stats", action="store_true", help="Print cognition provider call stats.")
     parser.add_argument("--save-cognition-trace-json", help="Write hybrid cognition call trace JSON.")
     parser.add_argument(
@@ -204,6 +219,8 @@ def main() -> None:
         raise SystemExit("--snapshot-every must be >= 0")
     if args.llm_counterfactual_days < 0:
         raise SystemExit("--llm-counterfactual-days must be >= 0")
+    if args.llm_max_calls_per_day < 0:
+        raise SystemExit("--llm-max-calls-per-day must be >= 0")
     if args.llm_counterfactual_reject_threshold < 0:
         raise SystemExit("--llm-counterfactual-reject-threshold must be >= 0")
     if args.llm_cache_mode != "off" and not args.llm_cache_dir:
@@ -569,7 +586,7 @@ def _print_cognition_trace(cognition) -> None:
         proposed_action = proposed.get("action", "none")
         print(
             f"day {item.day:>3} | {item.agent_name:<8} | {item.status:<20} | "
-            f"codex={proposed_action:<9} rule={baseline['action']:<9} "
+            f"primary={proposed_action:<9} rule={baseline['action']:<9} "
             f"used={used['action']:<9} diverged={item.diverged_from_baseline}"
         )
         if item.error:
@@ -933,8 +950,8 @@ def _build_cognition(args: argparse.Namespace):
     if args.cognition == "rule":
         return None
 
-    cache = _build_llm_cache(args)
     if args.cognition == "hybrid-codex-cli":
+        cache = _build_llm_cache(args, provider="codex-cli")
         primary = CodexCliCognition(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
             model=args.codex_cli_model,
@@ -950,6 +967,7 @@ def _build_cognition(args: argparse.Namespace):
                 every_days=args.llm_every_days,
                 min_day=args.llm_min_day,
                 max_calls=args.llm_max_calls,
+                max_calls_per_day=args.llm_max_calls_per_day,
                 max_failures=args.llm_max_failures,
                 counterfactual_horizon_days=args.llm_counterfactual_days,
                 counterfactual_reject_threshold=args.llm_counterfactual_reject_threshold,
@@ -957,9 +975,13 @@ def _build_cognition(args: argparse.Namespace):
         )
 
     if args.cognition == "hybrid-openai":
+        cache = _build_llm_cache(args, provider="openai-compatible")
         primary = OpenAICognition(
             model=args.openai_model,
             timeout_seconds=args.openai_timeout,
+            base_url=args.openai_base_url,
+            reasoning_effort=args.openai_reasoning_effort,
+            cache=cache,
         )
         return HybridCognition(
             primary=primary,
@@ -968,6 +990,7 @@ def _build_cognition(args: argparse.Namespace):
                 every_days=args.llm_every_days,
                 min_day=args.llm_min_day,
                 max_calls=args.llm_max_calls,
+                max_calls_per_day=args.llm_max_calls_per_day,
                 max_failures=args.llm_max_failures,
                 counterfactual_horizon_days=args.llm_counterfactual_days,
                 counterfactual_reject_threshold=args.llm_counterfactual_reject_threshold,
@@ -981,7 +1004,7 @@ def _build_reflection(args: argparse.Namespace):
     if args.reflection == "rule":
         return None
 
-    cache = _build_llm_cache(args)
+    cache = _build_llm_cache(args, provider="codex-cli")
     if args.reflection == "hybrid-codex-cli":
         primary = CodexCliReflection(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
@@ -1008,7 +1031,7 @@ def _build_dialogue(args: argparse.Namespace):
     if args.dialogue == "rule":
         return None
 
-    cache = _build_llm_cache(args)
+    cache = _build_llm_cache(args, provider="codex-cli")
     if args.dialogue == "hybrid-codex-cli":
         primary = CodexCliDialogue(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
@@ -1031,12 +1054,12 @@ def _build_dialogue(args: argparse.Namespace):
     raise ValueError(f"Unknown dialogue provider: {args.dialogue}")
 
 
-def _build_llm_cache(args: argparse.Namespace) -> LLMCallCache | None:
+def _build_llm_cache(args: argparse.Namespace, provider: str = "codex-cli") -> LLMCallCache | None:
     if args.llm_cache_mode == "off":
         return None
     if not args.llm_cache_dir:
         raise SystemExit("--llm-cache-dir is required when --llm-cache-mode is not off")
-    return LLMCallCache(args.llm_cache_dir, mode=args.llm_cache_mode)
+    return LLMCallCache(args.llm_cache_dir, mode=args.llm_cache_mode, provider=provider)
 
 
 def _parse_optional_agent_ids(value: str | None) -> set[str] | None:

@@ -14,6 +14,7 @@ class HybridCognitionConfig:
     every_days: int = 7
     min_day: int = 1
     max_calls: int = 10
+    max_calls_per_day: int = 0
     max_failures: int = 3
     trace_limit: int = 100
     guard_rest_overrides: bool = True
@@ -64,6 +65,7 @@ class HybridCognition:
         self.config = config if config is not None else HybridCognitionConfig()
         self.stats = HybridCognitionStats()
         self.trace: list[HybridCognitionTrace] = []
+        self._calls_by_day: dict[int, int] = {}
 
     def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
         if not self._should_call_primary(agent, world):
@@ -72,6 +74,7 @@ class HybridCognition:
             return self.fallback.propose_plan(agent, world)
 
         baseline_plan = self.fallback.propose_plan(agent, world)
+        self._record_call_day(world.day)
         self.stats.llm_attempts += 1
         try:
             plan = self._call_primary(agent, world, baseline_plan)
@@ -195,6 +198,11 @@ class HybridCognition:
             return False
         if self.stats.llm_attempts >= self.config.max_calls:
             return False
+        if (
+            self.config.max_calls_per_day > 0
+            and self._calls_by_day.get(world.day, 0) >= self.config.max_calls_per_day
+        ):
+            return False
         if self.stats.llm_failures >= self.config.max_failures:
             return False
         if self.config.agent_ids is not None and agent.id not in self.config.agent_ids:
@@ -204,6 +212,9 @@ class HybridCognition:
         if self.config.every_days < 1:
             return False
         return world.day % self.config.every_days == 0
+
+    def _record_call_day(self, day: int) -> None:
+        self._calls_by_day[day] = self._calls_by_day.get(day, 0) + 1
 
     def _remember_error(self, exc: Exception) -> None:
         self.stats.last_errors.append(_truncate_error(str(exc)))

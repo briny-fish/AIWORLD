@@ -98,6 +98,7 @@ def build_run_record(
             for key, value in world.route_loads.items()
         },
         "historical_scars": _historical_scars(world),
+        "relationship_links": _relationship_links(world),
         "historical_scar_validation": build_historical_scar_validation(world, history),
         "scar_diagnosis": scar_diagnosis,
         "story_cards": story_cards,
@@ -348,6 +349,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       {_metric_tile("Avg Reputation", final.get("average_reputation"))}
       {_metric_tile("Org Cohesion", final.get("institutional_cohesion"))}
     </section>
+    {_world_dashboard_section(record)}
     {_story_cards_section(story_cards)}
     {_run_diagnosis_section(run_diagnosis)}
     <section class="band">
@@ -595,10 +597,127 @@ th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: lef
 th { color: var(--muted); font-size: 12px; font-weight: 700; }
 .bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
 .bar span { display: block; height: 100%; background: var(--blue); }
+.world-dashboard {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 16px 0;
+}
+.world-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.world-day {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-width: 120px;
+  text-align: right;
+  color: var(--blue);
+  font-weight: 700;
+}
+.world-layout {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.25fr) minmax(280px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+}
+.settlement-map {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--line);
+  background: #fbfdfc;
+  border-radius: 6px;
+  display: block;
+}
+.route-line { stroke: #91a29e; stroke-width: 5; stroke-linecap: round; opacity: 0.72; }
+.route-line.blocked { stroke: var(--bad); stroke-dasharray: 10 8; opacity: 0.88; }
+.location-node { fill: #ffffff; stroke: var(--blue); stroke-width: 3; }
+.location-node.low { stroke: var(--warn); }
+.location-node.blocked { stroke: var(--bad); }
+.location-label { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.location-meta { font-size: 11px; fill: var(--muted); }
+.agent-dot { fill: var(--good); stroke: #ffffff; stroke-width: 2; }
+.agent-dot.low { fill: var(--warn); }
+.world-side {
+  display: grid;
+  gap: 12px;
+}
+.world-pulse {
+  border-left: 4px solid var(--blue);
+  padding-left: 12px;
+}
+.world-pulse ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+.world-pulse li { margin: 5px 0; }
+.next-moves {
+  border-left: 4px solid var(--good);
+  padding-left: 12px;
+}
+.next-move {
+  margin: 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.next-move:last-child { border-bottom: 0; }
+.agent-life-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.agent-life {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  background: #fbfdfc;
+  min-height: 210px;
+}
+.agent-life h3 { margin-top: 0; }
+.agent-life .role { color: var(--muted); font-size: 12px; }
+.agent-life .plan { color: var(--blue); font-weight: 700; }
+.mini-bars {
+  display: grid;
+  grid-template-columns: 48px 1fr 42px;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 6px 0;
+}
+.relationship-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.relationship-list {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.relationship-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.relationship-item:last-child { border-bottom: 0; }
 @media (max-width: 900px) {
   .topbar { display: block; }
   .status { text-align: left; margin-top: 10px; }
   .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .world-head { display: block; }
+  .world-day { text-align: left; margin-top: 10px; }
+  .world-layout { grid-template-columns: 1fr; }
   .split { grid-template-columns: 1fr; }
 }
 </style>"""
@@ -995,6 +1114,358 @@ def _story_cards_section(cards: list[dict[str, str]]) -> str:
         "<section class=\"story-grid\" aria-label=\"Social story cards\">"
         + "".join(items)
         + "</section>"
+    )
+
+
+def _world_dashboard_section(record: dict[str, Any]) -> str:
+    agents = record.get("agents", [])
+    locations = record.get("locations", [])
+    if not agents and not locations:
+        return ""
+    return (
+        "<section class=\"world-dashboard\">"
+        "<div class=\"world-head\">"
+        "<div>"
+        "<h2>World Dashboard</h2>"
+        f"<p>{escape(_world_pulse_text(record))}</p>"
+        "</div>"
+        f"<div class=\"world-day\">Day {escape(str(record.get('days', '')))}</div>"
+        "</div>"
+        "<div class=\"world-layout\">"
+        "<div>"
+        "<h3>Settlement Map</h3>"
+        f"{_settlement_map_svg(record)}"
+        "</div>"
+        "<div class=\"world-side\">"
+        f"{_world_pulse_panel(record)}"
+        f"{_observer_next_moves_panel(record.get('observer_recommendations', []))}"
+        "</div>"
+        "</div>"
+        f"{_agent_life_cards(agents, record.get('relationship_links', []))}"
+        f"{_relationship_dashboard(record)}"
+        "</section>"
+    )
+
+
+def _world_pulse_text(record: dict[str, Any]) -> str:
+    final = record.get("final_metrics") or {}
+    scars = record.get("historical_scars") or {}
+    relationship_count = len(scars.get("relationship_crises") or [])
+    blocked_count = len(scars.get("blocked_routes") or [])
+    need = final.get("average_need", "n/a")
+    trust = final.get("average_trust", "n/a")
+    cohesion = final.get("institutional_cohesion", "n/a")
+    return (
+        f"Need {need}, trust {trust}, cohesion {cohesion}; "
+        f"{relationship_count} active relationship scars and {blocked_count} blocked routes define the current world state."
+    )
+
+
+def _world_pulse_panel(record: dict[str, Any]) -> str:
+    chronicle = record.get("social_chronicle") or {}
+    entries = list(chronicle.get("entries") or [])[-3:]
+    lines = []
+    if entries:
+        for entry in entries:
+            summary = str(entry.get("summary", ""))
+            day_prefix = f"Day {entry.get('day', '')}:"
+            lines.append(summary if summary.startswith(day_prefix) else f"{day_prefix} {summary}")
+    else:
+        for event in list(record.get("events") or [])[-3:]:
+            lines.append(
+                f"Day {event.get('day', '')}: {event.get('description', '')}"
+            )
+    if not lines:
+        lines.append("No notable world story has been recorded yet.")
+    items = "".join(f"<li>{escape(_short_text(line, 190))}</li>" for line in lines)
+    return (
+        "<div class=\"world-pulse\">"
+        "<h3>Social Story</h3>"
+        f"<p>{escape(str(chronicle.get('summary', 'Current social history is still forming.')))}</p>"
+        f"<ul>{items}</ul>"
+        "</div>"
+    )
+
+
+def _observer_next_moves_panel(recommendations: list[dict[str, Any]]) -> str:
+    if not recommendations:
+        return (
+            "<div class=\"next-moves\">"
+            "<h3>Observer Next Moves</h3>"
+            "<p>No concrete observer recommendation is active.</p>"
+            "</div>"
+        )
+    rows = []
+    for item in recommendations[:4]:
+        intervention = item.get("intervention") or {}
+        rows.append(
+            "<div class=\"next-move\">"
+            f"<strong>{escape(str(item.get('title', 'Recommendation')))}</strong>"
+            f"<p>{escape(str(item.get('expected_effect', '')))}</p>"
+            f"<p>{escape(str(intervention.get('kind', '')))} on day {escape(str(intervention.get('day', '')))}</p>"
+            "</div>"
+        )
+    return (
+        "<div class=\"next-moves\">"
+        "<h3>Observer Next Moves</h3>"
+        + "".join(rows)
+        + "</div>"
+    )
+
+
+def _settlement_map_svg(record: dict[str, Any]) -> str:
+    locations = record.get("locations", [])
+    agents = record.get("agents", [])
+    if not locations:
+        return "<p>No settlement map is available.</p>"
+    width = 760
+    height = 420
+    positions = _location_positions(locations, width, height)
+    blocked_routes = {
+        str(item.get("route", ""))
+        for item in (record.get("historical_scars") or {}).get("blocked_routes", [])
+    }
+    location_by_id = {str(location.get("id")): location for location in locations}
+    agents_by_location: dict[str, list[dict[str, Any]]] = {}
+    for agent in agents:
+        agents_by_location.setdefault(str(agent.get("location_id", "")), []).append(agent)
+
+    routes = []
+    seen_routes: set[str] = set()
+    for location in locations:
+        source_id = str(location.get("id", ""))
+        for target_id in location.get("connected_location_ids", []):
+            target_id = str(target_id)
+            key = _route_key(source_id, target_id)
+            if key in seen_routes or source_id not in positions or target_id not in positions:
+                continue
+            seen_routes.add(key)
+            x1, y1 = positions[source_id]
+            x2, y2 = positions[target_id]
+            route_class = "route-line blocked" if key in blocked_routes else "route-line"
+            title = f"{key} blocked" if key in blocked_routes else key
+            routes.append(
+                f"<line class=\"{route_class}\" x1=\"{x1:.1f}\" y1=\"{y1:.1f}\" "
+                f"x2=\"{x2:.1f}\" y2=\"{y2:.1f}\"><title>{escape(title)}</title></line>"
+            )
+
+    nodes = []
+    for location_id, (x, y) in positions.items():
+        location = location_by_id.get(location_id, {})
+        condition = float(location.get("condition", 0.0) or 0.0)
+        blocked_neighbors = location.get("blocked_connected_location_ids", [])
+        node_class = "location-node"
+        if blocked_neighbors:
+            node_class += " blocked"
+        elif condition < 0.55:
+            node_class += " low"
+        resources = location.get("resources") or {}
+        resident_agents = agents_by_location.get(location_id, [])
+        names = ", ".join(str(agent.get("name", "")) for agent in resident_agents)
+        radius = 22 + min(9, len(resident_agents) * 2)
+        nodes.append(
+            "<g>"
+            f"<circle class=\"{node_class}\" cx=\"{x:.1f}\" cy=\"{y:.1f}\" r=\"{radius}\">"
+            f"<title>{escape(str(location.get('name', location_id)))} | {escape(_resources_text(resources))} | {escape(names)}</title>"
+            "</circle>"
+            f"<text class=\"location-label\" x=\"{x:.1f}\" y=\"{y + radius + 17:.1f}\" text-anchor=\"middle\">"
+            f"{escape(str(location.get('name', location_id)))}</text>"
+            f"<text class=\"location-meta\" x=\"{x:.1f}\" y=\"{y + radius + 32:.1f}\" text-anchor=\"middle\">"
+            f"cond {condition:.2f} | {len(resident_agents)} agents</text>"
+            f"{_agent_dots_svg(resident_agents, x, y, radius)}"
+            "</g>"
+        )
+
+    return (
+        f"<svg class=\"settlement-map\" viewBox=\"0 0 {width} {height}\" role=\"img\" "
+        "aria-label=\"Settlement map with locations, routes, blocked routes, and agent positions\">"
+        f"{''.join(routes)}{''.join(nodes)}"
+        "<g transform=\"translate(18 18)\">"
+        "<line class=\"route-line\" x1=\"0\" y1=\"0\" x2=\"34\" y2=\"0\" />"
+        "<text class=\"location-meta\" x=\"44\" y=\"4\">open route</text>"
+        "<line class=\"route-line blocked\" x1=\"0\" y1=\"22\" x2=\"34\" y2=\"22\" />"
+        "<text class=\"location-meta\" x=\"44\" y=\"26\">blocked route</text>"
+        "</g>"
+        "</svg>"
+    )
+
+
+def _location_positions(
+    locations: list[dict[str, Any]],
+    width: int,
+    height: int,
+) -> dict[str, tuple[float, float]]:
+    import math
+
+    center = (width / 2, height / 2)
+    location_ids = [str(location.get("id", "")) for location in locations]
+    positions: dict[str, tuple[float, float]] = {}
+    outer_ids = [location_id for location_id in location_ids if location_id != "commons"]
+    if "commons" in location_ids:
+        positions["commons"] = center
+    else:
+        outer_ids = location_ids
+    radius_x = width * 0.36
+    radius_y = height * 0.32
+    for index, location_id in enumerate(outer_ids):
+        angle = (math.tau * index / max(1, len(outer_ids))) - math.pi / 2
+        positions[location_id] = (
+            center[0] + math.cos(angle) * radius_x,
+            center[1] + math.sin(angle) * radius_y,
+        )
+    return positions
+
+
+def _agent_dots_svg(
+    agents: list[dict[str, Any]],
+    x: float,
+    y: float,
+    radius: float,
+) -> str:
+    if not agents:
+        return ""
+    import math
+
+    dots = []
+    dot_radius = 5.5
+    orbit = radius + 12
+    for index, agent in enumerate(agents[:10]):
+        angle = math.tau * index / max(1, min(len(agents), 10))
+        dx = x + math.cos(angle) * orbit
+        dy = y + math.sin(angle) * orbit
+        low = float(agent.get("average_need", 1.0) or 1.0) < 0.36
+        dot_class = "agent-dot low" if low else "agent-dot"
+        dots.append(
+            f"<circle class=\"{dot_class}\" cx=\"{dx:.1f}\" cy=\"{dy:.1f}\" r=\"{dot_radius}\">"
+            f"<title>{escape(str(agent.get('name', 'agent')))} | {escape(str(agent.get('role', '')))}</title>"
+            "</circle>"
+        )
+    return "".join(dots)
+
+
+def _agent_life_cards(
+    agents: list[dict[str, Any]],
+    relationship_links: list[dict[str, Any]],
+) -> str:
+    if not agents:
+        return ""
+    ranked = sorted(
+        agents,
+        key=lambda agent: (
+            float(agent.get("average_need", 1.0) or 1.0),
+            str(agent.get("name", "")),
+        ),
+    )
+    cards = []
+    for agent in ranked[:12]:
+        plan = agent.get("active_plan") or {}
+        plan_text = (
+            f"{plan.get('action', 'none')}: {plan.get('reason', '')}"
+            if plan
+            else "none"
+        )
+        cards.append(
+            "<article class=\"agent-life\">"
+            f"<h3>{escape(str(agent.get('name', 'Agent')))}</h3>"
+            f"<div class=\"role\">{escape(str(agent.get('role', '')))} @ {escape(str(agent.get('location_id', '')))}</div>"
+            f"{_mini_bar('need', agent.get('average_need', 0))}"
+            f"{_mini_bar('trust', agent.get('average_trust', 0))}"
+            f"<p class=\"plan\">{escape(_short_text(plan_text, 130))}</p>"
+            f"<p>{escape(_agent_social_state(agent, relationship_links))}</p>"
+            f"<p>{escape(_short_text(_latest_reflection(agent), 150))}</p>"
+            "</article>"
+        )
+    return (
+        "<div class=\"agent-life-grid\" aria-label=\"Agent life cards\">"
+        + "".join(cards)
+        + "</div>"
+    )
+
+
+def _mini_bar(label: str, value: Any) -> str:
+    numeric = max(0.0, min(1.0, float(value or 0.0)))
+    width = int(numeric * 100)
+    return (
+        "<div class=\"mini-bars\">"
+        f"<span>{escape(label)}</span>"
+        f"<div class=\"bar\"><span style=\"width:{width}%\"></span></div>"
+        f"<span>{numeric:.3f}</span>"
+        "</div>"
+    )
+
+
+def _agent_social_state(
+    agent: dict[str, Any],
+    relationship_links: list[dict[str, Any]],
+) -> str:
+    agent_id = str(agent.get("id", ""))
+    links = [
+        link
+        for link in relationship_links
+        if agent_id in {str(value) for value in link.get("agent_ids", [])}
+    ]
+    if not links:
+        return "No relationship evidence yet."
+    crisis_count = sum(1 for link in links if link.get("crisis"))
+    weakest = min(links, key=lambda link: float(link.get("average_trust", 1.0)))
+    other_names = [
+        str(name)
+        for name, other_id in zip(weakest.get("agents", []), weakest.get("agent_ids", []))
+        if str(other_id) != agent_id
+    ]
+    other = other_names[0] if other_names else "unknown"
+    return (
+        f"{crisis_count} active crises; weakest tie {other} "
+        f"at {float(weakest.get('average_trust', 0.0)):.3f}."
+    )
+
+
+def _relationship_dashboard(record: dict[str, Any]) -> str:
+    scars = record.get("historical_scars") or {}
+    crisis_items = list(scars.get("relationship_crises") or [])[:8]
+    weak_links = sorted(
+        record.get("relationship_links", []),
+        key=lambda item: float(item.get("average_trust", 1.0)),
+    )[:8]
+    if not crisis_items and not weak_links:
+        return ""
+    return (
+        "<h3>Relationship Web</h3>"
+        "<div class=\"relationship-panel\">"
+        f"{_relationship_list('Active Relationship Scars', crisis_items, crisis=True)}"
+        f"{_relationship_list('Weakest Current Ties', weak_links, crisis=False)}"
+        "</div>"
+    )
+
+
+def _relationship_list(
+    title: str,
+    items: list[dict[str, Any]],
+    crisis: bool,
+) -> str:
+    if not items:
+        return ""
+    rows = []
+    for item in items:
+        agents = " / ".join(str(value) for value in item.get("agents", []))
+        trust = item.get("average_trust", 0)
+        detail = (
+            f"since day {item.get('started_day', '')}"
+            if crisis
+            else ("crisis" if item.get("crisis") else "open")
+        )
+        rows.append(
+            "<div class=\"relationship-item\">"
+            f"<span>{escape(agents)}</span>"
+            f"<strong>{escape(str(trust))}</strong>"
+            f"<span>{escape(str(detail))}</span>"
+            "</div>"
+        )
+    return (
+        "<div class=\"relationship-list\">"
+        f"<h3>{escape(title)}</h3>"
+        + "".join(rows)
+        + "</div>"
     )
 
 
@@ -1427,6 +1898,46 @@ def _historical_scars(world: WorldState) -> dict[str, Any]:
             for key, value in sorted(world.organization_fractures.items())
         ],
     }
+
+
+def _relationship_links(world: WorldState) -> list[dict[str, Any]]:
+    agents_by_id = {agent.id: agent for agent in world.agents}
+    links = []
+    seen_pairs: set[str] = set()
+    for agent in world.agents:
+        for other_id, trust in agent.relationships.items():
+            other = agents_by_id.get(other_id)
+            if other is None:
+                continue
+            pair_key = _agent_pair_key(agent.id, other.id)
+            if pair_key in seen_pairs:
+                continue
+            seen_pairs.add(pair_key)
+            reciprocal = other.relationships.get(agent.id, trust)
+            crisis_day = world.relationship_crises.get(pair_key)
+            links.append(
+                {
+                    "pair": pair_key,
+                    "agent_ids": pair_key.split("|"),
+                    "agents": [
+                        agents_by_id[agent_id].name
+                        if agent_id in agents_by_id
+                        else agent_id
+                        for agent_id in pair_key.split("|")
+                    ],
+                    "average_trust": round((float(trust) + float(reciprocal)) / 2, 3),
+                    "crisis": crisis_day is not None,
+                    "started_day": crisis_day,
+                }
+            )
+    return sorted(
+        links,
+        key=lambda item: (
+            not bool(item["crisis"]),
+            float(item["average_trust"]),
+            str(item["pair"]),
+        ),
+    )
 
 
 def _observer_memory(world: WorldState) -> list[dict[str, Any]]:
@@ -2290,6 +2801,13 @@ def _latest_reflection(agent: dict[str, Any]) -> str:
     return ""
 
 
+def _short_text(value: Any, limit: int) -> str:
+    text = " ".join(str(value or "").split())
+    if len(text) <= limit:
+        return text
+    return text[: max(0, limit - 3)].rstrip() + "..."
+
+
 def _finding_badge(finding: dict[str, Any]) -> str:
     severity = escape(finding["severity"])
     text = escape(f"{finding['code']}: {finding['description']}")
@@ -2334,6 +2852,17 @@ def _average(values: Any) -> float:
 def _route_key(first_location_id: str, second_location_id: str) -> str:
     left, right = sorted([first_location_id, second_location_id])
     return f"{left}|{right}"
+
+
+def _agent_pair_key(first_agent_id: str, second_agent_id: str) -> str:
+    left, right = sorted([first_agent_id, second_agent_id], key=_agent_sort_key)
+    return f"{left}|{right}"
+
+
+def _agent_sort_key(agent_id: str) -> tuple[str, int | str]:
+    if len(agent_id) > 1 and agent_id[0].isalpha() and agent_id[1:].isdigit():
+        return (agent_id[0], int(agent_id[1:]))
+    return (agent_id, agent_id)
 
 
 def _plan_dict(plan: Any) -> dict[str, Any] | None:

@@ -521,6 +521,10 @@ class ReportTests(unittest.TestCase):
         html = render_run_html(record)
 
         self.assertIn("Virtual Society Run", html)
+        self.assertIn("World Dashboard", html)
+        self.assertIn("Settlement Map", html)
+        self.assertIn("Agent life cards", html)
+        self.assertIn("Relationship Web", html)
         self.assertIn("Metrics", html)
         self.assertIn("Organizations", html)
         self.assertIn("Locations", html)
@@ -560,6 +564,8 @@ class ReportTests(unittest.TestCase):
 
         self.assertIn("scar_diagnosis", record)
         self.assertIn("observer_recommendations", record)
+        self.assertIn("relationship_links", record)
+        self.assertTrue(record["relationship_links"])
         self.assertIn("Historical Scars", html)
         self.assertIn("Residual Scar Diagnosis", html)
         self.assertIn("Observer Intervention Suggestions", html)

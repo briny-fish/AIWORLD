@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-26T09:37:20+00:00",
+  "generated_at": "2026-05-26T15:33:19+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -737,6 +737,932 @@
     ],
     "organization_fractures": []
   },
+  "relationship_links": [
+    {
+      "pair": "a1|a7",
+      "agent_ids": [
+        "a1",
+        "a7"
+      ],
+      "agents": [
+        "Ari",
+        "Gale"
+      ],
+      "average_trust": 0.448,
+      "crisis": true,
+      "started_day": 1
+    },
+    {
+      "pair": "a9|a12",
+      "agent_ids": [
+        "a9",
+        "a12"
+      ],
+      "agents": [
+        "Ivo",
+        "Lio"
+      ],
+      "average_trust": 0.471,
+      "crisis": true,
+      "started_day": 3
+    },
+    {
+      "pair": "a1|a10",
+      "agent_ids": [
+        "a1",
+        "a10"
+      ],
+      "agents": [
+        "Ari",
+        "Jules"
+      ],
+      "average_trust": 0.481,
+      "crisis": true,
+      "started_day": 3
+    },
+    {
+      "pair": "a10|a12",
+      "agent_ids": [
+        "a10",
+        "a12"
+      ],
+      "agents": [
+        "Jules",
+        "Lio"
+      ],
+      "average_trust": 0.49,
+      "crisis": true,
+      "started_day": 4
+    },
+    {
+      "pair": "a6|a11",
+      "agent_ids": [
+        "a6",
+        "a11"
+      ],
+      "agents": [
+        "Faye",
+        "Kira"
+      ],
+      "average_trust": 0.49,
+      "crisis": true,
+      "started_day": 4
+    },
+    {
+      "pair": "a1|a5",
+      "agent_ids": [
+        "a1",
+        "a5"
+      ],
+      "agents": [
+        "Ari",
+        "Eli"
+      ],
+      "average_trust": 0.5,
+      "crisis": true,
+      "started_day": 4
+    },
+    {
+      "pair": "a4|a12",
+      "agent_ids": [
+        "a4",
+        "a12"
+      ],
+      "agents": [
+        "Dina",
+        "Lio"
+      ],
+      "average_trust": 0.502,
+      "crisis": true,
+      "started_day": 5
+    },
+    {
+      "pair": "a6|a12",
+      "agent_ids": [
+        "a6",
+        "a12"
+      ],
+      "agents": [
+        "Faye",
+        "Lio"
+      ],
+      "average_trust": 0.503,
+      "crisis": true,
+      "started_day": 5
+    },
+    {
+      "pair": "a5|a12",
+      "agent_ids": [
+        "a5",
+        "a12"
+      ],
+      "agents": [
+        "Eli",
+        "Lio"
+      ],
+      "average_trust": 0.512,
+      "crisis": true,
+      "started_day": 6
+    },
+    {
+      "pair": "a2|a10",
+      "agent_ids": [
+        "a2",
+        "a10"
+      ],
+      "agents": [
+        "Bo",
+        "Jules"
+      ],
+      "average_trust": 0.514,
+      "crisis": true,
+      "started_day": 6
+    },
+    {
+      "pair": "a2|a9",
+      "agent_ids": [
+        "a2",
+        "a9"
+      ],
+      "agents": [
+        "Bo",
+        "Ivo"
+      ],
+      "average_trust": 0.517,
+      "crisis": true,
+      "started_day": 7
+    },
+    {
+      "pair": "a8|a10",
+      "agent_ids": [
+        "a8",
+        "a10"
+      ],
+      "agents": [
+        "Hana",
+        "Jules"
+      ],
+      "average_trust": 0.52,
+      "crisis": true,
+      "started_day": 7
+    },
+    {
+      "pair": "a6|a10",
+      "agent_ids": [
+        "a6",
+        "a10"
+      ],
+      "agents": [
+        "Faye",
+        "Jules"
+      ],
+      "average_trust": 0.527,
+      "crisis": true,
+      "started_day": 7
+    },
+    {
+      "pair": "a4|a9",
+      "agent_ids": [
+        "a4",
+        "a9"
+      ],
+      "agents": [
+        "Dina",
+        "Ivo"
+      ],
+      "average_trust": 0.529,
+      "crisis": true,
+      "started_day": 8
+    },
+    {
+      "pair": "a3|a5",
+      "agent_ids": [
+        "a3",
+        "a5"
+      ],
+      "agents": [
+        "Chen",
+        "Eli"
+      ],
+      "average_trust": 0.53,
+      "crisis": true,
+      "started_day": 2
+    },
+    {
+      "pair": "a1|a8",
+      "agent_ids": [
+        "a1",
+        "a8"
+      ],
+      "agents": [
+        "Ari",
+        "Hana"
+      ],
+      "average_trust": 0.532,
+      "crisis": true,
+      "started_day": 8
+    },
+    {
+      "pair": "a3|a11",
+      "agent_ids": [
+        "a3",
+        "a11"
+      ],
+      "agents": [
+        "Chen",
+        "Kira"
+      ],
+      "average_trust": 0.532,
+      "crisis": true,
+      "started_day": 2
+    },
+    {
+      "pair": "a4|a11",
+      "agent_ids": [
+        "a4",
+        "a11"
+      ],
+      "agents": [
+        "Dina",
+        "Kira"
+      ],
+      "average_trust": 0.532,
+      "crisis": true,
+      "started_day": 8
+    },
+    {
+      "pair": "a4|a8",
+      "agent_ids": [
+        "a4",
+        "a8"
+      ],
+      "agents": [
+        "Dina",
+        "Hana"
+      ],
+      "average_trust": 0.536,
+      "crisis": true,
+      "started_day": 9
+    },
+    {
+      "pair": "a5|a11",
+      "agent_ids": [
+        "a5",
+        "a11"
+      ],
+      "agents": [
+        "Eli",
+        "Kira"
+      ],
+      "average_trust": 0.537,
+      "crisis": true,
+      "started_day": 2
+    },
+    {
+      "pair": "a3|a10",
+      "agent_ids": [
+        "a3",
+        "a10"
+      ],
+      "agents": [
+        "Chen",
+        "Jules"
+      ],
+      "average_trust": 0.543,
+      "crisis": true,
+      "started_day": 3
+    },
+    {
+      "pair": "a7|a11",
+      "agent_ids": [
+        "a7",
+        "a11"
+      ],
+      "agents": [
+        "Gale",
+        "Kira"
+      ],
+      "average_trust": 0.543,
+      "crisis": true,
+      "started_day": 9
+    },
+    {
+      "pair": "a5|a10",
+      "agent_ids": [
+        "a5",
+        "a10"
+      ],
+      "agents": [
+        "Eli",
+        "Jules"
+      ],
+      "average_trust": 0.544,
+      "crisis": true,
+      "started_day": 9
+    },
+    {
+      "pair": "a3|a8",
+      "agent_ids": [
+        "a3",
+        "a8"
+      ],
+      "agents": [
+        "Chen",
+        "Hana"
+      ],
+      "average_trust": 0.547,
+      "crisis": true,
+      "started_day": 10
+    },
+    {
+      "pair": "a2|a3",
+      "agent_ids": [
+        "a2",
+        "a3"
+      ],
+      "agents": [
+        "Bo",
+        "Chen"
+      ],
+      "average_trust": 0.549,
+      "crisis": true,
+      "started_day": 10
+    },
+    {
+      "pair": "a4|a7",
+      "agent_ids": [
+        "a4",
+        "a7"
+      ],
+      "agents": [
+        "Dina",
+        "Gale"
+      ],
+      "average_trust": 0.552,
+      "crisis": true,
+      "started_day": 10
+    },
+    {
+      "pair": "a1|a9",
+      "agent_ids": [
+        "a1",
+        "a9"
+      ],
+      "agents": [
+        "Ari",
+        "Ivo"
+      ],
+      "average_trust": 0.556,
+      "crisis": true,
+      "started_day": 11
+    },
+    {
+      "pair": "a3|a6",
+      "agent_ids": [
+        "a3",
+        "a6"
+      ],
+      "agents": [
+        "Chen",
+        "Faye"
+      ],
+      "average_trust": 0.564,
+      "crisis": true,
+      "started_day": 11
+    },
+    {
+      "pair": "a3|a9",
+      "agent_ids": [
+        "a3",
+        "a9"
+      ],
+      "agents": [
+        "Chen",
+        "Ivo"
+      ],
+      "average_trust": 0.566,
+      "crisis": true,
+      "started_day": 11
+    },
+    {
+      "pair": "a2|a12",
+      "agent_ids": [
+        "a2",
+        "a12"
+      ],
+      "agents": [
+        "Bo",
+        "Lio"
+      ],
+      "average_trust": 0.567,
+      "crisis": true,
+      "started_day": 30
+    },
+    {
+      "pair": "a2|a4",
+      "agent_ids": [
+        "a2",
+        "a4"
+      ],
+      "agents": [
+        "Bo",
+        "Dina"
+      ],
+      "average_trust": 0.573,
+      "crisis": true,
+      "started_day": 30
+    },
+    {
+      "pair": "a9|a11",
+      "agent_ids": [
+        "a9",
+        "a11"
+      ],
+      "agents": [
+        "Ivo",
+        "Kira"
+      ],
+      "average_trust": 0.576,
+      "crisis": true,
+      "started_day": 30
+    },
+    {
+      "pair": "a2|a7",
+      "agent_ids": [
+        "a2",
+        "a7"
+      ],
+      "agents": [
+        "Bo",
+        "Gale"
+      ],
+      "average_trust": 0.577,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a2|a11",
+      "agent_ids": [
+        "a2",
+        "a11"
+      ],
+      "agents": [
+        "Bo",
+        "Kira"
+      ],
+      "average_trust": 0.579,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a5|a8",
+      "agent_ids": [
+        "a5",
+        "a8"
+      ],
+      "agents": [
+        "Eli",
+        "Hana"
+      ],
+      "average_trust": 0.579,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a2|a5",
+      "agent_ids": [
+        "a2",
+        "a5"
+      ],
+      "agents": [
+        "Bo",
+        "Eli"
+      ],
+      "average_trust": 0.58,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a6|a8",
+      "agent_ids": [
+        "a6",
+        "a8"
+      ],
+      "agents": [
+        "Faye",
+        "Hana"
+      ],
+      "average_trust": 0.59,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a11",
+      "agent_ids": [
+        "a1",
+        "a11"
+      ],
+      "agents": [
+        "Ari",
+        "Kira"
+      ],
+      "average_trust": 0.591,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a7|a12",
+      "agent_ids": [
+        "a7",
+        "a12"
+      ],
+      "agents": [
+        "Gale",
+        "Lio"
+      ],
+      "average_trust": 0.595,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a7|a9",
+      "agent_ids": [
+        "a7",
+        "a9"
+      ],
+      "agents": [
+        "Gale",
+        "Ivo"
+      ],
+      "average_trust": 0.599,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a8|a12",
+      "agent_ids": [
+        "a8",
+        "a12"
+      ],
+      "agents": [
+        "Hana",
+        "Lio"
+      ],
+      "average_trust": 0.6,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a6|a7",
+      "agent_ids": [
+        "a6",
+        "a7"
+      ],
+      "agents": [
+        "Faye",
+        "Gale"
+      ],
+      "average_trust": 0.601,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a3|a12",
+      "agent_ids": [
+        "a3",
+        "a12"
+      ],
+      "agents": [
+        "Chen",
+        "Lio"
+      ],
+      "average_trust": 0.606,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a3",
+      "agent_ids": [
+        "a1",
+        "a3"
+      ],
+      "agents": [
+        "Ari",
+        "Chen"
+      ],
+      "average_trust": 0.607,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a7|a10",
+      "agent_ids": [
+        "a7",
+        "a10"
+      ],
+      "agents": [
+        "Gale",
+        "Jules"
+      ],
+      "average_trust": 0.609,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a10|a11",
+      "agent_ids": [
+        "a10",
+        "a11"
+      ],
+      "agents": [
+        "Jules",
+        "Kira"
+      ],
+      "average_trust": 0.615,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a12",
+      "agent_ids": [
+        "a1",
+        "a12"
+      ],
+      "agents": [
+        "Ari",
+        "Lio"
+      ],
+      "average_trust": 0.618,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a3|a4",
+      "agent_ids": [
+        "a3",
+        "a4"
+      ],
+      "agents": [
+        "Chen",
+        "Dina"
+      ],
+      "average_trust": 0.618,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a8|a11",
+      "agent_ids": [
+        "a8",
+        "a11"
+      ],
+      "agents": [
+        "Hana",
+        "Kira"
+      ],
+      "average_trust": 0.62,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a3|a7",
+      "agent_ids": [
+        "a3",
+        "a7"
+      ],
+      "agents": [
+        "Chen",
+        "Gale"
+      ],
+      "average_trust": 0.626,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a5|a7",
+      "agent_ids": [
+        "a5",
+        "a7"
+      ],
+      "agents": [
+        "Eli",
+        "Gale"
+      ],
+      "average_trust": 0.627,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a11|a12",
+      "agent_ids": [
+        "a11",
+        "a12"
+      ],
+      "agents": [
+        "Kira",
+        "Lio"
+      ],
+      "average_trust": 0.63,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a6",
+      "agent_ids": [
+        "a1",
+        "a6"
+      ],
+      "agents": [
+        "Ari",
+        "Faye"
+      ],
+      "average_trust": 0.632,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a5|a9",
+      "agent_ids": [
+        "a5",
+        "a9"
+      ],
+      "agents": [
+        "Eli",
+        "Ivo"
+      ],
+      "average_trust": 0.636,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a7|a8",
+      "agent_ids": [
+        "a7",
+        "a8"
+      ],
+      "agents": [
+        "Gale",
+        "Hana"
+      ],
+      "average_trust": 0.645,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a5|a6",
+      "agent_ids": [
+        "a5",
+        "a6"
+      ],
+      "agents": [
+        "Eli",
+        "Faye"
+      ],
+      "average_trust": 0.647,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a2|a8",
+      "agent_ids": [
+        "a2",
+        "a8"
+      ],
+      "agents": [
+        "Bo",
+        "Hana"
+      ],
+      "average_trust": 0.648,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a4|a6",
+      "agent_ids": [
+        "a4",
+        "a6"
+      ],
+      "agents": [
+        "Dina",
+        "Faye"
+      ],
+      "average_trust": 0.651,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a4|a10",
+      "agent_ids": [
+        "a4",
+        "a10"
+      ],
+      "agents": [
+        "Dina",
+        "Jules"
+      ],
+      "average_trust": 0.652,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a6|a9",
+      "agent_ids": [
+        "a6",
+        "a9"
+      ],
+      "agents": [
+        "Faye",
+        "Ivo"
+      ],
+      "average_trust": 0.652,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a4",
+      "agent_ids": [
+        "a1",
+        "a4"
+      ],
+      "agents": [
+        "Ari",
+        "Dina"
+      ],
+      "average_trust": 0.655,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a9|a10",
+      "agent_ids": [
+        "a9",
+        "a10"
+      ],
+      "agents": [
+        "Ivo",
+        "Jules"
+      ],
+      "average_trust": 0.665,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a1|a2",
+      "agent_ids": [
+        "a1",
+        "a2"
+      ],
+      "agents": [
+        "Ari",
+        "Bo"
+      ],
+      "average_trust": 0.671,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a2|a6",
+      "agent_ids": [
+        "a2",
+        "a6"
+      ],
+      "agents": [
+        "Bo",
+        "Faye"
+      ],
+      "average_trust": 0.672,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a4|a5",
+      "agent_ids": [
+        "a4",
+        "a5"
+      ],
+      "agents": [
+        "Dina",
+        "Eli"
+      ],
+      "average_trust": 0.685,
+      "crisis": false,
+      "started_day": null
+    },
+    {
+      "pair": "a8|a9",
+      "agent_ids": [
+        "a8",
+        "a9"
+      ],
+      "agents": [
+        "Hana",
+        "Ivo"
+      ],
+      "average_trust": 0.724,
+      "crisis": false,
+      "started_day": null
+    }
+  ],
   "historical_scar_validation": {
     "summary": "Historical scar validation passed with 41 active persistent scars.",
     "active_relationship_crises": 32,

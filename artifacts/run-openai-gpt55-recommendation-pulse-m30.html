@@ -118,10 +118,127 @@ th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: lef
 th { color: var(--muted); font-size: 12px; font-weight: 700; }
 .bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
 .bar span { display: block; height: 100%; background: var(--blue); }
+.world-dashboard {
+  background: var(--panel);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+  padding: 18px;
+  margin: 16px 0;
+}
+.world-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.world-day {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 12px;
+  min-width: 120px;
+  text-align: right;
+  color: var(--blue);
+  font-weight: 700;
+}
+.world-layout {
+  display: grid;
+  grid-template-columns: minmax(420px, 1.25fr) minmax(280px, 0.75fr);
+  gap: 16px;
+  align-items: start;
+}
+.settlement-map {
+  width: 100%;
+  min-height: 420px;
+  border: 1px solid var(--line);
+  background: #fbfdfc;
+  border-radius: 6px;
+  display: block;
+}
+.route-line { stroke: #91a29e; stroke-width: 5; stroke-linecap: round; opacity: 0.72; }
+.route-line.blocked { stroke: var(--bad); stroke-dasharray: 10 8; opacity: 0.88; }
+.location-node { fill: #ffffff; stroke: var(--blue); stroke-width: 3; }
+.location-node.low { stroke: var(--warn); }
+.location-node.blocked { stroke: var(--bad); }
+.location-label { font-size: 13px; font-weight: 700; fill: var(--ink); }
+.location-meta { font-size: 11px; fill: var(--muted); }
+.agent-dot { fill: var(--good); stroke: #ffffff; stroke-width: 2; }
+.agent-dot.low { fill: var(--warn); }
+.world-side {
+  display: grid;
+  gap: 12px;
+}
+.world-pulse {
+  border-left: 4px solid var(--blue);
+  padding-left: 12px;
+}
+.world-pulse ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+.world-pulse li { margin: 5px 0; }
+.next-moves {
+  border-left: 4px solid var(--good);
+  padding-left: 12px;
+}
+.next-move {
+  margin: 8px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+.next-move:last-child { border-bottom: 0; }
+.agent-life-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.agent-life {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  background: #fbfdfc;
+  min-height: 210px;
+}
+.agent-life h3 { margin-top: 0; }
+.agent-life .role { color: var(--muted); font-size: 12px; }
+.agent-life .plan { color: var(--blue); font-weight: 700; }
+.mini-bars {
+  display: grid;
+  grid-template-columns: 48px 1fr 42px;
+  gap: 6px;
+  align-items: center;
+  font-size: 12px;
+  color: var(--muted);
+  margin: 6px 0;
+}
+.relationship-panel {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+.relationship-list {
+  border-top: 1px solid var(--line);
+  padding-top: 8px;
+}
+.relationship-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.relationship-item:last-child { border-bottom: 0; }
 @media (max-width: 900px) {
   .topbar { display: block; }
   .status { text-align: left; margin-top: 10px; }
   .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .world-head { display: block; }
+  .world-day { text-align: left; margin-top: 10px; }
+  .world-layout { grid-template-columns: 1fr; }
   .split { grid-template-columns: 1fr; }
 }
 </style>
@@ -131,7 +248,7 @@ th { color: var(--muted); font-size: 12px; font-weight: 700; }
     <header class="topbar">
       <div>
         <h1>Virtual Society Run</h1>
-        <p>seed 7 · day 35 · generated 2026-05-26T09:44:43+00:00</p>
+        <p>seed 7 · day 35 · generated 2026-05-26T15:35:09+00:00</p>
       </div>
       <div class="status">Critical</div>
     </header>
@@ -145,6 +262,7 @@ th { color: var(--muted); font-size: 12px; font-weight: 700; }
       <div class="metric"><label>Avg Reputation</label><strong>0.583</strong></div>
       <div class="metric"><label>Org Cohesion</label><strong>0.639</strong></div>
     </section>
+    <section class="world-dashboard"><div class="world-head"><div><h2>World Dashboard</h2><p>Need 0.327, trust 0.506, cohesion 0.639; 40 active relationship scars and 5 blocked routes define the current world state.</p></div><div class="world-day">Day 35</div></div><div class="world-layout"><div><h3>Settlement Map</h3><svg class="settlement-map" viewBox="0 0 760 420" role="img" aria-label="Settlement map with locations, routes, blocked routes, and agent positions"><line class="route-line blocked" x1="380.0" y1="210.0" x2="380.0" y2="75.6"><title>commons|north_field blocked</title></line><line class="route-line blocked" x1="380.0" y1="210.0" x2="593.9" y2="126.2"><title>commons|woodlot blocked</title></line><line class="route-line" x1="380.0" y1="210.0" x2="646.7" y2="239.9"><title>commons|workshop</title></line><line class="route-line" x1="380.0" y1="210.0" x2="498.7" y2="331.1"><title>commons|shelter_house</title></line><line class="route-line blocked" x1="380.0" y1="210.0" x2="261.3" y2="331.1"><title>commons|east_orchard blocked</title></line><line class="route-line" x1="380.0" y1="210.0" x2="113.3" y2="239.9"><title>commons|river_pier</title></line><line class="route-line" x1="380.0" y1="210.0" x2="166.1" y2="126.2"><title>clinic|commons</title></line><line class="route-line blocked" x1="380.0" y1="75.6" x2="593.9" y2="126.2"><title>north_field|woodlot blocked</title></line><line class="route-line blocked" x1="380.0" y1="75.6" x2="261.3" y2="331.1"><title>east_orchard|north_field blocked</title></line><line class="route-line" x1="593.9" y1="126.2" x2="646.7" y2="239.9"><title>woodlot|workshop</title></line><line class="route-line" x1="593.9" y1="126.2" x2="113.3" y2="239.9"><title>river_pier|woodlot</title></line><line class="route-line" x1="646.7" y1="239.9" x2="498.7" y2="331.1"><title>shelter_house|workshop</title></line><line class="route-line" x1="498.7" y1="331.1" x2="166.1" y2="126.2"><title>clinic|shelter_house</title></line><line class="route-line" x1="261.3" y1="331.1" x2="113.3" y2="239.9"><title>east_orchard|river_pier</title></line><line class="route-line" x1="113.3" y1="239.9" x2="166.1" y2="126.2"><title>clinic|river_pier</title></line><g><circle class="location-node blocked" cx="380.0" cy="210.0" r="28"><title>Commons | food:3.721, materials:0.731, shelter:1.0 | Bo, Chen, Jules</title></circle><text class="location-label" x="380.0" y="255.0" text-anchor="middle">Commons</text><text class="location-meta" x="380.0" y="270.0" text-anchor="middle">cond 0.64 | 3 agents</text><circle class="agent-dot" cx="420.0" cy="210.0" r="5.5"><title>Bo | builder</title></circle><circle class="agent-dot" cx="360.0" cy="244.6" r="5.5"><title>Chen | mediator</title></circle><circle class="agent-dot low" cx="360.0" cy="175.4" r="5.5"><title>Jules | trader</title></circle></g><g><circle class="location-node blocked" cx="380.0" cy="75.6" r="22"><title>North Field | food:15.6, materials:0.5 | </title></circle><text class="location-label" x="380.0" y="114.6" text-anchor="middle">North Field</text><text class="location-meta" x="380.0" y="129.6" text-anchor="middle">cond 0.65 | 0 agents</text></g><g><circle class="location-node blocked" cx="593.9" cy="126.2" r="22"><title>Woodlot | empty | </title></circle><text class="location-label" x="593.9" y="165.2" text-anchor="middle">Woodlot</text><text class="location-meta" x="593.9" y="180.2" text-anchor="middle">cond 0.60 | 0 agents</text></g><g><circle class="location-node" cx="646.7" cy="239.9" r="26"><title>Workshop | shelter:0.5 | Dina, Kira</title></circle><text class="location-label" x="646.7" y="282.9" text-anchor="middle">Workshop</text><text class="location-meta" x="646.7" y="297.9" text-anchor="middle">cond 0.68 | 2 agents</text><circle class="agent-dot low" cx="684.7" cy="239.9" r="5.5"><title>Dina | forager</title></circle><circle class="agent-dot low" cx="608.7" cy="239.9" r="5.5"><title>Kira | organizer</title></circle></g><g><circle class="location-node" cx="498.7" cy="331.1" r="30"><title>Shelter House | food:0.847, materials:0.581, shelter:5.498 | Eli, Faye, Ivo, Lio</title></circle><text class="location-label" x="498.7" y="378.1" text-anchor="middle">Shelter House</text><text class="location-meta" x="498.7" y="393.1" text-anchor="middle">cond 0.66 | 4 agents</text><circle class="agent-dot low" cx="540.7" cy="331.1" r="5.5"><title>Eli | caretaker</title></circle><circle class="agent-dot low" cx="498.7" cy="373.1" r="5.5"><title>Faye | maker</title></circle><circle class="agent-dot" cx="456.7" cy="331.1" r="5.5"><title>Ivo | healer</title></circle><circle class="agent-dot low" cx="498.7" cy="289.1" r="5.5"><title>Lio | apprentice</title></circle></g><g><circle class="location-node blocked" cx="261.3" cy="331.1" r="28"><title>East Orchard | food:5.586, materials:0.8, shelter:0.36 | Ari, Gale, Hana</title></circle><text class="location-label" x="261.3" y="376.1" text-anchor="middle">East Orchard</text><text class="location-meta" x="261.3" y="391.1" text-anchor="middle">cond 0.64 | 3 agents</text><circle class="agent-dot low" cx="301.3" cy="331.1" r="5.5"><title>Ari | farmer</title></circle><circle class="agent-dot low" cx="241.3" cy="365.7" r="5.5"><title>Gale | scout</title></circle><circle class="agent-dot low" cx="241.3" cy="296.4" r="5.5"><title>Hana | cook</title></circle></g><g><circle class="location-node" cx="113.3" cy="239.9" r="22"><title>River Pier | shelter:0.2 | </title></circle><text class="location-label" x="113.3" y="278.9" text-anchor="middle">River Pier</text><text class="location-meta" x="113.3" y="293.9" text-anchor="middle">cond 0.66 | 0 agents</text></g><g><circle class="location-node" cx="166.1" cy="126.2" r="22"><title>Clinic | materials:0.182, shelter:1.2 | </title></circle><text class="location-label" x="166.1" y="165.2" text-anchor="middle">Clinic</text><text class="location-meta" x="166.1" y="180.2" text-anchor="middle">cond 0.66 | 0 agents</text></g><g transform="translate(18 18)"><line class="route-line" x1="0" y1="0" x2="34" y2="0" /><text class="location-meta" x="44" y="4">open route</text><line class="route-line blocked" x1="0" y1="22" x2="34" y2="22" /><text class="location-meta" x="44" y="26">blocked route</text></g></svg></div><div class="world-side"><div class="world-pulse"><h3>Social Story</h3><p>Chronicle produced 6 entries; 5 entries reference persistent scars. 2 entries include observer impact. Evaluation signals: shock_trace_active.</p><ul><li>Day 21: repair work shaped the society while need declined to 0.408, trust was 0.617, and cohesion was 0.607. Evidence: 1 reconciliations; 7 hunger crises; 29 active relationship scars.</li><li>Day 28: shared crisis shaped the society while need declined to 0.362, trust was 0.614, and cohesion was 0.623. Evidence: 7 hunger crises; 1 safety crises; 29 active relationship scars.</li><li>Day 35: relationship crisis shaped the society while need declined to 0.327, trust was 0.506, and cohesion was 0.639. Evidence: observer intent reconcile relationships reached Ari, Gale;...</li></ul></div><div class="next-moves"><h3>Observer Next Moves</h3><div class="next-move"><strong>Supply workshop materials for 5 blocked routes</strong><p>Common repair crews can resume route repair cycles across multiple blocked routes.</p><p>resource on day 36</p></div><div class="next-move"><strong>Prompt direct reconciliation: Ari and Chen</strong><p>Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.</p><p>mediation on day 36</p></div><div class="next-move"><strong>Prompt direct reconciliation: Ari and Eli</strong><p>Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.</p><p>mediation on day 36</p></div><div class="next-move"><strong>Prompt direct reconciliation: Ari and Ivo</strong><p>Both agents receive a targeted memory that can bias social plans toward reconciliation.</p><p>broadcast on day 36</p></div></div></div></div><div class="agent-life-grid" aria-label="Agent life cards"><article class="agent-life"><h3>Dina</h3><div class="role">forager @ workshop</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:25%"></span></div><span>0.250</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:51%"></span></div><span>0.512</span></div><p class="plan">repair: safety need is low; shared shelter is insufficient; reflection keeps recent shock salient</p><p>4 active crises; weakest tie Lio at 0.411.</p><p>day 35: Dina reflects that 27 crises or shocks require caution; 20 social or institutional moments shaped trust; 2 work memories show where effort...</p></article><article class="agent-life"><h3>Faye</h3><div class="role">maker @ shelter_house</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:29%"></span></div><span>0.294</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:52%"></span></div><span>0.528</span></div><p class="plan">socialize: belonging need is low; meaning need is low; profile prioritizes social coordination</p><p>5 active crises; weakest tie Jules at 0.437.</p><p>day 35: Faye reflects that 27 crises or shocks require caution; 21 social or institutional moments shaped trust; 1 work memories show where effort...</p></article><article class="agent-life"><h3>Hana</h3><div class="role">cook @ east_orchard</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:29%"></span></div><span>0.298</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:51%"></span></div><span>0.516</span></div><p class="plan">socialize: belonging need is low; meaning need is low; profile prioritizes care relationships; profile prioritizes social coord...</p><p>7 active crises; weakest tie Jules at 0.429.</p><p>day 35: Hana reflects that 27 crises or shocks require caution; 19 social or institutional moments shaped trust; 2 work memories show where effort...</p></article><article class="agent-life"><h3>Jules</h3><div class="role">trader @ commons</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:30%"></span></div><span>0.303</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:50%"></span></div><span>0.508</span></div><p class="plan">socialize: belonging need is low; meaning need is low; profile prioritizes social coordination</p><p>9 active crises; weakest tie Lio at 0.399.</p><p>day 35: Jules reflects that 27 crises or shocks require caution; 21 social or institutional moments shaped trust; 1 work memories show where effort...</p></article><article class="agent-life"><h3>Lio</h3><div class="role">apprentice @ shelter_house</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:30%"></span></div><span>0.305</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:48%"></span></div><span>0.488</span></div><p class="plan">rest: work plan blocked by exhaustion; resting first</p><p>8 active crises; weakest tie Jules at 0.399.</p><p>day 35: Lio reflects that 27 crises or shocks require caution; 20 social or institutional moments shaped trust; 1 work memories show where effort h...</p></article><article class="agent-life"><h3>Gale</h3><div class="role">scout @ east_orchard</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:30%"></span></div><span>0.307</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:51%"></span></div><span>0.511</span></div><p class="plan">socialize: belonging need is low; meaning need is low; profile prioritizes social coordination</p><p>7 active crises; weakest tie Ari at 0.430.</p><p>day 35: Gale reflects that 27 crises or shocks require caution; 20 social or institutional moments shaped trust; 1 work memories show where effort...</p></article><article class="agent-life"><h3>Ari</h3><div class="role">farmer @ east_orchard</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:33%"></span></div><span>0.333</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:47%"></span></div><span>0.476</span></div><p class="plan">socialize: belonging need is low; meaning need is low; profile prioritizes social coordination</p><p>7 active crises; weakest tie Gale at 0.430.</p><p>day 35: Ari reflects that 27 crises or shocks require caution; 23 social or institutional moments shaped trust; 1 work memories show where effort h...</p></article><article class="agent-life"><h3>Eli</h3><div class="role">caretaker @ shelter_house</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:33%"></span></div><span>0.333</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:47%"></span></div><span>0.479</span></div><p class="plan">rest: work plan blocked by exhaustion; resting first</p><p>7 active crises; weakest tie Lio at 0.421.</p><p>day 35: Eli reflects that 27 crises or shocks require caution; 17 social or institutional moments shaped trust; 2 work memories show where effort h...</p></article><article class="agent-life"><h3>Kira</h3><div class="role">organizer @ workshop</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:34%"></span></div><span>0.345</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:48%"></span></div><span>0.485</span></div><p class="plan">haul: repair blocked by workshop material shortage; hauling materials first</p><p>8 active crises; weakest tie Dina at 0.441.</p><p>day 35: Kira reflects that 27 crises or shocks require caution; 18 social or institutional moments shaped trust; 3 work memories show where effort...</p></article><article class="agent-life"><h3>Chen</h3><div class="role">mediator @ commons</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:36%"></span></div><span>0.369</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:53%"></span></div><span>0.536</span></div><p class="plan">haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the worksho...</p><p>7 active crises; weakest tie Eli at 0.440.</p><p>day 35: Chen reflects that 27 crises or shocks require caution; 19 social or institutional moments shaped trust; 3 work memories show where effort...</p></article><article class="agent-life"><h3>Bo</h3><div class="role">builder @ commons</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:37%"></span></div><span>0.376</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:51%"></span></div><span>0.512</span></div><p class="plan">haul: food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the worksho...</p><p>6 active crises; weakest tie Ivo at 0.427.</p><p>day 35: Bo reflects that 27 crises or shocks require caution; 19 social or institutional moments shaped trust; 2 work memories show where effort ha...</p></article><article class="agent-life"><h3>Ivo</h3><div class="role">healer @ shelter_house</div><div class="mini-bars"><span>need</span><div class="bar"><span style="width:41%"></span></div><span>0.414</span></div><div class="mini-bars"><span>trust</span><div class="bar"><span style="width:51%"></span></div><span>0.517</span></div><p class="plan">rest: work plan blocked by exhaustion; resting first</p><p>5 active crises; weakest tie Bo at 0.427.</p><p>day 35: Ivo reflects that 27 crises or shocks require caution; 19 social or institutional moments shaped trust; 2 work memories show where effort h...</p></article></div><h3>Relationship Web</h3><div class="relationship-panel"><div class="relationship-list"><h3>Active Relationship Scars</h3><div class="relationship-item"><span>Jules / Kira</span><strong>0.523</strong><span>since day 35</span></div><div class="relationship-item"><span>Jules / Lio</span><strong>0.399</strong><span>since day 4</span></div><div class="relationship-item"><span>Ari / Jules</span><strong>0.46</strong><span>since day 3</span></div><div class="relationship-item"><span>Ari / Kira</span><strong>0.501</strong><span>since day 33</span></div><div class="relationship-item"><span>Ari / Chen</span><strong>0.517</strong><span>since day 35</span></div><div class="relationship-item"><span>Ari / Eli</span><strong>0.489</strong><span>since day 32</span></div><div class="relationship-item"><span>Ari / Gale</span><strong>0.43</strong><span>since day 1</span></div><div class="relationship-item"><span>Ari / Hana</span><strong>0.511</strong><span>since day 8</span></div></div><div class="relationship-list"><h3>Weakest Current Ties</h3><div class="relationship-item"><span>Jules / Lio</span><strong>0.399</strong><span>crisis</span></div><div class="relationship-item"><span>Dina / Lio</span><strong>0.411</strong><span>crisis</span></div><div class="relationship-item"><span>Eli / Lio</span><strong>0.421</strong><span>crisis</span></div><div class="relationship-item"><span>Bo / Ivo</span><strong>0.427</strong><span>crisis</span></div><div class="relationship-item"><span>Hana / Jules</span><strong>0.429</strong><span>crisis</span></div><div class="relationship-item"><span>Ari / Gale</span><strong>0.43</strong><span>crisis</span></div><div class="relationship-item"><span>Faye / Jules</span><strong>0.437</strong><span>crisis</span></div><div class="relationship-item"><span>Chen / Eli</span><strong>0.44</strong><span>crisis</span></div></div></div></section>
     <section class="story-grid" aria-label="Social story cards"><article class="story-card"><h3>Outcome against rule baseline</h3><p>Compared with the deterministic rule baseline: average need +0.022, trust +0.041, institutional cohesion -0.001, crisis events -7.</p><p class="evidence">average_need +0.022; average_trust +0.041; shelter +0.13; crisis_events -7</p></article><article class="story-card"><h3>Generated loop carried memory forward</h3><p>1 generated chain(s) linked dialogue to generated reflection and later planning evidence.</p><p class="evidence">day 1 -&gt; 7: Chen/Kira to Kira; generated_chain_reflection_echo; shared coordination, factions, keep, practical, repair</p></article><article class="story-card"><h3>Generated cognition changed behavior</h3><p>7/8 generated cognition calls changed the executed plan; 1 proposals were blocked by policy.</p><p class="evidence">day 6: Kira socialize -&gt; socialize; day 6: Bo haul -&gt; socialize; day 9: Bo haul -&gt; socialize</p></article><article class="story-card"><h3>Counterfactual gate filtered risk</h3><p>Counterfactual probes accepted 7/8 proposals and rejected 1; average score delta -0.2446. Worst case was Kira on day 12: haul -&gt; socialize with delta -1.993.</p><p class="evidence">accepted 7/8; rejected 1/8</p></article></section>
     <section class="band"><h2>Run Diagnosis</h2><p>Readable causal checkpoints for generated behavior and remaining world pressure.</p><div class="diagnosis-grid"><article class="diagnosis-item"><h3>Generated loop</h3><p class="status">active</p><p>day 1 -&gt; 7: Chen/Kira to Kira; generated_chain_reflection_echo; shared coordination, factions, keep, practical, repair</p><p class="evidence">Use this chain as the observer-facing explanation of how dialogue became later planning pressure.</p></article><article class="diagnosis-item"><h3>Relationship pressure</h3><p class="status">no_direct_social_repair</p><p>40 active relationship crises remain; generated cognition executed 4 social plan(s). Jules and Kira remain in crisis with 0.037 trust still needed for reconciliation.</p><p class="evidence">Create or select social actions between the pair; passive trust drift cannot clear a crisis.</p></article><article class="diagnosis-item"><h3>Route pressure</h3><p class="status">material_starved</p><p>5 blocked route(s) remain; generated cognition executed 3 repair and 0 haul plan(s). Route commons|east_orchard remains blocked with 1.000 repair need and 0.000 workshop materials.</p><p class="evidence">Move or generate materials into the workshop before expecting route repair to progress.</p></article><article class="diagnosis-item"><h3>Rule baseline delta</h3><p class="status">partial</p><p>average_need +0.022; average_trust +0.041; shelter +0.13; crisis_events -7</p><p class="evidence">Treat improvement over baseline as evidence, but keep residual crises visible.</p></article><article class="diagnosis-item"><h3>Health floor</h3><p class="status">critical</p><p>Average need fell to 0.327.</p><p class="evidence">Resolve this world-layer bottleneck before treating richer language as real social progress.</p></article></div></section>
     <section class="band">

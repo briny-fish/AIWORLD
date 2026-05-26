@@ -43,7 +43,7 @@ from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
-from .openai_provider import OpenAICognition
+from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
 from .reason_richness_evaluation import ReasonRichnessFinding, assess_reason_richness
 from .api import SimulationService
 from .reflection import (
@@ -84,6 +84,8 @@ __all__ = [
     "LLMCallCache",
     "ObserverIntentFinding",
     "OpenAICognition",
+    "OpenAIDialogue",
+    "OpenAIReflection",
     "SocialFinding",
     "CodexCliCognition",
     "CodexCliDialogue",

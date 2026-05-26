@@ -1,0 +1,19 @@
+[
+  {
+    "day": 1,
+    "speaker_id": "a3",
+    "speaker_name": "Chen",
+    "partner_id": "a11",
+    "partner_name": "Kira",
+    "status": "primary",
+    "baseline_dialogue": "Chen and Kira discussed common_council with fragile trust. They grounded the talk in day 1: Kira repaired shelter. Chen connected it to prevent factions from hardening; Kira weighed it against coordination.",
+    "proposed_dialogue": "Chen and Kira spoke in the common council about shelter repair and who should be included in the next round of coordination. Chen framed it as a way to keep trust from fraying, and Kira tied it to public memory and making the response legible to everyone.",
+    "used_dialogue": "Chen and Kira spoke in the common council about shelter repair and who should be included in the next round of coordination. Chen framed it as a way to keep trust from fraying, and Kira tied it to public memory and making the response legible to everyone.",
+    "focus": "coordination",
+    "memory_refs": [
+      0,
+      1
+    ],
+    "error": null
+  }
+]

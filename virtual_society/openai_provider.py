@@ -7,18 +7,28 @@ import urllib.request
 from collections.abc import Callable
 from typing import Any
 
-from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
+from .dialogue_contract import (
+    DialogueProposal,
+    build_dialogue_context,
+    parse_dialogue_response,
+    render_dialogue_prompt,
+)
 from .llm_cache import LLMCallCache
+from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import Action, Agent, Plan, WorldState
+from .reflection_contract import (
+    ReflectionProposal,
+    build_reflection_context,
+    parse_reflection_response,
+    render_reflection_prompt,
+)
 
 
 class OpenAICognitionError(RuntimeError):
     pass
 
 
-class OpenAICognition:
-    """OpenAI-compatible Responses API provider for structured agent plans."""
-
+class _OpenAIResponsesProvider:
     def __init__(
         self,
         api_key: str | None = None,
@@ -46,25 +56,18 @@ class OpenAICognition:
         self.http_post = http_post
         self.prompt_version = PLAN_PROMPT_VERSION
 
-    def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
-        return self.propose_plan_with_baseline(agent, world, None)
-
-    def propose_plan_with_baseline(
+    def _generate_text(
         self,
-        agent: Agent,
-        world: WorldState,
-        baseline_plan: Plan | None,
-    ) -> Plan:
-        if not self.api_key and self.http_post is None:
-            raise OpenAICognitionError("OPENAI_API_KEY is required for OpenAICognition")
-
-        context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
-        prompt = render_plan_prompt(context)
-        cached = self._read_cache(prompt)
+        surface: str,
+        prompt: str,
+        schema_name: str,
+        schema: dict[str, Any],
+    ) -> str:
+        cached = self._read_cache(surface, prompt)
         if cached is not None:
-            return _parse_response_text(cached)
+            return cached
         if self.cache is not None and self.cache.mode == "read-only":
-            raise OpenAICognitionError("LLM cache miss for cognition in read-only mode")
+            raise OpenAICognitionError(f"LLM cache miss for {surface} in read-only mode")
 
         payload = {
             "model": self.model,
@@ -72,9 +75,9 @@ class OpenAICognition:
             "text": {
                 "format": {
                     "type": "json_schema",
-                    "name": "virtual_society_plan",
+                    "name": schema_name,
                     "strict": True,
-                    "schema": _plan_schema(),
+                    "schema": schema,
                 }
             },
         }
@@ -82,8 +85,8 @@ class OpenAICognition:
             payload["reasoning"] = {"effort": self.reasoning_effort}
         response = self.http_post(payload) if self.http_post is not None else self._post(payload)
         text = _extract_output_text(response)
-        self._write_cache(prompt, text)
-        return _parse_response_text(text)
+        self._write_cache(surface, prompt, text)
+        return text
 
     def _post(self, payload: dict[str, Any]) -> dict[str, Any]:
         body = json.dumps(payload).encode("utf-8")
@@ -105,25 +108,138 @@ class OpenAICognition:
         except urllib.error.URLError as exc:
             raise OpenAICognitionError(f"OpenAI API request failed: {exc}") from exc
 
-    def _read_cache(self, prompt: str) -> str | None:
+    def _read_cache(self, surface: str, prompt: str) -> str | None:
         if self.cache is None:
             return None
         return self.cache.read(
-            "cognition",
+            surface,
             self.model,
             self.reasoning_effort or "default",
             prompt,
         )
 
-    def _write_cache(self, prompt: str, text: str) -> None:
+    def _write_cache(self, surface: str, prompt: str, text: str) -> None:
         if self.cache is None:
             return
         self.cache.write(
-            "cognition",
+            surface,
             self.model,
             self.reasoning_effort or "default",
             prompt,
             text,
+        )
+
+
+class OpenAICognition(_OpenAIResponsesProvider):
+    """OpenAI-compatible Responses API provider for structured agent plans."""
+
+    def propose_plan(self, agent: Agent, world: WorldState) -> Plan:
+        return self.propose_plan_with_baseline(agent, world, None)
+
+    def propose_plan_with_baseline(
+        self,
+        agent: Agent,
+        world: WorldState,
+        baseline_plan: Plan | None,
+    ) -> Plan:
+        if not self.api_key and self.http_post is None:
+            raise OpenAICognitionError("OPENAI_API_KEY is required for OpenAICognition")
+
+        context = build_cognition_context(agent, world, baseline_plan=baseline_plan)
+        text = self._generate_text(
+            "cognition",
+            render_plan_prompt(context),
+            "virtual_society_plan",
+            _plan_schema(),
+        )
+        return parse_plan_response(_loads_json_text(text))
+
+
+class OpenAIReflection(_OpenAIResponsesProvider):
+    """OpenAI-compatible Responses API provider for structured reflections."""
+
+    def propose_reflection(
+        self,
+        agent: Agent,
+        world: WorldState,
+        current_day: int,
+        lookback_days: int,
+    ) -> ReflectionProposal:
+        return self.propose_reflection_with_baseline(
+            agent,
+            world,
+            current_day,
+            lookback_days,
+            ReflectionProposal(summary="", focus="routine"),
+        )
+
+    def propose_reflection_with_baseline(
+        self,
+        agent: Agent,
+        world: WorldState,
+        current_day: int,
+        lookback_days: int,
+        baseline: ReflectionProposal,
+    ) -> ReflectionProposal:
+        if not self.api_key and self.http_post is None:
+            raise OpenAICognitionError("OPENAI_API_KEY is required for OpenAIReflection")
+
+        context = build_reflection_context(
+            agent,
+            world,
+            current_day,
+            lookback_days,
+            baseline.summary,
+        )
+        text = self._generate_text(
+            "reflection",
+            render_reflection_prompt(context),
+            "virtual_society_reflection",
+            _reflection_schema(),
+        )
+        return parse_reflection_response(
+            _loads_json_text(text),
+            memory_count=len(context.recent_memories),
+        )
+
+
+class OpenAIDialogue(_OpenAIResponsesProvider):
+    """OpenAI-compatible Responses API provider for structured dialogue."""
+
+    def propose_dialogue(
+        self,
+        speaker: Agent,
+        partner: Agent,
+        world: WorldState,
+        baseline_dialogue: str,
+    ) -> DialogueProposal:
+        return self.propose_dialogue_with_baseline(
+            speaker,
+            partner,
+            world,
+            DialogueProposal(text=baseline_dialogue, focus="routine"),
+        )
+
+    def propose_dialogue_with_baseline(
+        self,
+        speaker: Agent,
+        partner: Agent,
+        world: WorldState,
+        baseline: DialogueProposal,
+    ) -> DialogueProposal:
+        if not self.api_key and self.http_post is None:
+            raise OpenAICognitionError("OPENAI_API_KEY is required for OpenAIDialogue")
+
+        context = build_dialogue_context(speaker, partner, world, baseline.text)
+        text = self._generate_text(
+            "dialogue",
+            render_dialogue_prompt(context),
+            "virtual_society_dialogue",
+            _dialogue_schema(),
+        )
+        return parse_dialogue_response(
+            _loads_json_text(text),
+            memory_count=len(context.recent_memories),
         )
 
 
@@ -160,6 +276,44 @@ def _plan_schema() -> dict[str, Any]:
     }
 
 
+def _reflection_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["summary", "focus", "memory_refs"],
+        "properties": {
+            "summary": {"type": "string", "minLength": 1, "maxLength": 700},
+            "focus": {
+                "type": "string",
+                "enum": ["shock", "social", "work", "scarcity", "identity", "routine"],
+            },
+            "memory_refs": {
+                "type": "array",
+                "items": {"type": "integer", "minimum": 0},
+            },
+        },
+    }
+
+
+def _dialogue_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["text", "focus", "memory_refs"],
+        "properties": {
+            "text": {"type": "string", "minLength": 1, "maxLength": 1000},
+            "focus": {
+                "type": "string",
+                "enum": ["shock", "care", "coordination", "scarcity", "relationship", "routine"],
+            },
+            "memory_refs": {
+                "type": "array",
+                "items": {"type": "integer", "minimum": 0},
+            },
+        },
+    }
+
+
 def _resolve_responses_url(base_url: str | None) -> str:
     url = (base_url or "https://api.openai.com/v1/responses").rstrip("/")
     if url.endswith("/responses"):
@@ -170,11 +324,17 @@ def _resolve_responses_url(base_url: str | None) -> str:
 
 
 def _parse_response_text(text: str) -> Plan:
+    return parse_plan_response(_loads_json_text(text))
+
+
+def _loads_json_text(text: str) -> dict[str, Any]:
     try:
-        data = json.loads(text)
+        parsed = json.loads(text)
     except json.JSONDecodeError as exc:
         raise OpenAICognitionError("OpenAI response did not contain valid JSON") from exc
-    return parse_plan_response(data)
+    if not isinstance(parsed, dict):
+        raise OpenAICognitionError("OpenAI response JSON must be an object")
+    return parsed
 
 
 def _extract_output_text(response: dict[str, Any]) -> str:

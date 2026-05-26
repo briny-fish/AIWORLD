@@ -6,6 +6,8 @@ from virtual_society.llm_cache import LLMCallCache
 from virtual_society.model import Action
 from virtual_society.openai_provider import (
     OpenAICognition,
+    OpenAIDialogue,
+    OpenAIReflection,
     _extract_output_text,
     _resolve_responses_url,
 )
@@ -33,6 +35,7 @@ class OpenAIProviderTests(unittest.TestCase):
         self.assertEqual(plan.action, Action.FARM)
         self.assertEqual(plan.priority, 0.8)
         self.assertEqual(payloads[0]["text"]["format"]["type"], "json_schema")
+        self.assertEqual(payloads[0]["text"]["format"]["name"], "virtual_society_plan")
 
     def test_openai_provider_includes_reasoning_effort(self) -> None:
         payloads = []
@@ -82,6 +85,58 @@ class OpenAIProviderTests(unittest.TestCase):
         self.assertEqual(first.action, Action.FARM)
         self.assertEqual(second.action, Action.FARM)
         self.assertEqual(calls, 1)
+
+    def test_openai_reflection_provider_parses_structured_response(self) -> None:
+        payloads = []
+
+        def fake_post(payload):
+            payloads.append(payload)
+            return {
+                "output_text": (
+                    '{"summary":"Ari links recent work pressure to a need for steadier coordination.",'
+                    '"focus":"work","memory_refs":[]}'
+                )
+            }
+
+        simulation = Simulation(seed=7)
+        provider = OpenAIReflection(api_key="test", http_post=fake_post)
+
+        reflection = provider.propose_reflection(
+            simulation.world.agents[0],
+            simulation.world,
+            current_day=simulation.world.day,
+            lookback_days=7,
+        )
+
+        self.assertEqual(reflection.focus, "work")
+        self.assertIn("coordination", reflection.summary)
+        self.assertEqual(payloads[0]["text"]["format"]["name"], "virtual_society_reflection")
+
+    def test_openai_dialogue_provider_parses_structured_response(self) -> None:
+        payloads = []
+
+        def fake_post(payload):
+            payloads.append(payload)
+            return {
+                "output_text": (
+                    '{"text":"Ari asks Bo to coordinate the next repair before hauling resumes.",'
+                    '"focus":"coordination","memory_refs":[]}'
+                )
+            }
+
+        simulation = Simulation(seed=7)
+        provider = OpenAIDialogue(api_key="test", http_post=fake_post)
+
+        dialogue = provider.propose_dialogue(
+            simulation.world.agents[0],
+            simulation.world.agents[1],
+            simulation.world,
+            baseline_dialogue="Ari and Bo discuss routine work.",
+        )
+
+        self.assertEqual(dialogue.focus, "coordination")
+        self.assertIn("repair", dialogue.text)
+        self.assertEqual(payloads[0]["text"]["format"]["name"], "virtual_society_dialogue")
 
     def test_resolve_responses_url_accepts_base_or_full_endpoint(self) -> None:
         self.assertEqual(

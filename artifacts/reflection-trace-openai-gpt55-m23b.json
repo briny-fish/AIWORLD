@@ -1,0 +1,19 @@
+[
+  {
+    "day": 7,
+    "agent_id": "a1",
+    "agent_name": "Ari",
+    "status": "primary",
+    "baseline_reflection": "Ari reflects that 3 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Ari strengthened ties with Jules.",
+    "proposed_reflection": "Ari is staying oriented by practical trust: using social contact to support food security and the shared granaries, while keeping in mind that energy has been low enough to require rest before work. The recent tie with Jules and the fragile-trust discussion in common_council fit Ari’s longer goal of keeping institutions dependable and teaching resilient farming. Past hauling and farming memories reinforce that Ari’s role is to turn steady labor into reliable food, but the immediate priority remains social coordination and careful judgment about scarcity.",
+    "used_reflection": "Ari is staying oriented by practical trust: using social contact to support food security and the shared granaries, while keeping in mind that energy has been low enough to require rest before work. The recent tie with Jules and the fragile-trust discussion in common_council fit Ari’s longer goal of keeping institutions dependable and teaching resilient farming. Past hauling and farming memories reinforce that Ari’s role is to turn steady labor into reliable food, but the immediate priority remains social coordination and careful judgment about scarcity.",
+    "focus": "social",
+    "memory_refs": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "error": null
+  }
+]

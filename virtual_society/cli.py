@@ -27,7 +27,7 @@ from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
 from .llm_cache import LLMCallCache
 from .model import WorldState
-from .openai_provider import OpenAICognition
+from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
 from .reason_richness_evaluation import assess_reason_richness
 from .reflection import HybridReflection, HybridReflectionConfig
 from .reflection_evaluation import assess_reflection_follow_through
@@ -121,7 +121,11 @@ def main() -> None:
         default=0.02,
         help="Reject a divergent LLM plan when its probe score trails the rule baseline by more than this.",
     )
-    parser.add_argument("--openai-model", default="gpt-5.2", help="OpenAI model for --cognition hybrid-openai.")
+    parser.add_argument(
+        "--openai-model",
+        default="gpt-5.2",
+        help="OpenAI-compatible model for hybrid-openai cognition/reflection/dialogue.",
+    )
     parser.add_argument("--openai-timeout", type=int, default=60, help="OpenAI provider timeout in seconds.")
     parser.add_argument(
         "--openai-base-url",
@@ -136,7 +140,7 @@ def main() -> None:
     parser.add_argument("--save-cognition-trace-json", help="Write hybrid cognition call trace JSON.")
     parser.add_argument(
         "--reflection",
-        choices=["rule", "hybrid-codex-cli"],
+        choices=["rule", "hybrid-codex-cli", "hybrid-openai"],
         default="rule",
         help="Reflection provider for periodic agent reflections.",
     )
@@ -166,7 +170,7 @@ def main() -> None:
     parser.add_argument("--save-reflection-trace-json", help="Write hybrid reflection call trace JSON.")
     parser.add_argument(
         "--dialogue",
-        choices=["rule", "hybrid-codex-cli"],
+        choices=["rule", "hybrid-codex-cli", "hybrid-openai"],
         default="rule",
         help="Dialogue provider for social actions.",
     )
@@ -1071,14 +1075,33 @@ def _build_reflection(args: argparse.Namespace):
     if args.reflection == "rule":
         return None
 
-    cache = _build_llm_cache(args, provider="codex-cli")
     if args.reflection == "hybrid-codex-cli":
+        cache = _build_llm_cache(args, provider="codex-cli")
         primary = CodexCliReflection(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
             model=args.codex_cli_model,
             reasoning_effort="low",
             timeout_seconds=args.codex_cli_timeout,
             workdir=".",
+            cache=cache,
+        )
+        return HybridReflection(
+            primary=primary,
+            config=HybridReflectionConfig(
+                agent_ids=_parse_optional_agent_ids(args.reflection_agent_ids),
+                min_day=args.reflection_min_day,
+                max_calls=args.reflection_max_calls,
+                max_failures=args.reflection_max_failures,
+            ),
+        )
+
+    if args.reflection == "hybrid-openai":
+        cache = _build_llm_cache(args, provider="openai-compatible")
+        primary = OpenAIReflection(
+            model=args.openai_model,
+            timeout_seconds=args.openai_timeout,
+            base_url=args.openai_base_url,
+            reasoning_effort=args.openai_reasoning_effort,
             cache=cache,
         )
         return HybridReflection(
@@ -1098,14 +1121,33 @@ def _build_dialogue(args: argparse.Namespace):
     if args.dialogue == "rule":
         return None
 
-    cache = _build_llm_cache(args, provider="codex-cli")
     if args.dialogue == "hybrid-codex-cli":
+        cache = _build_llm_cache(args, provider="codex-cli")
         primary = CodexCliDialogue(
             codex_path=args.codex_cli_path or resolve_codex_cli(),
             model=args.codex_cli_model,
             reasoning_effort="low",
             timeout_seconds=args.codex_cli_timeout,
             workdir=".",
+            cache=cache,
+        )
+        return HybridDialogue(
+            primary=primary,
+            config=HybridDialogueConfig(
+                agent_ids=_parse_optional_agent_ids(args.dialogue_agent_ids),
+                min_day=args.dialogue_min_day,
+                max_calls=args.dialogue_max_calls,
+                max_failures=args.dialogue_max_failures,
+            ),
+        )
+
+    if args.dialogue == "hybrid-openai":
+        cache = _build_llm_cache(args, provider="openai-compatible")
+        primary = OpenAIDialogue(
+            model=args.openai_model,
+            timeout_seconds=args.openai_timeout,
+            base_url=args.openai_base_url,
+            reasoning_effort=args.openai_reasoning_effort,
             cache=cache,
         )
         return HybridDialogue(

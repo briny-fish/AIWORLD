@@ -1,0 +1,37 @@
+[
+  {
+    "day": 1,
+    "speaker_id": "a3",
+    "speaker_name": "Chen",
+    "partner_id": "a11",
+    "partner_name": "Kira",
+    "status": "primary",
+    "baseline_dialogue": "Chen and Kira discussed common_council with fragile trust. They grounded the talk in day 1: Kira repaired shelter. Chen connected it to prevent factions from hardening; Kira weighed it against coordination.",
+    "proposed_dialogue": "Chen and Kira spoke at the common council about the shelter repair, treating it as a practical step to steady coordination and keep small frictions from hardening into factions.",
+    "used_dialogue": "Chen and Kira spoke at the common council about the shelter repair, treating it as a practical step to steady coordination and keep small frictions from hardening into factions.",
+    "focus": "coordination",
+    "memory_refs": [
+      0,
+      1
+    ],
+    "error": null
+  },
+  {
+    "day": 2,
+    "speaker_id": "a9",
+    "speaker_name": "Ivo",
+    "partner_id": "a3",
+    "partner_name": "Chen",
+    "status": "primary",
+    "baseline_dialogue": "Ivo and Chen discussed common_council with fragile trust. They grounded the talk in day 1: Route commons|east_orchard became blocked after repeated strain and poor condition. Ivo connected it to prevent silent suffering; Chen weighed it against trust.",
+    "proposed_dialogue": "Ivo calmly acknowledged the strain after his crisis with Chen, and Chen answered measuredly that rebuilding trust in the common_council should start with careful, direct coordination between them.",
+    "used_dialogue": "Ivo calmly acknowledged the strain after his crisis with Chen, and Chen answered measuredly that rebuilding trust in the common_council should start with careful, direct coordination between them.",
+    "focus": "relationship",
+    "memory_refs": [
+      2,
+      7,
+      10
+    ],
+    "error": null
+  }
+]

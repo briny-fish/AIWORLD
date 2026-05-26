@@ -1,0 +1,33 @@
+[
+  {
+    "day": 7,
+    "agent_id": "a2",
+    "agent_name": "Bo",
+    "status": "primary",
+    "baseline_reflection": "Bo reflects that 33 crises or shocks require caution; 9 social or institutional moments shaped trust; 4 work memories show where effort has been spent; most salient memory: Bo and Ivo entered a relationship crisis; trust fell to 0.521.",
+    "proposed_reflection": "Bo’s next priority is to repair trust while staying useful: the day 7 crisis with Ivo adds to recent strain, and the blocked route shows that maintenance still matters. Keep the builder standard—direct, competent, and fair—so social repair and practical upkeep support each other.",
+    "used_reflection": "Bo’s next priority is to repair trust while staying useful: the day 7 crisis with Ivo adds to recent strain, and the blocked route shows that maintenance still matters. Keep the builder standard—direct, competent, and fair—so social repair and practical upkeep support each other.",
+    "focus": "social",
+    "memory_refs": [
+      0,
+      3
+    ],
+    "error": null
+  },
+  {
+    "day": 7,
+    "agent_id": "a11",
+    "agent_name": "Kira",
+    "status": "primary",
+    "baseline_reflection": "Kira reflects that 33 crises or shocks require caution; 14 social or institutional moments shaped trust; 2 work memories show where effort has been spent; most salient memory: Bo and Ivo entered a relationship crisis; trust fell to 0.521.",
+    "proposed_reflection": "Kira should keep using her organizer role to protect legitimacy and public memory: recent relationship crises show trust is fraying, while the blocked route and failed rationing remind her that practical strain can feed resentment if ignored. Her near-term aim is to pair careful coordination with visible repair, so cooperation stays inclusive and problems are addressed before they harden into factions.",
+    "used_reflection": "Kira should keep using her organizer role to protect legitimacy and public memory: recent relationship crises show trust is fraying, while the blocked route and failed rationing remind her that practical strain can feed resentment if ignored. Her near-term aim is to pair careful coordination with visible repair, so cooperation stays inclusive and problems are addressed before they harden into factions.",
+    "focus": "social",
+    "memory_refs": [
+      0,
+      3,
+      7
+    ],
+    "error": null
+  }
+]

@@ -56,7 +56,7 @@ Artifacts:
 - `artifacts/run-openai-gpt55-m23-spread.html`
 - `artifacts/llm-cache-openai-gpt55-m23-multiseed/`
 
-Aggregate result:
+Initial 3-seed aggregate result:
 
 - runs: 3
 - generated cognition calls: 36
@@ -76,11 +76,44 @@ Per-seed result:
 | 8 | 12 | 3 | 75% | 9/12 | +0.082 | +0.085 | -10 |
 | 9 | 12 | 3 | 67% | 8/11 | +0.039 | +0.043 | -6 |
 
+An extended 5-seed batch then added seeds 10 and 11.
+
+Additional artifacts:
+
+- `artifacts/batch-openai-gpt55-m23-paced-5seed.html`
+- `artifacts/batch-openai-gpt55-m23-paced-5seed.json`
+- `artifacts/run-openai-gpt55-m23-seed10-paced.html`
+- `artifacts/run-openai-gpt55-m23-seed11-paced.html`
+
+Extended 5-seed aggregate result:
+
+- runs: 5
+- generated cognition calls: 60
+- provider failures: 0
+- executed-plan divergence: 76.7%
+- counterfactual acceptance: 85.2%
+- average delta vs rule baseline:
+  - average need: `+0.043`
+  - average trust: `+0.051`
+  - crisis events: `-7.8`
+
+Extended per-seed result:
+
+| Seed | Calls | Blocked | Divergence | Gate | Need | Trust | Crises |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 7 | 12 | 0 | 75% | 9/9 | +0.033 | +0.043 | -7 |
+| 8 | 12 | 3 | 75% | 9/12 | +0.082 | +0.085 | -10 |
+| 9 | 12 | 3 | 67% | 8/11 | +0.039 | +0.043 | -6 |
+| 10 | 12 | 1 | 75% | 9/10 | +0.017 | +0.021 | -4 |
+| 11 | 12 | 1 | 92% | 11/12 | +0.045 | +0.063 | -12 |
+
 ## Consequences
 
 This is the first evidence that API-driven generated cognition is not merely
 producing richer explanations; under daily pacing and counterfactual gating it
-also improves short-run social outcomes across several seeds.
+also improves short-run social outcomes across several seeds. The 5-seed result
+strengthens the claim: all five runs improved average need, average trust, and
+crisis events against the deterministic rule baseline.
 
 The conclusion is still bounded:
 
@@ -92,7 +125,6 @@ The conclusion is still bounded:
 
 The next M23 step is to increase breadth carefully:
 
-- run a 5-seed paced batch;
 - vary the scenario beyond observer reconciliation;
 - add API-backed reflection or dialogue only after cognition remains stable;
 - keep batch evidence visible in observer reports instead of burying it in raw

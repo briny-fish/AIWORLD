@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-26T05:33:02+00:00",
+  "generated_at": "2026-05-26T07:00:55+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -776,6 +776,993 @@
       }
     ]
   },
+  "scar_diagnosis": [
+    {
+      "kind": "relationship_crisis",
+      "subject": "Jules / Lio",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Jules and Lio remain in crisis with 0.070 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 4; open 27 days",
+        "average trust 0.490; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 4,
+        "days_open": 27,
+        "average_trust": 0.49,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.07,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ari / Jules",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ari and Jules remain in crisis with 0.079 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 3; open 28 days",
+        "average trust 0.481; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 3,
+        "days_open": 28,
+        "average_trust": 0.481,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.079,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ari / Eli",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ari and Eli remain in crisis with 0.060 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 4; open 27 days",
+        "average trust 0.500; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 4,
+        "days_open": 27,
+        "average_trust": 0.5,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.06,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ari / Gale",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ari and Gale remain in crisis with 0.112 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 1; open 30 days",
+        "average trust 0.448; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 1,
+        "days_open": 30,
+        "average_trust": 0.448,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.112,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ari / Hana",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ari and Hana remain in crisis with 0.028 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 8; open 23 days",
+        "average trust 0.532; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 8,
+        "days_open": 23,
+        "average_trust": 0.532,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.028,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ari / Ivo",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ari and Ivo remain in crisis with 0.004 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 11; open 20 days",
+        "average trust 0.556; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 11,
+        "days_open": 20,
+        "average_trust": 0.556,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.004,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Bo / Jules",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Bo and Jules remain in crisis with 0.046 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 6; open 25 days",
+        "average trust 0.514; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 3"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 6,
+        "days_open": 25,
+        "average_trust": 0.514,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.046,
+        "direct_contacts": 0,
+        "generated_social_plans": 3
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Bo / Lio",
+      "status": "ready_but_unreconciled",
+      "severity": "info",
+      "summary": "Bo and Lio are still marked in crisis even though trust is 0.567, at or above the repair threshold.",
+      "evidence": [
+        "started day 30; open 1 days",
+        "average trust 0.567; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Run one more direct social contact so Simulation Core can emit reconciliation.",
+      "metrics": {
+        "started_day": 30,
+        "days_open": 1,
+        "average_trust": 0.567,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.0,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Bo / Chen",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Bo and Chen remain in crisis with 0.011 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 10; open 21 days",
+        "average trust 0.549; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 1"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 10,
+        "days_open": 21,
+        "average_trust": 0.549,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.011,
+        "direct_contacts": 0,
+        "generated_social_plans": 1
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Bo / Dina",
+      "status": "ready_but_unreconciled",
+      "severity": "info",
+      "summary": "Bo and Dina are still marked in crisis even though trust is 0.573, at or above the repair threshold.",
+      "evidence": [
+        "started day 30; open 1 days",
+        "average trust 0.573; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Run one more direct social contact so Simulation Core can emit reconciliation.",
+      "metrics": {
+        "started_day": 30,
+        "days_open": 1,
+        "average_trust": 0.573,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.0,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Bo / Ivo",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Bo and Ivo remain in crisis with 0.043 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 7; open 24 days",
+        "average trust 0.517; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 2"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 7,
+        "days_open": 24,
+        "average_trust": 0.517,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.043,
+        "direct_contacts": 0,
+        "generated_social_plans": 2
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Jules",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Chen and Jules remain in crisis with 0.017 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 3; open 28 days",
+        "average trust 0.543; repair threshold 0.560",
+        "direct contacts after crisis 2",
+        "generated social plans after crisis 0",
+        "latest contact: day 6 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 3,
+        "days_open": 28,
+        "average_trust": 0.543,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.017,
+        "direct_contacts": 2,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Kira",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Chen and Kira remain in crisis with 0.028 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 2; open 29 days",
+        "average trust 0.532; repair threshold 0.560",
+        "direct contacts after crisis 2",
+        "generated social plans after crisis 1",
+        "latest contact: day 4 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 2,
+        "days_open": 29,
+        "average_trust": 0.532,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.028,
+        "direct_contacts": 2,
+        "generated_social_plans": 1
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Eli",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Chen and Eli remain in crisis with 0.030 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 2; open 29 days",
+        "average trust 0.530; repair threshold 0.560",
+        "direct contacts after crisis 2",
+        "generated social plans after crisis 0",
+        "latest contact: day 3 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 2,
+        "days_open": 29,
+        "average_trust": 0.53,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.03,
+        "direct_contacts": 2,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Faye",
+      "status": "ready_but_unreconciled",
+      "severity": "info",
+      "summary": "Chen and Faye are still marked in crisis even though trust is 0.564, at or above the repair threshold.",
+      "evidence": [
+        "started day 11; open 20 days",
+        "average trust 0.564; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Run one more direct social contact so Simulation Core can emit reconciliation.",
+      "metrics": {
+        "started_day": 11,
+        "days_open": 20,
+        "average_trust": 0.564,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.0,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Hana",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Chen and Hana remain in crisis with 0.013 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 10; open 21 days",
+        "average trust 0.547; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 10,
+        "days_open": 21,
+        "average_trust": 0.547,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.013,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Chen / Ivo",
+      "status": "ready_but_unreconciled",
+      "severity": "info",
+      "summary": "Chen and Ivo are still marked in crisis even though trust is 0.566, at or above the repair threshold.",
+      "evidence": [
+        "started day 11; open 20 days",
+        "average trust 0.566; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Run one more direct social contact so Simulation Core can emit reconciliation.",
+      "metrics": {
+        "started_day": 11,
+        "days_open": 20,
+        "average_trust": 0.566,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.0,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Dina / Kira",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Dina and Kira remain in crisis with 0.028 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 8; open 23 days",
+        "average trust 0.532; repair threshold 0.560",
+        "direct contacts after crisis 1",
+        "generated social plans after crisis 0",
+        "latest contact: day 15 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 8,
+        "days_open": 23,
+        "average_trust": 0.532,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.028,
+        "direct_contacts": 1,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Dina / Lio",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Dina and Lio remain in crisis with 0.058 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 5; open 26 days",
+        "average trust 0.502; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 5,
+        "days_open": 26,
+        "average_trust": 0.502,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.058,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Dina / Gale",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Dina and Gale remain in crisis with 0.008 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 10; open 21 days",
+        "average trust 0.552; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 10,
+        "days_open": 21,
+        "average_trust": 0.552,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.008,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Dina / Hana",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Dina and Hana remain in crisis with 0.024 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 9; open 22 days",
+        "average trust 0.536; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 9,
+        "days_open": 22,
+        "average_trust": 0.536,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.024,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Dina / Ivo",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Dina and Ivo remain in crisis with 0.031 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 8; open 23 days",
+        "average trust 0.529; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 8,
+        "days_open": 23,
+        "average_trust": 0.529,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.031,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Eli / Jules",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Eli and Jules remain in crisis with 0.016 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 9; open 22 days",
+        "average trust 0.544; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 9,
+        "days_open": 22,
+        "average_trust": 0.544,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.016,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Eli / Kira",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Eli and Kira remain in crisis with 0.023 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 2; open 29 days",
+        "average trust 0.537; repair threshold 0.560",
+        "direct contacts after crisis 3",
+        "generated social plans after crisis 1",
+        "latest contact: day 15 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 2,
+        "days_open": 29,
+        "average_trust": 0.537,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.023,
+        "direct_contacts": 3,
+        "generated_social_plans": 1
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Eli / Lio",
+      "status": "repair_below_threshold",
+      "severity": "warning",
+      "summary": "Eli and Lio remain in crisis with 0.048 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 6; open 25 days",
+        "average trust 0.512; repair threshold 0.560",
+        "direct contacts after crisis 1",
+        "generated social plans after crisis 0",
+        "latest contact: day 6 dialogue"
+      ],
+      "next_step": "Repeat direct social repair or lower pressure elsewhere until trust crosses the repair threshold.",
+      "metrics": {
+        "started_day": 6,
+        "days_open": 25,
+        "average_trust": 0.512,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.048,
+        "direct_contacts": 1,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Faye / Jules",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Faye and Jules remain in crisis with 0.033 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 7; open 24 days",
+        "average trust 0.527; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 7,
+        "days_open": 24,
+        "average_trust": 0.527,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.033,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Faye / Kira",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Faye and Kira remain in crisis with 0.070 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 4; open 27 days",
+        "average trust 0.490; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 1"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 4,
+        "days_open": 27,
+        "average_trust": 0.49,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.07,
+        "direct_contacts": 0,
+        "generated_social_plans": 1
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Faye / Lio",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Faye and Lio remain in crisis with 0.057 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 5; open 26 days",
+        "average trust 0.503; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 5,
+        "days_open": 26,
+        "average_trust": 0.503,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.057,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Gale / Kira",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Gale and Kira remain in crisis with 0.017 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 9; open 22 days",
+        "average trust 0.543; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 9,
+        "days_open": 22,
+        "average_trust": 0.543,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.017,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Hana / Jules",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Hana and Jules remain in crisis with 0.040 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 7; open 24 days",
+        "average trust 0.520; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 7,
+        "days_open": 24,
+        "average_trust": 0.52,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.04,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ivo / Kira",
+      "status": "ready_but_unreconciled",
+      "severity": "info",
+      "summary": "Ivo and Kira are still marked in crisis even though trust is 0.576, at or above the repair threshold.",
+      "evidence": [
+        "started day 30; open 1 days",
+        "average trust 0.576; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Run one more direct social contact so Simulation Core can emit reconciliation.",
+      "metrics": {
+        "started_day": 30,
+        "days_open": 1,
+        "average_trust": 0.576,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.0,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "relationship_crisis",
+      "subject": "Ivo / Lio",
+      "status": "no_direct_social_repair",
+      "severity": "warning",
+      "summary": "Ivo and Lio remain in crisis with 0.089 trust still needed for reconciliation.",
+      "evidence": [
+        "started day 3; open 28 days",
+        "average trust 0.471; repair threshold 0.560",
+        "direct contacts after crisis 0",
+        "generated social plans after crisis 0"
+      ],
+      "next_step": "Create or select social actions between the pair; passive trust drift cannot clear a crisis.",
+      "metrics": {
+        "started_day": 3,
+        "days_open": 28,
+        "average_trust": 0.471,
+        "repair_threshold": 0.56,
+        "trust_gap": 0.089,
+        "direct_contacts": 0,
+        "generated_social_plans": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "clinic|commons",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route clinic|commons remains blocked with 0.365 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 4",
+        "repair need 0.365; estimated cycles remaining 2",
+        "workshop materials 0.017; estimated materials needed 0.440",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.646",
+        "route repair events after block 2; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 4,
+        "repair_need": 0.365,
+        "estimated_cycles_remaining": 2,
+        "estimated_materials_needed": 0.44,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.646,
+        "route_repair_events_after_block": 2,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "clinic|river_pier",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route clinic|river_pier remains blocked with 0.365 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 4",
+        "repair need 0.365; estimated cycles remaining 2",
+        "workshop materials 0.017; estimated materials needed 0.440",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.629",
+        "route repair events after block 2; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 4,
+        "repair_need": 0.365,
+        "estimated_cycles_remaining": 2,
+        "estimated_materials_needed": 0.44,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.629,
+        "route_repair_events_after_block": 2,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "commons|north_field",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route commons|north_field remains blocked with 1.000 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 1",
+        "repair need 1.000; estimated cycles remaining 4",
+        "workshop materials 0.017; estimated materials needed 0.880",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.648",
+        "route repair events after block 4; reopen events 1"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 1,
+        "repair_need": 1.0,
+        "estimated_cycles_remaining": 4,
+        "estimated_materials_needed": 0.88,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.648,
+        "route_repair_events_after_block": 4,
+        "route_reopened_events_after_block": 1
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "commons|river_pier",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route commons|river_pier remains blocked with 0.050 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 2",
+        "repair need 0.050; estimated cycles remaining 1",
+        "workshop materials 0.017; estimated materials needed 0.220",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.629",
+        "route repair events after block 4; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 2,
+        "repair_need": 0.05,
+        "estimated_cycles_remaining": 1,
+        "estimated_materials_needed": 0.22,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.629,
+        "route_repair_events_after_block": 4,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "commons|woodlot",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route commons|woodlot remains blocked with 0.366 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 3",
+        "repair need 0.366; estimated cycles remaining 2",
+        "workshop materials 0.017; estimated materials needed 0.440",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.598",
+        "route repair events after block 3; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 3,
+        "repair_need": 0.366,
+        "estimated_cycles_remaining": 2,
+        "estimated_materials_needed": 0.44,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.598,
+        "route_repair_events_after_block": 3,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "commons|workshop",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route commons|workshop remains blocked with 0.050 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 2",
+        "repair need 0.050; estimated cycles remaining 1",
+        "workshop materials 0.017; estimated materials needed 0.220",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.659",
+        "route repair events after block 4; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 2,
+        "repair_need": 0.05,
+        "estimated_cycles_remaining": 1,
+        "estimated_materials_needed": 0.22,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.659,
+        "route_repair_events_after_block": 4,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "east_orchard|north_field",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route east_orchard|north_field remains blocked with 0.682 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 4",
+        "repair need 0.682; estimated cycles remaining 3",
+        "workshop materials 0.017; estimated materials needed 0.660",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.634",
+        "route repair events after block 2; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 4,
+        "repair_need": 0.682,
+        "estimated_cycles_remaining": 3,
+        "estimated_materials_needed": 0.66,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.634,
+        "route_repair_events_after_block": 2,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "east_orchard|river_pier",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route east_orchard|river_pier remains blocked with 0.682 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 4",
+        "repair need 0.682; estimated cycles remaining 3",
+        "workshop materials 0.017; estimated materials needed 0.660",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.629",
+        "route repair events after block 2; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 4,
+        "repair_need": 0.682,
+        "estimated_cycles_remaining": 3,
+        "estimated_materials_needed": 0.66,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.629,
+        "route_repair_events_after_block": 2,
+        "route_reopened_events_after_block": 0
+      }
+    },
+    {
+      "kind": "blocked_route",
+      "subject": "north_field|woodlot",
+      "status": "material_starved",
+      "severity": "critical",
+      "summary": "Route north_field|woodlot remains blocked with 0.366 repair need and 0.017 workshop materials.",
+      "evidence": [
+        "blocked since day 3",
+        "repair need 0.366; estimated cycles remaining 2",
+        "workshop materials 0.017; estimated materials needed 0.440",
+        "institutional cohesion 0.628; repair floor 0.450",
+        "minimum endpoint condition 0.598",
+        "route repair events after block 3; reopen events 0"
+      ],
+      "next_step": "Move or generate materials into the workshop before expecting route repair to progress.",
+      "metrics": {
+        "started_day": 3,
+        "repair_need": 0.366,
+        "estimated_cycles_remaining": 2,
+        "estimated_materials_needed": 0.44,
+        "workshop_materials": 0.017,
+        "institutional_cohesion": 0.628,
+        "minimum_endpoint_condition": 0.598,
+        "route_repair_events_after_block": 3,
+        "route_reopened_events_after_block": 0
+      }
+    }
+  ],
   "story_cards": [
     {
       "title": "Outcome against rule baseline",
@@ -16368,15 +17355,15 @@
     },
     {
       "area": "Relationship pressure",
-      "status": "open",
-      "evidence": "32 active relationship crises remain; generated cognition executed 4 social plan(s).",
-      "next": "Compare social repair against food and route duties before increasing provider call volume."
+      "status": "no_direct_social_repair",
+      "evidence": "32 active relationship crises remain; generated cognition executed 4 social plan(s). Jules and Lio remain in crisis with 0.070 trust still needed for reconciliation.",
+      "next": "Create or select social actions between the pair; passive trust drift cannot clear a crisis."
     },
     {
       "area": "Route pressure",
-      "status": "blocked",
-      "evidence": "9 blocked route(s) remain; generated cognition executed 3 repair and 0 haul plan(s).",
-      "next": "Diagnose whether repair lacks materials, agent budget, or better target selection."
+      "status": "material_starved",
+      "evidence": "9 blocked route(s) remain; generated cognition executed 3 repair and 0 haul plan(s). Route clinic|commons remains blocked with 0.365 repair need and 0.017 workshop materials.",
+      "next": "Move or generate materials into the workshop before expecting route repair to progress."
     },
     {
       "area": "Rule baseline delta",

@@ -558,7 +558,9 @@ class ReportTests(unittest.TestCase):
         record = build_run_record(7, metrics, simulation.world, assess_metrics(metrics))
         html = render_run_html(record)
 
+        self.assertIn("scar_diagnosis", record)
         self.assertIn("Historical Scars", html)
+        self.assertIn("Residual Scar Diagnosis", html)
         self.assertIn("Historical Scar Validation", html)
         self.assertIn("relationship_crises_persist", html)
         self.assertIn("blocked_routes_affect_paths", html)

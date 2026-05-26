@@ -45,6 +45,7 @@ from .model import AgentProfile, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
 from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
 from .reason_richness_evaluation import ReasonRichnessFinding, assess_reason_richness
+from .scar_diagnosis import ScarBottleneck, assess_scar_bottlenecks
 from .api import SimulationService
 from .reflection import (
     HybridReflection,
@@ -104,6 +105,7 @@ __all__ = [
     "HybridReflectionTrace",
     "ReflectionProposal",
     "ReasonRichnessFinding",
+    "ScarBottleneck",
     "RuleBasedCognition",
     "RuleBasedDialogue",
     "RuleBasedReflection",
@@ -118,6 +120,7 @@ __all__ = [
     "assess_counterfactual_trace",
     "assess_observer_intents",
     "assess_reason_richness",
+    "assess_scar_bottlenecks",
     "build_historical_scar_validation",
     "build_social_chronicle",
     "compare_plan_counterfactuals",

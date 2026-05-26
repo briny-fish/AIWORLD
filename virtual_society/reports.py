@@ -13,6 +13,7 @@ from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
 from .observer_intent_evaluation import assess_observer_intents
 from .reason_richness_evaluation import assess_reason_richness
+from .scar_diagnosis import assess_scar_bottlenecks
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import build_social_chronicle
 
@@ -65,6 +66,10 @@ def build_run_record(
         social_finding_dicts,
         observer_intents,
     )
+    scar_diagnosis = [
+        item.as_dict()
+        for item in assess_scar_bottlenecks(world, cognition_trace or [])
+    ]
     story_cards = _story_cards(
         social_chronicle=social_chronicle,
         cognition_trace=cognition_trace or [],
@@ -89,6 +94,7 @@ def build_run_record(
         },
         "historical_scars": _historical_scars(world),
         "historical_scar_validation": build_historical_scar_validation(world, history),
+        "scar_diagnosis": scar_diagnosis,
         "story_cards": story_cards,
         "social_chronicle": social_chronicle,
         "observer_intents": observer_intents,
@@ -303,6 +309,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     observer_intents = record.get("observer_intents", [])
     observer_memory = record.get("observer_memory", [])
     historical_scar_validation = record.get("historical_scar_validation")
+    scar_diagnosis = record.get("scar_diagnosis", [])
     historical_scars = record.get("historical_scars", {})
     events = record["events"][-80:]
     title = f"Virtual Society Run | seed {record['seed']} | day {record['days']}"
@@ -361,6 +368,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_social_chronicle_section(social_chronicle)}
     {_observer_intent_section(observer_intents)}
     {_observer_memory_section(observer_memory)}
+    {_scar_diagnosis_section(scar_diagnosis)}
     {_historical_scar_validation_section(historical_scar_validation)}
     {_historical_scars_section(historical_scars)}
     <section class="band">
@@ -986,6 +994,7 @@ def _run_diagnosis(record: dict[str, Any]) -> list[dict[str, str]]:
     items: list[dict[str, str]] = []
     chains = record.get("generated_chains") or []
     scars = record.get("historical_scars") or {}
+    scar_diagnosis = record.get("scar_diagnosis") or []
     trace = record.get("cognition_trace") or []
     comparison = record.get("baseline_comparison") or {}
     findings = record.get("findings") or []
@@ -1003,32 +1012,52 @@ def _run_diagnosis(record: dict[str, Any]) -> list[dict[str, str]]:
 
     relationship_count = len(scars.get("relationship_crises") or [])
     if relationship_count:
+        relationship_bottlenecks = [
+            item
+            for item in scar_diagnosis
+            if item.get("kind") == "relationship_crisis"
+        ]
+        top = relationship_bottlenecks[0] if relationship_bottlenecks else {}
         social_count = _used_action_count(trace, "socialize")
         items.append(
             {
                 "area": "Relationship pressure",
-                "status": "open",
+                "status": str(top.get("status") or "open"),
                 "evidence": (
                     f"{relationship_count} active relationship crises remain; "
-                    f"generated cognition executed {social_count} social plan(s)."
+                    f"generated cognition executed {social_count} social plan(s). "
+                    f"{top.get('summary', '')}"
                 ),
-                "next": "Compare social repair against food and route duties before increasing provider call volume.",
+                "next": str(
+                    top.get("next_step")
+                    or "Compare social repair against food and route duties before increasing provider call volume."
+                ),
             }
         )
 
     blocked_count = len(scars.get("blocked_routes") or [])
     if blocked_count:
+        route_bottlenecks = [
+            item
+            for item in scar_diagnosis
+            if item.get("kind") == "blocked_route"
+        ]
+        top = route_bottlenecks[0] if route_bottlenecks else {}
         repair_count = _used_action_count(trace, "repair")
         haul_count = _used_action_count(trace, "haul")
         items.append(
             {
                 "area": "Route pressure",
-                "status": "blocked",
+                "status": str(top.get("status") or "blocked"),
                 "evidence": (
                     f"{blocked_count} blocked route(s) remain; generated cognition "
-                    f"executed {repair_count} repair and {haul_count} haul plan(s)."
+                    f"executed {repair_count} repair and {haul_count} haul plan(s). "
+                    f"{top.get('summary', '')}"
                 ),
-                "next": "Diagnose whether repair lacks materials, agent budget, or better target selection.",
+                "next": str(
+                    top.get("next_step")
+                    or "Diagnose whether repair lacks materials, agent budget, or better target selection."
+                ),
             }
         )
 
@@ -1254,6 +1283,42 @@ def _observer_memory_table(items: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<table><thead><tr><th>Day</th><th>Observer</th><th>Kind</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _scar_diagnosis_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Residual Scar Diagnosis</h2>"
+        "<p>Why active relationship crises and blocked routes have not cleared yet.</p>"
+        f"{_scar_diagnosis_table(items)}"
+        "</section>"
+    )
+
+
+def _scar_diagnosis_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[:30]:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('kind', '')))}</td>"
+            f"<td>{escape(str(item.get('subject', '')))}</td>"
+            f"<td>{escape(str(item.get('severity', '')))}</td>"
+            f"<td>{escape(str(item.get('status', '')))}</td>"
+            f"<td>{escape(str(item.get('summary', '')))}</td>"
+            f"<td>{escape(_scar_evidence_text(item))}</td>"
+            f"<td>{escape(str(item.get('next_step', '')))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Kind</th><th>Subject</th><th>Severity</th><th>Status</th><th>Summary</th><th>Evidence</th><th>Next</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _scar_evidence_text(item: dict[str, Any]) -> str:
+    evidence = item.get("evidence") or []
+    if not evidence:
+        return ""
+    return " | ".join(str(value) for value in evidence[:4])
 
 
 def _historical_scar_validation_section(validation: dict[str, Any] | None) -> str:

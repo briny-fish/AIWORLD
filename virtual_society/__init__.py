@@ -41,7 +41,7 @@ from .hybrid_cognition import (
 from .interventions import Intervention
 from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
-from .model import AgentProfile, MemoryItem, Plan
+from .model import AgentProfile, LifeEpisode, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
 from .observer_recommendations import (
     ObserverRecommendation,
@@ -84,6 +84,7 @@ __all__ = [
     "ChoiceTensionFinding",
     "DialogueProposal",
     "HistoricalScarFinding",
+    "LifeEpisode",
     "MemoryItem",
     "LLMCacheRecord",
     "LLMCacheStats",

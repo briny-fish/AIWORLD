@@ -26,10 +26,13 @@ class ReflectionContractTests(unittest.TestCase):
 
         self.assertEqual(context.agent["id"], agent.id)
         self.assertIn("profile", context.agent)
+        self.assertIn("recent_life_journal", context.agent)
+        self.assertTrue(context.agent["recent_life_journal"])
         self.assertTrue(context.recent_memories)
         self.assertEqual(context.baseline_reflection, "Ari noticed the week stayed stable.")
         self.assertIn("memory_refs", prompt)
         self.assertIn("baseline_reflection", prompt)
+        self.assertIn("recent_life_journal", prompt)
 
     def test_parse_reflection_response_accepts_memory_grounded_summary(self) -> None:
         proposal = parse_reflection_response(

@@ -26,10 +26,13 @@ class DialogueContractTests(unittest.TestCase):
 
         self.assertEqual(context.speaker["id"], speaker.id)
         self.assertEqual(context.partner["id"], partner.id)
+        self.assertTrue(context.speaker["recent_life_journal"])
+        self.assertTrue(context.partner["recent_life_journal"])
         self.assertIn("average_trust", context.relationship)
         self.assertTrue(context.recent_memories)
         self.assertIn("baseline_dialogue", prompt)
         self.assertIn("memory_refs", prompt)
+        self.assertIn("life_journal", prompt)
 
     def test_parse_dialogue_response_accepts_grounded_output(self) -> None:
         proposal = parse_dialogue_response(

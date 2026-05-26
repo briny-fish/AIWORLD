@@ -127,6 +127,10 @@ def build_run_record(
                     for memory in agent.memory_stream[-5:]
                 ],
                 "recent_reflections": agent.reflections[-3:],
+                "recent_life_journal": [
+                    asdict(item)
+                    for item in agent.life_journal[-5:]
+                ],
             }
             for agent in world.agents
         ],
@@ -1371,6 +1375,7 @@ def _agent_life_cards(
             f"{_mini_bar('need', agent.get('average_need', 0))}"
             f"{_mini_bar('trust', agent.get('average_trust', 0))}"
             f"<p class=\"plan\">{escape(_short_text(plan_text, 130))}</p>"
+            f"<p><strong>Daily Life:</strong> {escape(_short_text(_latest_life_episode(agent), 170))}</p>"
             f"<p>{escape(_agent_social_state(agent, relationship_links))}</p>"
             f"<p>{escape(_short_text(_latest_reflection(agent), 150))}</p>"
             "</article>"
@@ -2799,6 +2804,16 @@ def _latest_reflection(agent: dict[str, Any]) -> str:
     if memories:
         return str(memories[-1].get("text", ""))
     return ""
+
+
+def _latest_life_episode(agent: dict[str, Any]) -> str:
+    entries = agent.get("recent_life_journal") or []
+    if not entries:
+        return "No daily life journal yet."
+    latest = entries[-1]
+    mood = str(latest.get("mood", "steady"))
+    summary = str(latest.get("summary", ""))
+    return f"{mood}: {summary}" if summary else mood
 
 
 def _short_text(value: Any, limit: int) -> str:

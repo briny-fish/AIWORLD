@@ -15,6 +15,7 @@ from .model import (
     Agent,
     AgentProfile,
     Event,
+    LifeEpisode,
     Location,
     MemoryItem,
     Metrics,
@@ -86,12 +87,18 @@ class Simulation:
         self._apply_shelter_upkeep()
         self._apply_location_recovery()
 
+        life_starts = {
+            agent.id: self._life_snapshot(agent)
+            for agent in self.world.agents
+        }
+        executed_plans: dict[str, Plan] = {}
         agents = list(self.world.agents)
         self.rng.shuffle(agents)
         actions_taken: list[tuple[Agent, Action]] = []
         for agent in agents:
             proposed_plan = self.cognition.propose_plan(agent, self.world)
             plan = self._validate_plan(agent, proposed_plan)
+            executed_plans[agent.id] = plan
             self._record_plan(agent, proposed_plan, plan)
             self._apply_action(agent, plan)
             actions_taken.append((agent, plan.action))
@@ -111,6 +118,7 @@ class Simulation:
         self._apply_relationship_crises()
         self._apply_organization_fractures()
         self._apply_reflections()
+        self._record_life_journal(life_starts, executed_plans)
         return self.metrics()
 
     def metrics(self) -> Metrics:
@@ -1994,6 +2002,155 @@ class Simulation:
                 remember_actor=True,
             )
 
+    def _life_snapshot(self, agent: Agent) -> dict[str, float | str]:
+        return {
+            "location_id": agent.location_id,
+            "average_need": agent.needs.average(),
+            "average_trust": self._agent_average_trust(agent),
+            "active_crises": float(self._active_relationship_crisis_count(agent)),
+        }
+
+    def _record_life_journal(
+        self,
+        life_starts: dict[str, dict[str, float | str]],
+        executed_plans: dict[str, Plan],
+    ) -> None:
+        for agent in self.world.agents:
+            plan = executed_plans.get(agent.id) or agent.active_plan
+            start = life_starts.get(agent.id, self._life_snapshot(agent))
+            need_before = float(start.get("average_need", agent.needs.average()))
+            trust_before = float(start.get("average_trust", self._agent_average_trust(agent)))
+            need_after = agent.needs.average()
+            trust_after = self._agent_average_trust(agent)
+            pressures = self._life_pressures(agent)
+            mood = self._life_mood(agent, plan, need_before, need_after, trust_before, trust_after)
+            summary = self._compose_life_summary(
+                agent=agent,
+                plan=plan,
+                start_location_id=str(start.get("location_id", agent.location_id)),
+                need_before=need_before,
+                need_after=need_after,
+                trust_before=trust_before,
+                trust_after=trust_after,
+                pressures=pressures,
+            )
+            episode = LifeEpisode(
+                day=self.world.day,
+                action=plan.action.value if plan is not None else "none",
+                location_id=agent.location_id,
+                target_id=plan.target_id if plan is not None else None,
+                summary=summary,
+                mood=mood,
+                need_before=round(need_before, 3),
+                need_after=round(need_after, 3),
+                trust_before=round(trust_before, 3),
+                trust_after=round(trust_after, 3),
+                pressures=pressures[:5],
+            )
+            agent.life_journal.append(episode)
+            del agent.life_journal[:-self.world.rules.life_journal_limit]
+
+    def _compose_life_summary(
+        self,
+        agent: Agent,
+        plan: Plan | None,
+        start_location_id: str,
+        need_before: float,
+        need_after: float,
+        trust_before: float,
+        trust_after: float,
+        pressures: list[str],
+    ) -> str:
+        action = plan.action.value if plan is not None else "none"
+        target = ""
+        if plan is not None and plan.target_id is not None:
+            target_agent = self._find_agent(plan.target_id)
+            target_name = target_agent.name if target_agent is not None else plan.target_id
+            target = f" with {target_name}"
+        need_delta = need_after - need_before
+        trust_delta = trust_after - trust_before
+        pressure_text = "; ".join(pressures[:3]) if pressures else "routine stability"
+        return (
+            f"{agent.name} spent day {self.world.day} at {self._location_name(agent.location_id)} "
+            f"after starting at {self._location_name(start_location_id)}, chose {action}{target}, "
+            f"need {_delta_phrase(need_delta)} to {need_after:.3f}, trust "
+            f"{_delta_phrase(trust_delta)} to {trust_after:.3f}; pressure: {pressure_text}."
+        )
+
+    def _life_mood(
+        self,
+        agent: Agent,
+        plan: Plan | None,
+        need_before: float,
+        need_after: float,
+        trust_before: float,
+        trust_after: float,
+    ) -> str:
+        if need_after < 0.30 or agent.needs.food < 0.25 or agent.needs.safety < 0.25:
+            return "strained"
+        if trust_after < trust_before - 0.025:
+            return "wary"
+        if need_after > need_before + 0.045:
+            return "restored"
+        if plan is not None and plan.action == Action.SOCIALIZE and trust_after >= trust_before:
+            return "connected"
+        if plan is not None and plan.action == Action.REST:
+            return "recovering"
+        if plan is not None and plan.action in {Action.FARM, Action.GATHER, Action.HAUL, Action.REPAIR}:
+            return "occupied"
+        return "steady"
+
+    def _life_pressures(self, agent: Agent) -> list[str]:
+        pressures = []
+        if agent.needs.food < 0.35:
+            pressures.append("food need critical")
+        if agent.needs.energy < 0.35:
+            pressures.append("energy low")
+        if agent.needs.safety < 0.38:
+            pressures.append("safety pressure")
+        if agent.needs.belonging < 0.42:
+            pressures.append("belonging pressure")
+        if agent.needs.meaning < 0.40:
+            pressures.append("meaning pressure")
+
+        active_crises = self._active_relationship_crisis_count(agent)
+        if active_crises:
+            pressures.append(f"{active_crises} relationship crisis links")
+
+        nearby_blocked_routes = [
+            route
+            for route in self.world.blocked_routes
+            if agent.location_id in route.split("|")
+        ]
+        if nearby_blocked_routes:
+            pressures.append(f"{len(nearby_blocked_routes)} nearby blocked routes")
+
+        if self.world.resources["food"] < self.world.population * self.world.rules.food_per_agent:
+            pressures.append("shared food scarcity")
+
+        low_orgs = [
+            organization.name
+            for organization in self.world.organizations
+            if organization.id in agent.organization_ids
+            and organization.cohesion < self.world.rules.organization_fracture_threshold + 0.12
+        ]
+        if low_orgs:
+            pressures.append(f"organization strain in {low_orgs[0]}")
+
+        return pressures or ["routine stability"]
+
+    def _agent_average_trust(self, agent: Agent) -> float:
+        if not agent.relationships:
+            return 0.0
+        return sum(agent.relationships.values()) / len(agent.relationships)
+
+    def _active_relationship_crisis_count(self, agent: Agent) -> int:
+        return sum(
+            1
+            for other_id in agent.relationships
+            if _relationship_key(agent.id, other_id) in self.world.relationship_crises
+        )
+
     def _compose_social_dialogue(self, agent: Agent, partner: Agent) -> str:
         shared_orgs = sorted(set(agent.organization_ids) & set(partner.organization_ids))
         shared_goal = (
@@ -2484,6 +2641,14 @@ def _string_list(value: object) -> list[str]:
     if isinstance(value, Iterable):
         return [str(item) for item in value]
     return [str(value)]
+
+
+def _delta_phrase(delta: float) -> str:
+    if delta > 0.015:
+        return "rose"
+    if delta < -0.015:
+        return "fell"
+    return "held"
 
 
 def _float_dict(value: object) -> dict[str, float]:

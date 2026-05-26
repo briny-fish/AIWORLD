@@ -8,7 +8,7 @@ from .generative_memory import memory_dicts, retrieve_memories
 from .model import Action, Agent, Plan, WorldState
 
 
-PLAN_PROMPT_VERSION = "cognition-plan-v3-social-pressure"
+PLAN_PROMPT_VERSION = "cognition-plan-v4-daily-life"
 
 COMPACT_RULE_KEYS = {
     "exhaustion_work_threshold",
@@ -90,6 +90,7 @@ def build_cognition_context(
             "active_plan": asdict(agent.active_plan) if agent.active_plan is not None else None,
             "recent_plan_history": agent.plan_history[-memory_limit:],
             "recent_reflections": agent.reflections[-memory_limit:],
+            "recent_life_journal": _life_journal_dicts(agent, memory_limit, compact),
         },
         world={
             "day": world.day,
@@ -149,8 +150,10 @@ def render_plan_prompt(context: CognitionContext) -> str:
         "material, shelter, or shock pressure, weigh personal recovery against "
         "shared production and repair needs. Active relationship crises, "
         "organization fractures, and remembered observer intents are real "
-        "decision evidence; when choosing socialize, use a concrete target_id "
-        "from active_relationship_crises or weakest_relationships.\n"
+        "decision evidence. The recent_life_journal is the agent's lived "
+        "continuity across days; use it to distinguish repeated pressure from "
+        "one-off noise. When choosing socialize, use a concrete target_id from "
+        "active_relationship_crises or weakest_relationships.\n"
         "The simulation core will validate the plan before execution.\n\n"
         f"Context:\n{payload}"
     )
@@ -257,6 +260,23 @@ def _compact_retrieved_memories(
             }
         )
     return compacted
+
+
+def _life_journal_dicts(agent: Agent, memory_limit: int, compact: bool) -> list[dict[str, Any]]:
+    entries = agent.life_journal[-min(memory_limit, 6):]
+    if compact:
+        return [
+            {
+                "day": item.day,
+                "action": item.action,
+                "location_id": item.location_id,
+                "summary": item.summary,
+                "mood": item.mood,
+                "pressures": list(item.pressures),
+            }
+            for item in entries
+        ]
+    return [asdict(item) for item in entries]
 
 
 def _memory_query(agent: Agent, world: WorldState) -> str:

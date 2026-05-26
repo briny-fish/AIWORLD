@@ -251,6 +251,20 @@ class SimulationTests(unittest.TestCase):
                 )
             )
 
+    def test_agents_record_daily_life_journal(self) -> None:
+        simulation = Simulation(seed=7)
+        metrics = simulation.run(3)
+
+        self.assertEqual(metrics[-1].day, 3)
+        for agent in simulation.world.agents:
+            self.assertEqual(len(agent.life_journal), 3)
+            latest = agent.life_journal[-1]
+            self.assertEqual(latest.day, 3)
+            self.assertTrue(latest.summary)
+            self.assertTrue(latest.pressures)
+            self.assertGreaterEqual(latest.need_after, 0.0)
+            self.assertLessEqual(latest.need_after, 1.0)
+
     def test_experiment_returns_report_for_each_seed(self) -> None:
         reports = run_experiment(seeds=[1, 2, 3], days=30)
 

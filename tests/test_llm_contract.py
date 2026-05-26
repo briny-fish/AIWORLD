@@ -29,6 +29,8 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("location_id", context.agent)
         self.assertIn("retrieved_memories", context.as_dict())
         self.assertIn("decision_pressure", context.as_dict())
+        self.assertIn("recent_life_journal", context.agent)
+        self.assertTrue(context.agent["recent_life_journal"])
         self.assertIn("food_gap", context.decision_pressure)
         self.assertIn("active_relationship_crises", context.decision_pressure)
         self.assertIn("organization_pressures", context.decision_pressure)
@@ -50,6 +52,7 @@ class LLMContractTests(unittest.TestCase):
         self.assertIn("baseline_plan", prompt)
         self.assertIn("shared production and repair needs", prompt)
         self.assertIn("active_relationship_crises", prompt)
+        self.assertIn("recent_life_journal", prompt)
 
     def test_context_can_include_rule_baseline_plan(self) -> None:
         simulation = Simulation(seed=7)

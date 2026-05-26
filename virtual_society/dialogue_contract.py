@@ -99,8 +99,9 @@ def render_dialogue_prompt(context: DialogueContext) -> str:
         "support the dialogue. When recent_memories is non-empty, use at least "
         "one ref. focus must be one of allowed_focus.\n"
         "baseline_dialogue is the deterministic fallback. You may improve its "
-        "specificity using profiles, trust, organizations, memories, and recent "
-        "events while keeping the dialogue grounded.\n\n"
+        "specificity using profiles, trust, organizations, memories, recent "
+        "life_journal entries, and recent events while keeping the dialogue "
+        "grounded.\n\n"
         f"Context:\n{payload}"
     )
 
@@ -155,6 +156,7 @@ def _agent_context(agent: Agent) -> dict[str, Any]:
         "profile": asdict(agent.profile),
         "organization_ids": list(agent.organization_ids),
         "recent_reflections": agent.reflections[-3:],
+        "recent_life_journal": [asdict(item) for item in agent.life_journal[-3:]],
     }
 
 

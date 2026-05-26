@@ -53,6 +53,7 @@ def build_reflection_context(
             "organization_ids": list(agent.organization_ids),
             "recent_plan_history": agent.plan_history[-6:],
             "recent_reflections": agent.reflections[-3:],
+            "recent_life_journal": [asdict(item) for item in agent.life_journal[-6:]],
         },
         world={
             "day": world.day,
@@ -87,7 +88,8 @@ def render_reflection_prompt(context: ReflectionContext) -> str:
         "Return exactly one JSON object with keys: summary, focus, memory_refs.\n"
         "The summary is a concise reflection for this agent after the recent "
         "lookback window. Use identity, values, goals, plans, and recent "
-        "memories, but do not invent world facts.\n"
+        "memories. Use recent_life_journal to notice repeated lived pressure "
+        "or recovery across days, but do not invent world facts.\n"
         "memory_refs must be a JSON array of refs from recent_memories that "
         "support the summary. When recent_memories is non-empty, use at least "
         "one ref. focus must be one of allowed_focus.\n"

@@ -43,6 +43,21 @@ class MemoryItem:
 
 
 @dataclass
+class LifeEpisode:
+    day: int
+    action: str
+    location_id: str
+    summary: str
+    mood: str
+    need_before: float
+    need_after: float
+    trust_before: float
+    trust_after: float
+    pressures: list[str] = field(default_factory=list)
+    target_id: str | None = None
+
+
+@dataclass
 class Needs:
     food: float = 0.75
     energy: float = 0.75
@@ -74,6 +89,7 @@ class Agent:
     memories: list[str] = field(default_factory=list)
     memory_stream: list[MemoryItem] = field(default_factory=list)
     reflections: list[str] = field(default_factory=list)
+    life_journal: list[LifeEpisode] = field(default_factory=list)
     active_plan: Plan | None = None
     plan_history: list[str] = field(default_factory=list)
     reputation: float = 0.50
@@ -187,6 +203,7 @@ class WorldRules:
     observer_mediation_trust_gain: float = 0.08
     memory_limit: int = 30
     memory_stream_limit: int = 120
+    life_journal_limit: int = 90
     reflection_limit: int = 20
     reflection_interval_days: int = 7
     plan_history_limit: int = 20

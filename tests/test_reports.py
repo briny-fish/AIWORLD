@@ -353,7 +353,10 @@ class ReportTests(unittest.TestCase):
         html = render_run_html(record)
 
         self.assertEqual(record["generated_chains"], chains)
+        self.assertIn("run_diagnosis", record)
         self.assertIn("Generated Chain Evaluation", html)
+        self.assertIn("Generated loop carried memory forward", html)
+        self.assertIn("Run Diagnosis", html)
         self.assertIn("generated_chain_action_diverged", html)
         self.assertIn("Ari carried generated dialogue", html)
 

@@ -68,6 +68,7 @@ def build_run_record(
     story_cards = _story_cards(
         social_chronicle=social_chronicle,
         cognition_trace=cognition_trace or [],
+        generated_chains=generated_chains or [],
         counterfactual_evaluation=counterfactual_evaluation,
         reason_richness=reason_richness_items,
         baseline_comparison=baseline_comparison,
@@ -188,6 +189,7 @@ def build_run_record(
         record["llm_cache"] = llm_cache
     if baseline_comparison is not None:
         record["baseline_comparison"] = baseline_comparison
+    record["run_diagnosis"] = _run_diagnosis(record)
     return record
 
 
@@ -289,6 +291,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     dialogue_trace = record.get("dialogue_trace", [])
     dialogue_follow_through = record.get("dialogue_follow_through", [])
     generated_chains = record.get("generated_chains", [])
+    run_diagnosis = record.get("run_diagnosis", [])
     llm_cache = record.get("llm_cache", [])
     baseline_comparison = record.get("baseline_comparison")
     story_cards = record.get("story_cards", [])
@@ -332,6 +335,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       {_metric_tile("Org Cohesion", final.get("institutional_cohesion"))}
     </section>
     {_story_cards_section(story_cards)}
+    {_run_diagnosis_section(run_diagnosis)}
     <section class="band">
       <h2>Health</h2>
       <div class="finding-row">{''.join(_finding_badge(item) for item in findings)}</div>
@@ -534,6 +538,20 @@ p { margin: 8px 0 0; color: var(--muted); }
 .story-card h3 { font-size: 15px; margin: 0 0 8px; }
 .story-card p { margin: 6px 0; }
 .story-card .evidence { color: var(--blue); font-size: 12px; font-weight: 700; }
+.diagnosis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 10px;
+}
+.diagnosis-item {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  background: #fbfdfc;
+}
+.diagnosis-item h3 { font-size: 14px; margin: 0 0 8px; }
+.diagnosis-item p { margin: 6px 0; }
+.diagnosis-item .status { min-width: 0; text-align: left; color: var(--muted); }
 .band {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -681,6 +699,7 @@ def _locations_table(locations: list[dict[str, Any]]) -> str:
 def _story_cards(
     social_chronicle: dict[str, Any],
     cognition_trace: list[dict[str, Any]],
+    generated_chains: list[dict[str, Any]],
     counterfactual_evaluation: dict[str, Any] | None,
     reason_richness: list[dict[str, Any]],
     baseline_comparison: dict[str, Any] | None,
@@ -692,6 +711,19 @@ def _story_cards(
                 "title": "Outcome against rule baseline",
                 "summary": str(baseline_comparison.get("summary", "")),
                 "evidence": _baseline_story_evidence(baseline_comparison.get("deltas", {})),
+            }
+        )
+
+    if generated_chains:
+        strongest = generated_chains[-1]
+        cards.append(
+            {
+                "title": "Generated loop carried memory forward",
+                "summary": (
+                    f"{len(generated_chains)} generated chain(s) linked dialogue "
+                    "to generated reflection and later planning evidence."
+                ),
+                "evidence": _generated_chain_story_evidence(strongest),
             }
         )
 
@@ -751,7 +783,7 @@ def _story_cards(
         )
         break
 
-    return cards[:3]
+    return cards[:4]
 
 
 def _run_batch_summary(record: dict[str, Any]) -> dict[str, Any]:
@@ -948,6 +980,129 @@ def _story_cards_section(cards: list[dict[str, str]]) -> str:
         + "".join(items)
         + "</section>"
     )
+
+
+def _run_diagnosis(record: dict[str, Any]) -> list[dict[str, str]]:
+    items: list[dict[str, str]] = []
+    chains = record.get("generated_chains") or []
+    scars = record.get("historical_scars") or {}
+    trace = record.get("cognition_trace") or []
+    comparison = record.get("baseline_comparison") or {}
+    findings = record.get("findings") or []
+
+    if chains:
+        strongest = chains[-1]
+        items.append(
+            {
+                "area": "Generated loop",
+                "status": "active",
+                "evidence": _generated_chain_story_evidence(strongest),
+                "next": "Use this chain as the observer-facing explanation of how dialogue became later planning pressure.",
+            }
+        )
+
+    relationship_count = len(scars.get("relationship_crises") or [])
+    if relationship_count:
+        social_count = _used_action_count(trace, "socialize")
+        items.append(
+            {
+                "area": "Relationship pressure",
+                "status": "open",
+                "evidence": (
+                    f"{relationship_count} active relationship crises remain; "
+                    f"generated cognition executed {social_count} social plan(s)."
+                ),
+                "next": "Compare social repair against food and route duties before increasing provider call volume.",
+            }
+        )
+
+    blocked_count = len(scars.get("blocked_routes") or [])
+    if blocked_count:
+        repair_count = _used_action_count(trace, "repair")
+        haul_count = _used_action_count(trace, "haul")
+        items.append(
+            {
+                "area": "Route pressure",
+                "status": "blocked",
+                "evidence": (
+                    f"{blocked_count} blocked route(s) remain; generated cognition "
+                    f"executed {repair_count} repair and {haul_count} haul plan(s)."
+                ),
+                "next": "Diagnose whether repair lacks materials, agent budget, or better target selection.",
+            }
+        )
+
+    deltas = comparison.get("deltas") or {}
+    if deltas:
+        items.append(
+            {
+                "area": "Rule baseline delta",
+                "status": "partial",
+                "evidence": _baseline_story_evidence(deltas),
+                "next": "Treat improvement over baseline as evidence, but keep residual crises visible.",
+            }
+        )
+
+    unresolved = [
+        item
+        for item in findings
+        if str(item.get("severity", "")).lower() in {"critical", "warning"}
+    ]
+    if unresolved:
+        finding = unresolved[0]
+        items.append(
+            {
+                "area": "Health floor",
+                "status": str(finding.get("severity", "warning")),
+                "evidence": str(finding.get("description") or finding.get("code") or ""),
+                "next": "Resolve this world-layer bottleneck before treating richer language as real social progress.",
+            }
+        )
+
+    return items[:5]
+
+
+def _run_diagnosis_section(items: list[dict[str, str]]) -> str:
+    if not items:
+        return ""
+    cards = []
+    for item in items:
+        cards.append(
+            "<article class=\"diagnosis-item\">"
+            f"<h3>{escape(item.get('area', 'Diagnosis'))}</h3>"
+            f"<p class=\"status\">{escape(item.get('status', 'observed'))}</p>"
+            f"<p>{escape(item.get('evidence', ''))}</p>"
+            f"<p class=\"evidence\">{escape(item.get('next', ''))}</p>"
+            "</article>"
+        )
+    return (
+        "<section class=\"band\">"
+        "<h2>Run Diagnosis</h2>"
+        "<p>Readable causal checkpoints for generated behavior and remaining world pressure.</p>"
+        f"<div class=\"diagnosis-grid\">{''.join(cards)}</div>"
+        "</section>"
+    )
+
+
+def _generated_chain_story_evidence(item: dict[str, Any]) -> str:
+    shared = ", ".join(item.get("shared_terms") or []) or "no shared terms"
+    return (
+        f"day {item.get('dialogue_day')} -> {item.get('reflection_day')}: "
+        f"{item.get('speaker_name', '')}/{item.get('partner_name', '')} to "
+        f"{item.get('reflection_agent_name', '')}; "
+        f"{item.get('signal', '')}; shared {shared}"
+    )
+
+
+def _used_action_count(trace: list[dict[str, Any]], action: str) -> int:
+    count = 0
+    for item in trace:
+        if item.get("status") != "primary":
+            continue
+        used = item.get("used_plan") or {}
+        if used.get("action") == action:
+            count += 1
+    return count
 
 
 def _baseline_story_evidence(deltas: dict[str, Any]) -> str:

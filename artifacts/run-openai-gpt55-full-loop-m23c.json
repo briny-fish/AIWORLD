@@ -1,6 +1,6 @@
 {
   "kind": "run",
-  "generated_at": "2026-05-26T05:20:17+00:00",
+  "generated_at": "2026-05-26T05:33:02+00:00",
   "seed": 7,
   "days": 30,
   "metrics": [
@@ -781,6 +781,11 @@
       "title": "Outcome against rule baseline",
       "summary": "Compared with the deterministic rule baseline: average need +0.034, trust +0.043, institutional cohesion 0, crisis events -7.",
       "evidence": "average_need +0.034; average_trust +0.043; shelter 0; crisis_events -7"
+    },
+    {
+      "title": "Generated loop carried memory forward",
+      "summary": "1 generated chain(s) linked dialogue to generated reflection and later planning evidence.",
+      "evidence": "day 1 -> 7: Chen/Kira to Kira; generated_chain_plan_context_diverged; shared coordination, factions, keep, practical, repair"
     },
     {
       "title": "Generated cognition changed behavior",
@@ -16258,38 +16263,38 @@
     {
       "surface": "cognition",
       "provider": "openai-compatible",
-      "mode": "read-write",
+      "mode": "read-only",
       "root_dir": "artifacts\\llm-cache-openai-gpt55-full-loop-m23c",
       "model": "gpt-5.5",
       "reasoning_effort": "low",
       "reads": 8,
-      "hits": 0,
-      "misses": 8,
-      "writes": 8
+      "hits": 8,
+      "misses": 0,
+      "writes": 0
     },
     {
       "surface": "reflection",
       "provider": "openai-compatible",
-      "mode": "read-write",
+      "mode": "read-only",
       "root_dir": "artifacts\\llm-cache-openai-gpt55-full-loop-m23c",
       "model": "gpt-5.5",
       "reasoning_effort": "low",
       "reads": 2,
-      "hits": 0,
-      "misses": 2,
-      "writes": 2
+      "hits": 2,
+      "misses": 0,
+      "writes": 0
     },
     {
       "surface": "dialogue",
       "provider": "openai-compatible",
-      "mode": "read-write",
+      "mode": "read-only",
       "root_dir": "artifacts\\llm-cache-openai-gpt55-full-loop-m23c",
       "model": "gpt-5.5",
       "reasoning_effort": "low",
       "reads": 2,
-      "hits": 0,
-      "misses": 2,
-      "writes": 2
+      "hits": 2,
+      "misses": 0,
+      "writes": 0
     }
   ],
   "baseline_comparison": {
@@ -16353,5 +16358,37 @@
         "value": 0.5
       }
     ]
-  }
+  },
+  "run_diagnosis": [
+    {
+      "area": "Generated loop",
+      "status": "active",
+      "evidence": "day 1 -> 7: Chen/Kira to Kira; generated_chain_plan_context_diverged; shared coordination, factions, keep, practical, repair",
+      "next": "Use this chain as the observer-facing explanation of how dialogue became later planning pressure."
+    },
+    {
+      "area": "Relationship pressure",
+      "status": "open",
+      "evidence": "32 active relationship crises remain; generated cognition executed 4 social plan(s).",
+      "next": "Compare social repair against food and route duties before increasing provider call volume."
+    },
+    {
+      "area": "Route pressure",
+      "status": "blocked",
+      "evidence": "9 blocked route(s) remain; generated cognition executed 3 repair and 0 haul plan(s).",
+      "next": "Diagnose whether repair lacks materials, agent budget, or better target selection."
+    },
+    {
+      "area": "Rule baseline delta",
+      "status": "partial",
+      "evidence": "average_need +0.034; average_trust +0.043; shelter 0; crisis_events -7",
+      "next": "Treat improvement over baseline as evidence, but keep residual crises visible."
+    },
+    {
+      "area": "Health floor",
+      "status": "critical",
+      "evidence": "Average need fell to 0.326.",
+      "next": "Resolve this world-layer bottleneck before treating richer language as real social progress."
+    }
+  ]
 }

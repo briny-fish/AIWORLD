@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Virtual Society LLM Batch | 3 runs</title>
+  <style>
+:root {
+  color-scheme: light;
+  --bg: #f5f7f7;
+  --ink: #17201f;
+  --muted: #596867;
+  --line: #c8d1cf;
+  --panel: #ffffff;
+  --good: #23785f;
+  --warn: #a15c12;
+  --bad: #a33232;
+  --blue: #2f5d86;
+  --violet: #6e5792;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Segoe UI", "Noto Sans", Arial, sans-serif;
+  line-height: 1.45;
+}
+.shell { max-width: 1280px; margin: 0 auto; padding: 24px; }
+.topbar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 2px solid var(--ink);
+  padding-bottom: 16px;
+}
+h1, h2, h3 { margin: 0; letter-spacing: 0; }
+h1 { font-size: clamp(28px, 4vw, 48px); line-height: 1; }
+h2 { font-size: 18px; margin-bottom: 12px; }
+h3 { font-size: 14px; margin: 12px 0 8px; }
+p { margin: 8px 0 0; color: var(--muted); }
+.status {
+  min-width: 220px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--blue);
+}
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 18px 0;
+}
+.metric {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 12px;
+  min-height: 80px;
+}
+.metric label { display: block; color: var(--muted); font-size: 12px; }
+.metric strong { display: block; font-size: 28px; margin-top: 6px; }
+.story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.story-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 14px;
+  min-height: 150px;
+}
+.story-card h3 { font-size: 15px; margin: 0 0 8px; }
+.story-card p { margin: 6px 0; }
+.story-card .evidence { color: var(--blue); font-size: 12px; font-weight: 700; }
+.band {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 16px;
+  margin: 12px 0;
+}
+.split { display: grid; grid-template-columns: minmax(420px, 1fr) minmax(420px, 1fr); gap: 12px; }
+.finding-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: #f8fbfa;
+  font-size: 13px;
+}
+.critical { color: var(--bad); border-color: var(--bad); }
+.warning { color: var(--warn); border-color: var(--warn); }
+.info { color: var(--good); border-color: var(--good); }
+.chart { width: 100%; height: 260px; display: block; border: 1px solid var(--line); background: #fbfdfc; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.swatch { display: inline-block; width: 16px; height: 3px; vertical-align: middle; margin-right: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+th, td { border-bottom: 1px solid var(--line); padding: 8px 6px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+th { color: var(--muted); font-size: 12px; font-weight: 700; }
+.bar { height: 8px; background: #e3ded3; border-radius: 999px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--blue); }
+@media (max-width: 900px) {
+  .topbar { display: block; }
+  .status { text-align: left; margin-top: 10px; }
+  .metric-strip { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+  .split { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Virtual Society LLM Batch</h1>
+        <p>3 runs 路 generated 2026-05-26T01:02:11+00:00</p>
+      </div>
+      <div class="status">Positive</div>
+    </header>
+    <section class="metric-strip">
+      <div class="metric"><label>Runs</label><strong>3</strong></div>
+      <div class="metric"><label>LLM Calls</label><strong>36</strong></div>
+      <div class="metric"><label>Behavior Divergence</label><strong>72%</strong></div>
+      <div class="metric"><label>Gate Acceptance</label><strong>81%</strong></div>
+      <div class="metric"><label>Avg Need Delta</label><strong>+0.051</strong></div>
+      <div class="metric"><label>Avg Trust Delta</label><strong>+0.057</strong></div>
+      <div class="metric"><label>Avg Crisis Delta</label><strong>-7.667</strong></div>
+      <div class="metric"><label>Richer Reasons</label><strong>16</strong></div>
+    </section>
+    <section class="story-grid" aria-label="Social story cards"><article class="story-card"><h3>Batch outcome signal</h3><p>3 runs improved need, 3 improved trust, and 3 reduced crisis events.</p><p class="evidence">average need +0.051; trust +0.057; crisis -7.667</p></article><article class="story-card"><h3>Generated cognition stayed active</h3><p>36 calls with 72% executed-plan divergence.</p><p class="evidence">16 generated reasons scored richer.</p></article><article class="story-card"><h3>Counterfactual gate remained useful</h3><p>Gate acceptance was 81%; 6 proposals were rejected.</p><p class="evidence">positive run categories observed: 3</p></article></section>
+    <section class="band">
+      <h2>Run Comparison</h2>
+      <table><thead><tr><th>Seed</th><th>Days</th><th>Calls</th><th>Accepted</th><th>Blocked</th><th>Diverged</th><th>Gate</th><th>Richer Reasons</th><th>Need Delta</th><th>Trust Delta</th><th>Crisis Delta</th><th>Final Need</th><th>Story Cards</th></tr></thead><tbody><tr><td>7</td><td>30</td><td>12</td><td>12</td><td>0</td><td>75%</td><td>9/9</td><td>4</td><td>+0.033</td><td>+0.043</td><td>-7</td><td>0.325</td><td>Outcome against rule baseline; Generated cognition changed behavior; Counterfactual gate filtered risk</td></tr><tr><td>8</td><td>30</td><td>12</td><td>9</td><td>3</td><td>75%</td><td>9/12</td><td>8</td><td>+0.082</td><td>+0.085</td><td>-10</td><td>0.395</td><td>Outcome against rule baseline; Generated cognition changed behavior; Counterfactual gate filtered risk</td></tr><tr><td>9</td><td>30</td><td>12</td><td>9</td><td>3</td><td>67%</td><td>8/11</td><td>4</td><td>+0.039</td><td>+0.043</td><td>-6</td><td>0.347</td><td>Outcome against rule baseline; Generated cognition changed behavior; Counterfactual gate filtered risk</td></tr></tbody></table>
+    </section>
+    <section class="band">
+      <h2>Average Baseline Deltas</h2>
+      <table><thead><tr><th>Metric</th><th>Run minus rule baseline</th></tr></thead><tbody><tr><td>population</td><td>0</td></tr><tr><td>food</td><td>0</td></tr><tr><td>materials</td><td>0</td></tr><tr><td>shelter</td><td>0</td></tr><tr><td>average_need</td><td>+0.051</td></tr><tr><td>average_trust</td><td>+0.057</td></tr><tr><td>average_reputation</td><td>-0</td></tr><tr><td>institutional_cohesion</td><td>0</td></tr><tr><td>crisis_events</td><td>-7.667</td></tr></tbody></table>
+    </section>
+  </main>
+</body>
+</html>

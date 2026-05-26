@@ -12,8 +12,10 @@ from virtual_society.reports import (
     build_experiment_record,
     build_rule_baseline_comparison,
     build_run_record,
+    build_run_batch_record,
     render_experiment_html,
     render_run_html,
+    render_run_batch_html,
     write_json,
 )
 
@@ -761,6 +763,61 @@ class ReportTests(unittest.TestCase):
 
         self.assertIn("Virtual Society Experiment", html)
         self.assertIn("Seed Comparison", html)
+
+    def test_run_batch_html_summarizes_multiple_run_records(self) -> None:
+        first = {
+            "seed": 7,
+            "days": 30,
+            "final_metrics": {"average_need": 0.4},
+            "baseline_comparison": {
+                "summary": "first",
+                "deltas": {"average_need": 0.02, "average_trust": 0.04, "crisis_events": -2},
+            },
+            "cognition_trace": [
+                {
+                    "status": "primary",
+                    "diverged_from_baseline": True,
+                },
+                {
+                    "status": "baseline_after_counterfactual",
+                    "diverged_from_baseline": False,
+                },
+            ],
+            "counterfactual_evaluation": {"total": 2, "accepted": 1, "rejected": 1},
+            "reason_richness": [
+                {"signal": "reason_richness_richer_with_behavior_delta"}
+            ],
+            "story_cards": [{"title": "Generated cognition changed behavior"}],
+        }
+        second = {
+            "seed": 8,
+            "days": 30,
+            "final_metrics": {"average_need": 0.3},
+            "baseline_comparison": {
+                "summary": "second",
+                "deltas": {"average_need": -0.01, "average_trust": 0.02, "crisis_events": 1},
+            },
+            "cognition_trace": [
+                {
+                    "status": "primary",
+                    "diverged_from_baseline": False,
+                }
+            ],
+            "counterfactual_evaluation": {"total": 1, "accepted": 1, "rejected": 0},
+            "reason_richness": [],
+            "story_cards": [{"title": "Counterfactual gate filtered risk"}],
+        }
+
+        record = build_run_batch_record([first, second])
+        html = render_run_batch_html(record)
+
+        self.assertEqual(record["run_count"], 2)
+        self.assertEqual(record["aggregate"]["total_cognition_calls"], 3)
+        self.assertEqual(record["runs"][0]["behavior_diverged"], 1)
+        self.assertEqual(record["aggregate"]["average_deltas"]["average_need"], 0.005)
+        self.assertIn("Virtual Society LLM Batch", html)
+        self.assertIn("Run Comparison", html)
+        self.assertIn("Batch outcome signal", html)
 
     def test_write_json_creates_parent_directory(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

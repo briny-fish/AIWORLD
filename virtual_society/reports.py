@@ -240,6 +240,19 @@ def build_experiment_record(reports: list[RunReport]) -> dict[str, Any]:
     }
 
 
+def build_run_batch_record(run_records: list[dict[str, Any]]) -> dict[str, Any]:
+    runs = [_run_batch_summary(record) for record in run_records]
+    aggregate = _run_batch_aggregate(runs)
+    return {
+        "kind": "run_batch",
+        "generated_at": _now(),
+        "run_count": len(runs),
+        "aggregate": aggregate,
+        "runs": runs,
+        "story_cards": _run_batch_story_cards(aggregate),
+    }
+
+
 def write_json(path: str | Path, data: dict[str, Any] | list[Any]) -> None:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -395,6 +408,52 @@ def render_experiment_html(record: dict[str, Any]) -> str:
     <section class="band">
       <h2>Seed Comparison</h2>
       {_experiment_table(reports)}
+    </section>
+  </main>
+</body>
+</html>"""
+
+
+def render_run_batch_html(record: dict[str, Any]) -> str:
+    aggregate = record.get("aggregate", {})
+    runs = record.get("runs", [])
+    cards = record.get("story_cards", [])
+    title = f"Virtual Society LLM Batch | {record.get('run_count', 0)} runs"
+    return f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{escape(title)}</title>
+  {_style()}
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <h1>Virtual Society LLM Batch</h1>
+        <p>{record.get('run_count', 0)} runs 路 generated {escape(record.get('generated_at', ''))}</p>
+      </div>
+      <div class="status">{escape(_run_batch_status(aggregate))}</div>
+    </header>
+    <section class="metric-strip">
+      {_metric_tile("Runs", record.get("run_count", 0))}
+      {_metric_tile("LLM Calls", aggregate.get("total_cognition_calls", 0))}
+      {_metric_tile("Behavior Divergence", _percent(aggregate.get("behavior_divergence_rate", 0)))}
+      {_metric_tile("Gate Acceptance", _percent(aggregate.get("counterfactual_acceptance_rate", 0)))}
+      {_metric_tile("Avg Need Delta", _signed_number(aggregate.get("average_deltas", {}).get("average_need", 0)))}
+      {_metric_tile("Avg Trust Delta", _signed_number(aggregate.get("average_deltas", {}).get("average_trust", 0)))}
+      {_metric_tile("Avg Crisis Delta", _signed_number(aggregate.get("average_deltas", {}).get("crisis_events", 0)))}
+      {_metric_tile("Richer Reasons", aggregate.get("richer_reason_count", 0))}
+    </section>
+    {_story_cards_section(cards)}
+    <section class="band">
+      <h2>Run Comparison</h2>
+      {_run_batch_table(runs)}
+    </section>
+    <section class="band">
+      <h2>Average Baseline Deltas</h2>
+      {_baseline_delta_table(aggregate.get("average_deltas", {}))}
     </section>
   </main>
 </body>
@@ -693,6 +752,183 @@ def _story_cards(
         break
 
     return cards[:3]
+
+
+def _run_batch_summary(record: dict[str, Any]) -> dict[str, Any]:
+    trace = record.get("cognition_trace") or []
+    counterfactual = record.get("counterfactual_evaluation") or {}
+    reason_richness = record.get("reason_richness") or []
+    baseline = record.get("baseline_comparison") or {}
+    final = record.get("final_metrics") or {}
+    calls = len(trace)
+    accepted = sum(1 for item in trace if item.get("status") == "primary")
+    policy_fallbacks = sum(
+        1
+        for item in trace
+        if item.get("status") in {"baseline_after_policy", "baseline_after_counterfactual"}
+    )
+    failures = sum(1 for item in trace if item.get("status") == "fallback_after_error")
+    diverged = sum(1 for item in trace if item.get("diverged_from_baseline"))
+    richer = sum(
+        1
+        for item in reason_richness
+        if str(item.get("signal", "")).startswith("reason_richness_richer")
+    )
+    return {
+        "seed": record.get("seed"),
+        "days": record.get("days"),
+        "final_metrics": final,
+        "baseline_deltas": baseline.get("deltas", {}),
+        "baseline_summary": baseline.get("summary", ""),
+        "cognition_calls": calls,
+        "accepted": accepted,
+        "policy_fallbacks": policy_fallbacks,
+        "failures": failures,
+        "behavior_diverged": diverged,
+        "behavior_divergence_rate": round(diverged / calls, 3) if calls else 0.0,
+        "counterfactual_total": int(counterfactual.get("total", 0) or 0),
+        "counterfactual_accepted": int(counterfactual.get("accepted", 0) or 0),
+        "counterfactual_rejected": int(counterfactual.get("rejected", 0) or 0),
+        "richer_reason_count": richer,
+        "story_titles": [
+            str(card.get("title", ""))
+            for card in record.get("story_cards", [])
+            if card.get("title")
+        ],
+    }
+
+
+def _run_batch_aggregate(runs: list[dict[str, Any]]) -> dict[str, Any]:
+    total_calls = sum(int(run.get("cognition_calls", 0)) for run in runs)
+    total_diverged = sum(int(run.get("behavior_diverged", 0)) for run in runs)
+    total_counterfactual = sum(int(run.get("counterfactual_total", 0)) for run in runs)
+    total_counterfactual_accepted = sum(
+        int(run.get("counterfactual_accepted", 0))
+        for run in runs
+    )
+    average_deltas = {
+        key: _average_delta(runs, key)
+        for key in COMPARISON_METRICS
+        if any(key in (run.get("baseline_deltas") or {}) for run in runs)
+    }
+    return {
+        "total_cognition_calls": total_calls,
+        "behavior_divergence_rate": round(total_diverged / total_calls, 3) if total_calls else 0.0,
+        "counterfactual_acceptance_rate": (
+            round(total_counterfactual_accepted / total_counterfactual, 3)
+            if total_counterfactual
+            else 0.0
+        ),
+        "counterfactual_rejected": sum(int(run.get("counterfactual_rejected", 0)) for run in runs),
+        "richer_reason_count": sum(int(run.get("richer_reason_count", 0)) for run in runs),
+        "runs_with_need_gain": _runs_with_positive_delta(runs, "average_need"),
+        "runs_with_trust_gain": _runs_with_positive_delta(runs, "average_trust"),
+        "runs_with_crisis_reduction": _runs_with_negative_delta(runs, "crisis_events"),
+        "average_deltas": average_deltas,
+    }
+
+
+def _run_batch_story_cards(aggregate: dict[str, Any]) -> list[dict[str, str]]:
+    run_count = max(
+        aggregate.get("runs_with_need_gain", 0),
+        aggregate.get("runs_with_trust_gain", 0),
+        aggregate.get("runs_with_crisis_reduction", 0),
+    )
+    return [
+        {
+            "title": "Batch outcome signal",
+            "summary": (
+                f"{aggregate.get('runs_with_need_gain', 0)} runs improved need, "
+                f"{aggregate.get('runs_with_trust_gain', 0)} improved trust, and "
+                f"{aggregate.get('runs_with_crisis_reduction', 0)} reduced crisis events."
+            ),
+            "evidence": (
+                f"average need {_signed_number(aggregate.get('average_deltas', {}).get('average_need', 0))}; "
+                f"trust {_signed_number(aggregate.get('average_deltas', {}).get('average_trust', 0))}; "
+                f"crisis {_signed_number(aggregate.get('average_deltas', {}).get('crisis_events', 0))}"
+            ),
+        },
+        {
+            "title": "Generated cognition stayed active",
+            "summary": (
+                f"{aggregate.get('total_cognition_calls', 0)} calls with "
+                f"{_percent(aggregate.get('behavior_divergence_rate', 0))} executed-plan divergence."
+            ),
+            "evidence": f"{aggregate.get('richer_reason_count', 0)} generated reasons scored richer.",
+        },
+        {
+            "title": "Counterfactual gate remained useful",
+            "summary": (
+                f"Gate acceptance was {_percent(aggregate.get('counterfactual_acceptance_rate', 0))}; "
+                f"{aggregate.get('counterfactual_rejected', 0)} proposals were rejected."
+            ),
+            "evidence": f"positive run categories observed: {run_count}",
+        },
+    ]
+
+
+def _run_batch_table(runs: list[dict[str, Any]]) -> str:
+    if not runs:
+        return "<p>No run records loaded.</p>"
+    rows = []
+    for run in runs:
+        deltas = run.get("baseline_deltas", {})
+        final = run.get("final_metrics", {})
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(run.get('seed', '')))}</td>"
+            f"<td>{escape(str(run.get('days', '')))}</td>"
+            f"<td>{escape(str(run.get('cognition_calls', 0)))}</td>"
+            f"<td>{escape(str(run.get('accepted', 0)))}</td>"
+            f"<td>{escape(str(run.get('policy_fallbacks', 0)))}</td>"
+            f"<td>{escape(_percent(run.get('behavior_divergence_rate', 0)))}</td>"
+            f"<td>{escape(str(run.get('counterfactual_accepted', 0)))}/"
+            f"{escape(str(run.get('counterfactual_total', 0)))}</td>"
+            f"<td>{escape(str(run.get('richer_reason_count', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('average_need', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('average_trust', 0)))}</td>"
+            f"<td>{escape(_signed_number(deltas.get('crisis_events', 0)))}</td>"
+            f"<td>{escape(str(final.get('average_need', '')))}</td>"
+            f"<td>{escape('; '.join(run.get('story_titles') or []))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Seed</th><th>Days</th><th>Calls</th><th>Accepted</th><th>Blocked</th><th>Diverged</th><th>Gate</th><th>Richer Reasons</th><th>Need Delta</th><th>Trust Delta</th><th>Crisis Delta</th><th>Final Need</th><th>Story Cards</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _average_delta(runs: list[dict[str, Any]], key: str) -> float:
+    values = [
+        float((run.get("baseline_deltas") or {}).get(key))
+        for run in runs
+        if key in (run.get("baseline_deltas") or {})
+    ]
+    if not values:
+        return 0.0
+    return round(sum(values) / len(values), 3)
+
+
+def _runs_with_positive_delta(runs: list[dict[str, Any]], key: str) -> int:
+    return sum(
+        1
+        for run in runs
+        if float((run.get("baseline_deltas") or {}).get(key, 0.0)) > 0
+    )
+
+
+def _runs_with_negative_delta(runs: list[dict[str, Any]], key: str) -> int:
+    return sum(
+        1
+        for run in runs
+        if float((run.get("baseline_deltas") or {}).get(key, 0.0)) < 0
+    )
+
+
+def _run_batch_status(aggregate: dict[str, Any]) -> str:
+    deltas = aggregate.get("average_deltas", {})
+    if deltas.get("average_need", 0) > 0 and deltas.get("average_trust", 0) > 0:
+        return "Positive"
+    if deltas.get("average_need", 0) < 0 and deltas.get("crisis_events", 0) > 0:
+        return "Risk"
+    return "Mixed"
 
 
 def _story_cards_section(cards: list[dict[str, str]]) -> str:
@@ -1737,6 +1973,10 @@ def _signed_number(value: Any) -> str:
     if number > 0:
         return f"+{number:g}"
     return f"{number:g}"
+
+
+def _percent(value: Any) -> str:
+    return f"{float(value) * 100:.0f}%"
 
 
 def _experiment_table(reports: list[dict[str, Any]]) -> str:

@@ -1,0 +1,174 @@
+{
+  "kind": "run_batch",
+  "generated_at": "2026-05-26T01:02:11+00:00",
+  "run_count": 3,
+  "aggregate": {
+    "total_cognition_calls": 36,
+    "behavior_divergence_rate": 0.722,
+    "counterfactual_acceptance_rate": 0.812,
+    "counterfactual_rejected": 6,
+    "richer_reason_count": 16,
+    "runs_with_need_gain": 3,
+    "runs_with_trust_gain": 3,
+    "runs_with_crisis_reduction": 3,
+    "average_deltas": {
+      "population": 0.0,
+      "food": 0.0,
+      "materials": 0.0,
+      "shelter": 0.0,
+      "average_need": 0.051,
+      "average_trust": 0.057,
+      "average_reputation": -0.0,
+      "institutional_cohesion": 0.0,
+      "crisis_events": -7.667
+    }
+  },
+  "runs": [
+    {
+      "seed": 7,
+      "days": 30,
+      "final_metrics": {
+        "day": 30,
+        "population": 12,
+        "food": 16.26,
+        "materials": 3.84,
+        "shelter": 8.47,
+        "average_need": 0.325,
+        "average_trust": 0.579,
+        "average_reputation": 0.572,
+        "institutional_cohesion": 0.628,
+        "crisis_events": 74
+      },
+      "baseline_deltas": {
+        "population": 0.0,
+        "food": 0.0,
+        "materials": 0.0,
+        "shelter": 0.0,
+        "average_need": 0.033,
+        "average_trust": 0.043,
+        "average_reputation": 0.0,
+        "institutional_cohesion": 0.0,
+        "crisis_events": -7.0
+      },
+      "baseline_summary": "Compared with the deterministic rule baseline: average need +0.033, trust +0.043, institutional cohesion 0, crisis events -7.",
+      "cognition_calls": 12,
+      "accepted": 12,
+      "policy_fallbacks": 0,
+      "failures": 0,
+      "behavior_diverged": 9,
+      "behavior_divergence_rate": 0.75,
+      "counterfactual_total": 9,
+      "counterfactual_accepted": 9,
+      "counterfactual_rejected": 0,
+      "richer_reason_count": 4,
+      "story_titles": [
+        "Outcome against rule baseline",
+        "Generated cognition changed behavior",
+        "Counterfactual gate filtered risk"
+      ]
+    },
+    {
+      "seed": 8,
+      "days": 30,
+      "final_metrics": {
+        "day": 30,
+        "population": 12,
+        "food": 20.0,
+        "materials": 8.94,
+        "shelter": 8.34,
+        "average_need": 0.395,
+        "average_trust": 0.641,
+        "average_reputation": 0.572,
+        "institutional_cohesion": 0.628,
+        "crisis_events": 64
+      },
+      "baseline_deltas": {
+        "population": 0.0,
+        "food": 0.0,
+        "materials": 0.0,
+        "shelter": 0.0,
+        "average_need": 0.082,
+        "average_trust": 0.085,
+        "average_reputation": -0.001,
+        "institutional_cohesion": 0.0,
+        "crisis_events": -10.0
+      },
+      "baseline_summary": "Compared with the deterministic rule baseline: average need +0.082, trust +0.085, institutional cohesion 0, crisis events -10.",
+      "cognition_calls": 12,
+      "accepted": 9,
+      "policy_fallbacks": 3,
+      "failures": 0,
+      "behavior_diverged": 9,
+      "behavior_divergence_rate": 0.75,
+      "counterfactual_total": 12,
+      "counterfactual_accepted": 9,
+      "counterfactual_rejected": 3,
+      "richer_reason_count": 8,
+      "story_titles": [
+        "Outcome against rule baseline",
+        "Generated cognition changed behavior",
+        "Counterfactual gate filtered risk"
+      ]
+    },
+    {
+      "seed": 9,
+      "days": 30,
+      "final_metrics": {
+        "day": 30,
+        "population": 12,
+        "food": 16.26,
+        "materials": 4.08,
+        "shelter": 8.47,
+        "average_need": 0.347,
+        "average_trust": 0.587,
+        "average_reputation": 0.572,
+        "institutional_cohesion": 0.628,
+        "crisis_events": 72
+      },
+      "baseline_deltas": {
+        "population": 0.0,
+        "food": 0.0,
+        "materials": 0.0,
+        "shelter": 0.0,
+        "average_need": 0.039,
+        "average_trust": 0.043,
+        "average_reputation": 0.0,
+        "institutional_cohesion": 0.0,
+        "crisis_events": -6.0
+      },
+      "baseline_summary": "Compared with the deterministic rule baseline: average need +0.039, trust +0.043, institutional cohesion 0, crisis events -6.",
+      "cognition_calls": 12,
+      "accepted": 9,
+      "policy_fallbacks": 3,
+      "failures": 0,
+      "behavior_diverged": 8,
+      "behavior_divergence_rate": 0.667,
+      "counterfactual_total": 11,
+      "counterfactual_accepted": 8,
+      "counterfactual_rejected": 3,
+      "richer_reason_count": 4,
+      "story_titles": [
+        "Outcome against rule baseline",
+        "Generated cognition changed behavior",
+        "Counterfactual gate filtered risk"
+      ]
+    }
+  ],
+  "story_cards": [
+    {
+      "title": "Batch outcome signal",
+      "summary": "3 runs improved need, 3 improved trust, and 3 reduced crisis events.",
+      "evidence": "average need +0.051; trust +0.057; crisis -7.667"
+    },
+    {
+      "title": "Generated cognition stayed active",
+      "summary": "36 calls with 72% executed-plan divergence.",
+      "evidence": "16 generated reasons scored richer."
+    },
+    {
+      "title": "Counterfactual gate remained useful",
+      "summary": "Gate acceptance was 81%; 6 proposals were rejected.",
+      "evidence": "positive run categories observed: 3"
+    }
+  ]
+}

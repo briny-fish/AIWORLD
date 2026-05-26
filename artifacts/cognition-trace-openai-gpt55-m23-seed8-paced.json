@@ -1,0 +1,902 @@
+[
+  {
+    "day": 6,
+    "agent_id": "a4",
+    "agent_name": "Dina",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 1.741,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; profile prioritizes early warning and logistics",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Dina has active relationship crises needing direct repair, especially with Bo at trust 0.42 and listed as her weakest relationship at 0.397; multiple recent relationship crises are stressing cooperation, while current food, material, and shelter gaps are 0.0 and energy is above the exhaustion threshold, so social repair is justified over the baseline haul today.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Dina has active relationship crises needing direct repair, especially with Bo at trust 0.42 and listed as her weakest relationship at 0.397; multiple recent relationship crises are stressing cooperation, while current food, material, and shelter gaps are 0.0 and energy is above the exhaustion threshold, so social repair is justified over the baseline haul today.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -69.8126 vs baseline -69.8256",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; materials need hauling to the workshop; profile prioritizes early warning and logistics",
+        "score": -69.8256,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 10.1,
+          "average_need": 0.48,
+          "average_trust": 0.583,
+          "average_reputation": 0.519,
+          "institutional_cohesion": 0.576,
+          "crisis_events": 38
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a2",
+        "reason": "Dina has active relationship crises needing direct repair, especially with Bo at trust 0.42 and listed as her weakest relationship at 0.397; multiple recent relationship crises are stressing cooperation, while current food, material, and shelter gaps are 0.0 and energy is above the exhaustion threshold, so social repair is justified over the baseline haul today.",
+        "score": -69.8126,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 10.1,
+          "average_need": 0.484,
+          "average_trust": 0.584,
+          "average_reputation": 0.519,
+          "institutional_cohesion": 0.576,
+          "crisis_events": 38
+        }
+      },
+      "score_delta": 0.013,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -69.8126 vs baseline -69.8256"
+    }
+  },
+  {
+    "day": 6,
+    "agent_id": "a10",
+    "agent_name": "Jules",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 1.871,
+      "reason": "food needs hauling to shared depots; materials need hauling to the workshop; role bias: trader; profile prioritizes exchange routes",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Diverging from the haul baseline because Jules has active relationship crises needing direct repair, especially Ari with trust 0.431 and listed as weakest at 0.406; decision pressure shows no current food, material, or shelter gap, while multiple remembered day 4-5 relationship crises and moderate organization cohesion make trust repair important for keeping exchange predictable.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Diverging from the haul baseline because Jules has active relationship crises needing direct repair, especially Ari with trust 0.431 and listed as weakest at 0.406; decision pressure shows no current food, material, or shelter gap, while multiple remembered day 4-5 relationship crises and moderate organization cohesion make trust repair important for keeping exchange predictable.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -69.7966 vs baseline -69.8096",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; materials need hauling to the workshop; role bias: trader; profile prioritizes exchange routes",
+        "score": -69.8096,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 10.1,
+          "average_need": 0.485,
+          "average_trust": 0.584,
+          "average_reputation": 0.519,
+          "institutional_cohesion": 0.576,
+          "crisis_events": 38
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a1",
+        "reason": "Diverging from the haul baseline because Jules has active relationship crises needing direct repair, especially Ari with trust 0.431 and listed as weakest at 0.406; decision pressure shows no current food, material, or shelter gap, while multiple remembered day 4-5 relationship crises and moderate organization cohesion make trust repair important for keeping exchange predictable.",
+        "score": -69.7966,
+        "metrics": {
+          "day": 9,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 10.1,
+          "average_need": 0.489,
+          "average_trust": 0.585,
+          "average_reputation": 0.519,
+          "institutional_cohesion": 0.576,
+          "crisis_events": 38
+        }
+      },
+      "score_delta": 0.013,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -69.7966 vs baseline -69.8096"
+    }
+  },
+  {
+    "day": 9,
+    "agent_id": "a2",
+    "agent_name": "Bo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.4,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.78,
+      "reason": "Active relationship crises are real decision pressure, and a remembered observer intent explicitly asked to repair trust with Ari before the route dispute hardens. Bo’s energy is near the exhaustion threshold, but not a rest-only case; the stronger evidence here is direct social repair for a live crisis with Ari while logistics pressure remains shared and can be revisited after reconciliation.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 0.78,
+      "reason": "Active relationship crises are real decision pressure, and a remembered observer intent explicitly asked to repair trust with Ari before the route dispute hardens. Bo’s energy is near the exhaustion threshold, but not a rest-only case; the stronger evidence here is direct social repair for a live crisis with Ari while logistics pressure remains shared and can be revisited after reconciliation.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -83.9010 vs baseline -83.9250",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+        "score": -83.925,
+        "metrics": {
+          "day": 12,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.85,
+          "average_need": 0.446,
+          "average_trust": 0.592,
+          "average_reputation": 0.527,
+          "institutional_cohesion": 0.584,
+          "crisis_events": 45
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a1",
+        "reason": "Active relationship crises are real decision pressure, and a remembered observer intent explicitly asked to repair trust with Ari before the route dispute hardens. Bo’s energy is near the exhaustion threshold, but not a rest-only case; the stronger evidence here is direct social repair for a live crisis with Ari while logistics pressure remains shared and can be revisited after reconciliation.",
+        "score": -83.901,
+        "metrics": {
+          "day": 12,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.85,
+          "average_need": 0.454,
+          "average_trust": 0.593,
+          "average_reputation": 0.527,
+          "institutional_cohesion": 0.583,
+          "crisis_events": 45
+        }
+      },
+      "score_delta": 0.024,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -83.9010 vs baseline -83.9250"
+    }
+  },
+  {
+    "day": 9,
+    "agent_id": "a4",
+    "agent_name": "Dina",
+    "status": "baseline_after_counterfactual",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.46,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.86,
+      "reason": "Active relationship crises are direct decision evidence: Dina’s relationship with Bo is in crisis at trust 0.496, and Bo is also her weakest relationship; the recent crisis with Ari and the wider trust damage after food rationing failed to meet basic nutrition make social repair valuable for cooperation. Energy is low but not at the exhaustion threshold, so this is a stronger use of effort than rest or another haul today.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "haul",
+      "priority": 3.46,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual rejected: proposed plan increases crisis events from 45 to 46",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+        "score": -83.892,
+        "metrics": {
+          "day": 12,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.85,
+          "average_need": 0.457,
+          "average_trust": 0.593,
+          "average_reputation": 0.527,
+          "institutional_cohesion": 0.583,
+          "crisis_events": 45
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a2",
+        "reason": "Active relationship crises are direct decision evidence: Dina’s relationship with Bo is in crisis at trust 0.496, and Bo is also her weakest relationship; the recent crisis with Ari and the wider trust damage after food rationing failed to meet basic nutrition make social repair valuable for cooperation. Energy is low but not at the exhaustion threshold, so this is a stronger use of effort than rest or another haul today.",
+        "score": -85.879,
+        "metrics": {
+          "day": 12,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.85,
+          "average_need": 0.461,
+          "average_trust": 0.594,
+          "average_reputation": 0.527,
+          "institutional_cohesion": 0.583,
+          "crisis_events": 46
+        }
+      },
+      "score_delta": -1.987,
+      "recommendation": "baseline",
+      "reason": "counterfactual rejected: proposed plan increases crisis events from 45 to 46"
+    }
+  },
+  {
+    "day": 12,
+    "agent_id": "a10",
+    "agent_name": "Jules",
+    "status": "baseline_after_counterfactual",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.59,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; role bias: trader; profile prioritizes food distribution; profile prioritizes exchange routes; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.74,
+      "reason": "Active relationship crises are concrete evidence for direct repair: Faye is both in crisis and among the weakest relationships, with trust at 0.422 in the weakest list and 0.492 in the crisis list; Ari is also in crisis, and the shared pressures explicitly note that the agent is in active relationship crises that require direct social repair. Food, material, and shelter gaps are all 0.0, so this is a justified divergence from the haul baseline to protect trust and exchange stability.",
+      "target_id": "a6",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "haul",
+      "priority": 3.59,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; role bias: trader; profile prioritizes food distribution; profile prioritizes exchange routes; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual rejected: proposed plan increases crisis events from 48 to 49",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; role bias: trader; profile prioritizes food distribution; profile prioritizes exchange routes; reflection keeps recent shock salient",
+        "score": -89.9443,
+        "metrics": {
+          "day": 15,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.6,
+          "average_need": 0.44,
+          "average_trust": 0.6,
+          "average_reputation": 0.534,
+          "institutional_cohesion": 0.59,
+          "crisis_events": 48
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a6",
+        "reason": "Active relationship crises are concrete evidence for direct repair: Faye is both in crisis and among the weakest relationships, with trust at 0.422 in the weakest list and 0.492 in the crisis list; Ari is also in crisis, and the shared pressures explicitly note that the agent is in active relationship crises that require direct social repair. Food, material, and shelter gaps are all 0.0, so this is a justified divergence from the haul baseline to protect trust and exchange stability.",
+        "score": -91.9313,
+        "metrics": {
+          "day": 15,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.6,
+          "average_need": 0.444,
+          "average_trust": 0.601,
+          "average_reputation": 0.534,
+          "institutional_cohesion": 0.59,
+          "crisis_events": 49
+        }
+      },
+      "score_delta": -1.987,
+      "recommendation": "baseline",
+      "reason": "counterfactual rejected: proposed plan increases crisis events from 48 to 49"
+    }
+  },
+  {
+    "day": 12,
+    "agent_id": "a2",
+    "agent_name": "Bo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.4,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "repair",
+      "priority": 0.78,
+      "reason": "Diverge from baseline haul because Bo personally found no useful hauling route on day 11 and many others also failed hauling routes, while decision_pressure lists multiple blocked routes with high repair need, including commons|woodlot at 0.684, clinic|commons at 0.683, clinic|river_pier at 0.683, and east_orchard|north_field at 1.0. Bo is a builder whose values and goals emphasize maintenance and reliable routes/workshops; energy 0.363 is above the 0.12 exhaustion threshold, so rest is not required despite recent exhaustion history. Repair directly supports later hauling and food distribution after repeated hunger-crisis memories.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "repair",
+      "priority": 0.78,
+      "reason": "Diverge from baseline haul because Bo personally found no useful hauling route on day 11 and many others also failed hauling routes, while decision_pressure lists multiple blocked routes with high repair need, including commons|woodlot at 0.684, clinic|commons at 0.683, clinic|river_pier at 0.683, and east_orchard|north_field at 1.0. Bo is a builder whose values and goals emphasize maintenance and reliable routes/workshops; energy 0.363 is above the 0.12 exhaustion threshold, so rest is not required despite recent exhaustion history. Repair directly supports later hauling and food distribution after repeated hunger-crisis memories.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -89.9413 vs baseline -89.9413",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+        "score": -89.9413,
+        "metrics": {
+          "day": 15,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.6,
+          "average_need": 0.441,
+          "average_trust": 0.6,
+          "average_reputation": 0.534,
+          "institutional_cohesion": 0.59,
+          "crisis_events": 48
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "haul",
+        "target_id": null,
+        "reason": "repair blocked by workshop material shortage; hauling materials first",
+        "score": -89.9413,
+        "metrics": {
+          "day": 15,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.6,
+          "average_need": 0.441,
+          "average_trust": 0.6,
+          "average_reputation": 0.534,
+          "institutional_cohesion": 0.59,
+          "crisis_events": 48
+        }
+      },
+      "score_delta": 0.0,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -89.9413 vs baseline -89.9413"
+    }
+  },
+  {
+    "day": 15,
+    "agent_id": "a10",
+    "agent_name": "Jules",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.59,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; role bias: trader; profile prioritizes food distribution; profile prioritizes exchange routes; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "repair",
+      "priority": 0.72,
+      "reason": "Diverging from baseline haul because Jules repeatedly found no useful hauling route on days 12, 13, and 14, and day 15 events show other haulers also found no useful hauling route. Decision pressure lists multiple blocked routes, including east_orchard|north_field at repair_need 1.0 and commons|woodlot at 0.684, while Route Keepers and River Cooperative norms emphasize repairing and maintaining routes. Energy 0.179 is above the exhaustion threshold 0.12 and there is no recent exhaustion block, so rest is not justified despite low food need.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "repair",
+      "priority": 0.72,
+      "reason": "Diverging from baseline haul because Jules repeatedly found no useful hauling route on days 12, 13, and 14, and day 15 events show other haulers also found no useful hauling route. Decision pressure lists multiple blocked routes, including east_orchard|north_field at repair_need 1.0 and commons|woodlot at 0.684, while Route Keepers and River Cooperative norms emphasize repairing and maintaining routes. Energy 0.179 is above the exhaustion threshold 0.12 and there is no recent exhaustion block, so rest is not justified despite low food need.",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -95.9827 vs baseline -95.9827",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; role bias: trader; profile prioritizes food distribution; profile prioritizes exchange routes; reflection keeps recent shock salient",
+        "score": -95.9827,
+        "metrics": {
+          "day": 18,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.35,
+          "average_need": 0.427,
+          "average_trust": 0.607,
+          "average_reputation": 0.542,
+          "institutional_cohesion": 0.598,
+          "crisis_events": 51
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "haul",
+        "target_id": null,
+        "reason": "repair blocked by workshop material shortage; hauling materials first",
+        "score": -95.9827,
+        "metrics": {
+          "day": 18,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.35,
+          "average_need": 0.427,
+          "average_trust": 0.607,
+          "average_reputation": 0.542,
+          "institutional_cohesion": 0.598,
+          "crisis_events": 51
+        }
+      },
+      "score_delta": 0.0,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -95.9827 vs baseline -95.9827"
+    }
+  },
+  {
+    "day": 15,
+    "agent_id": "a9",
+    "agent_name": "Ivo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.4,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.86,
+      "reason": "Diverging from the haul baseline because recent memories show repeated hauling attempts failed with no useful route on days 12, 13, and 14, and day 15 events show multiple others also found no useful hauling route. There is no current food, material, or shelter gap, while decision_pressure lists active relationship crises requiring direct social repair; Chen is both an active crisis target and tied for weakest relationship at trust 0.529, matching Ivo's healer values of care and early intervention.",
+      "target_id": "a3",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 0.86,
+      "reason": "Diverging from the haul baseline because recent memories show repeated hauling attempts failed with no useful route on days 12, 13, and 14, and day 15 events show multiple others also found no useful hauling route. There is no current food, material, or shelter gap, while decision_pressure lists active relationship crises requiring direct social repair; Chen is both an active crisis target and tied for weakest relationship at trust 0.529, matching Ivo's healer values of care and early intervention.",
+      "target_id": "a3",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -95.9667 vs baseline -95.9767",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+        "score": -95.9767,
+        "metrics": {
+          "day": 18,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.35,
+          "average_need": 0.429,
+          "average_trust": 0.607,
+          "average_reputation": 0.542,
+          "institutional_cohesion": 0.598,
+          "crisis_events": 51
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a3",
+        "reason": "Diverging from the haul baseline because recent memories show repeated hauling attempts failed with no useful route on days 12, 13, and 14, and day 15 events show multiple others also found no useful hauling route. There is no current food, material, or shelter gap, while decision_pressure lists active relationship crises requiring direct social repair; Chen is both an active crisis target and tied for weakest relationship at trust 0.529, matching Ivo's healer values of care and early intervention.",
+        "score": -95.9667,
+        "metrics": {
+          "day": 18,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.35,
+          "average_need": 0.432,
+          "average_trust": 0.608,
+          "average_reputation": 0.542,
+          "institutional_cohesion": 0.598,
+          "crisis_events": 51
+        }
+      },
+      "score_delta": 0.01,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -95.9667 vs baseline -95.9767"
+    }
+  },
+  {
+    "day": 18,
+    "agent_id": "a11",
+    "agent_name": "Kira",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.4,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.66,
+      "reason": "Diverging from the haul baseline because Kira has repeated recent evidence that hauling was not useful: on days 15, 16, and 17 she found no useful hauling route, and day 17 shows many agents also found no useful hauling route. Food pressure remains serious through repeated hunger_crisis memories, but decision_pressure shows food_gap, material_gap, and shelter_gap are 0.0 while active relationship crises exist. As an organizer who values coordination, legitimacy, and preventing quiet resentment, direct repair with Lio is justified because the crisis with a12 began on day 3 and remains the weakest relationship in crisis.",
+      "target_id": "a12",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 0.66,
+      "reason": "Diverging from the haul baseline because Kira has repeated recent evidence that hauling was not useful: on days 15, 16, and 17 she found no useful hauling route, and day 17 shows many agents also found no useful hauling route. Food pressure remains serious through repeated hunger_crisis memories, but decision_pressure shows food_gap, material_gap, and shelter_gap are 0.0 while active relationship crises exist. As an organizer who values coordination, legitimacy, and preventing quiet resentment, direct repair with Lio is justified because the crisis with a12 began on day 3 and remains the weakest relationship in crisis.",
+      "target_id": "a12",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -102.0068 vs baseline -102.0168",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+        "score": -102.0168,
+        "metrics": {
+          "day": 21,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.09,
+          "average_need": 0.416,
+          "average_trust": 0.615,
+          "average_reputation": 0.549,
+          "institutional_cohesion": 0.605,
+          "crisis_events": 54
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a12",
+        "reason": "Diverging from the haul baseline because Kira has repeated recent evidence that hauling was not useful: on days 15, 16, and 17 she found no useful hauling route, and day 17 shows many agents also found no useful hauling route. Food pressure remains serious through repeated hunger_crisis memories, but decision_pressure shows food_gap, material_gap, and shelter_gap are 0.0 while active relationship crises exist. As an organizer who values coordination, legitimacy, and preventing quiet resentment, direct repair with Lio is justified because the crisis with a12 began on day 3 and remains the weakest relationship in crisis.",
+        "score": -102.0068,
+        "metrics": {
+          "day": 21,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.09,
+          "average_need": 0.419,
+          "average_trust": 0.616,
+          "average_reputation": 0.549,
+          "institutional_cohesion": 0.605,
+          "crisis_events": 54
+        }
+      },
+      "score_delta": 0.01,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -102.0068 vs baseline -102.0168"
+    }
+  },
+  {
+    "day": 18,
+    "agent_id": "a4",
+    "agent_name": "Dina",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.46,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.74,
+      "reason": "Diverging from the haul baseline because Dina has repeated local evidence that hauling is not currently useful: memories show she found no useful hauling route on days 15, 16, and 17, and recent events on day 18 show Ari and Eli also found no useful hauling route. Decision pressure shows food_gap, material_gap, and shelter_gap are all 0.0 while active relationship crises require direct social repair. Energy is low at 0.175 but not near the 0.12 exhaustion threshold, so rest is not justified. Repair pressure exists through blocked routes, but Dina's weakest active crisis is with Bo, trust 0.517 and started day 1, making social repair a concrete shared-stability need for household_south and common_council cooperation.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 0.74,
+      "reason": "Diverging from the haul baseline because Dina has repeated local evidence that hauling is not currently useful: memories show she found no useful hauling route on days 15, 16, and 17, and recent events on day 18 show Ari and Eli also found no useful hauling route. Decision pressure shows food_gap, material_gap, and shelter_gap are all 0.0 while active relationship crises require direct social repair. Energy is low at 0.175 but not near the 0.12 exhaustion threshold, so rest is not justified. Repair pressure exists through blocked routes, but Dina's weakest active crisis is with Bo, trust 0.517 and started day 1, making social repair a concrete shared-stability need for household_south and common_council cooperation.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -101.9878 vs baseline -102.0008",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+        "score": -102.0008,
+        "metrics": {
+          "day": 21,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.09,
+          "average_need": 0.421,
+          "average_trust": 0.616,
+          "average_reputation": 0.549,
+          "institutional_cohesion": 0.605,
+          "crisis_events": 54
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a2",
+        "reason": "Diverging from the haul baseline because Dina has repeated local evidence that hauling is not currently useful: memories show she found no useful hauling route on days 15, 16, and 17, and recent events on day 18 show Ari and Eli also found no useful hauling route. Decision pressure shows food_gap, material_gap, and shelter_gap are all 0.0 while active relationship crises require direct social repair. Energy is low at 0.175 but not near the 0.12 exhaustion threshold, so rest is not justified. Repair pressure exists through blocked routes, but Dina's weakest active crisis is with Bo, trust 0.517 and started day 1, making social repair a concrete shared-stability need for household_south and common_council cooperation.",
+        "score": -101.9878,
+        "metrics": {
+          "day": 21,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 9.09,
+          "average_need": 0.425,
+          "average_trust": 0.617,
+          "average_reputation": 0.549,
+          "institutional_cohesion": 0.605,
+          "crisis_events": 54
+        }
+      },
+      "score_delta": 0.013,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -101.9878 vs baseline -102.0008"
+    }
+  },
+  {
+    "day": 21,
+    "agent_id": "a9",
+    "agent_name": "Ivo",
+    "status": "primary",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.4,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 0.63,
+      "reason": "Active relationship crises are concrete evidence now: Bo is in crisis at trust 0.556, with additional crises for Ari and Lio. Food, material, and shelter gaps are all 0.0, while repeated hauling attempts found no useful route and recent blocked routes keep logistics pressure high. As a healer, Ivo's care and early intervention favor direct social repair over another low-yield haul today.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "socialize",
+      "priority": 0.63,
+      "reason": "Active relationship crises are concrete evidence now: Bo is in crisis at trust 0.556, with additional crises for Ari and Lio. Food, material, and shelter gaps are all 0.0, while repeated hauling attempts found no useful route and recent blocked routes keep logistics pressure high. As a healer, Ivo's care and early intervention favor direct social repair over another low-yield haul today.",
+      "target_id": "a2",
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": true,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual accepted: proposed score -108.0130 vs baseline -108.0200",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; reflection keeps recent shock salient",
+        "score": -108.02,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 8.84,
+          "average_need": 0.415,
+          "average_trust": 0.624,
+          "average_reputation": 0.556,
+          "institutional_cohesion": 0.611,
+          "crisis_events": 57
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a2",
+        "reason": "Active relationship crises are concrete evidence now: Bo is in crisis at trust 0.556, with additional crises for Ari and Lio. Food, material, and shelter gaps are all 0.0, while repeated hauling attempts found no useful route and recent blocked routes keep logistics pressure high. As a healer, Ivo's care and early intervention favor direct social repair over another low-yield haul today.",
+        "score": -108.013,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 8.84,
+          "average_need": 0.417,
+          "average_trust": 0.625,
+          "average_reputation": 0.556,
+          "institutional_cohesion": 0.611,
+          "crisis_events": 57
+        }
+      },
+      "score_delta": 0.007,
+      "recommendation": "proposed",
+      "reason": "counterfactual accepted: proposed score -108.0130 vs baseline -108.0200"
+    }
+  },
+  {
+    "day": 21,
+    "agent_id": "a7",
+    "agent_name": "Gale",
+    "status": "baseline_after_counterfactual",
+    "baseline_plan": {
+      "action": "haul",
+      "priority": 3.55,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "proposed_plan": {
+      "action": "socialize",
+      "priority": 1.0,
+      "reason": "Active relationship crisis with Ari is concrete evidence: weakest relationship trust is 0.443 and in crisis, while recent haul attempts found no useful route and current food, material, and shelter gaps are 0.0. With energy above exhaustion, direct social repair is justified over another low-yield haul today.",
+      "target_id": "a1",
+      "horizon_days": 1
+    },
+    "used_plan": {
+      "action": "haul",
+      "priority": 3.55,
+      "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+      "target_id": null,
+      "horizon_days": 1
+    },
+    "diverged_from_baseline": false,
+    "proposed_diverged_from_baseline": true,
+    "prompt_version": "cognition-plan-v3-social-pressure",
+    "error": "counterfactual rejected: proposed plan increases crisis events from 57 to 58",
+    "counterfactual": {
+      "horizon_days": 3,
+      "baseline": {
+        "label": "baseline",
+        "action": "haul",
+        "target_id": null,
+        "reason": "food needs hauling to shared depots; personal food need depends on depot logistics; materials need hauling to the workshop; profile prioritizes food distribution; profile prioritizes exchange routes; profile prioritizes early warning and logistics; reflection keeps recent shock salient",
+        "score": -108.01,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 8.84,
+          "average_need": 0.418,
+          "average_trust": 0.625,
+          "average_reputation": 0.556,
+          "institutional_cohesion": 0.611,
+          "crisis_events": 57
+        }
+      },
+      "proposed": {
+        "label": "proposed",
+        "action": "socialize",
+        "target_id": "a1",
+        "reason": "Active relationship crisis with Ari is concrete evidence: weakest relationship trust is 0.443 and in crisis, while recent haul attempts found no useful route and current food, material, and shelter gaps are 0.0. With energy above exhaustion, direct social repair is justified over another low-yield haul today.",
+        "score": -109.997,
+        "metrics": {
+          "day": 24,
+          "population": 12,
+          "food": 20.0,
+          "materials": 8.94,
+          "shelter": 8.84,
+          "average_need": 0.422,
+          "average_trust": 0.626,
+          "average_reputation": 0.556,
+          "institutional_cohesion": 0.611,
+          "crisis_events": 58
+        }
+      },
+      "score_delta": -1.987,
+      "recommendation": "baseline",
+      "reason": "counterfactual rejected: proposed plan increases crisis events from 57 to 58"
+    }
+  }
+]

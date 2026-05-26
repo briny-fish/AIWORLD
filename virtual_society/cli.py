@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from pathlib import Path
 
 from .api import run_server
 from .codex_cli_provider import (
@@ -34,8 +35,10 @@ from .reports import (
     build_experiment_record,
     build_rule_baseline_comparison,
     build_run_record,
+    build_run_batch_record,
     render_experiment_html,
     render_run_html,
+    render_run_batch_html,
     write_html,
     write_json,
 )
@@ -210,6 +213,12 @@ def main() -> None:
     )
     parser.add_argument("--save-experiment-json", help="Write a JSON artifact for an experiment run.")
     parser.add_argument("--save-experiment-html", help="Write an offline HTML report for an experiment run.")
+    parser.add_argument(
+        "--run-batch-jsons",
+        help="Comma-separated run JSON artifacts to summarize into a batch report.",
+    )
+    parser.add_argument("--save-run-batch-json", help="Write a JSON artifact for a run batch summary.")
+    parser.add_argument("--save-run-batch-html", help="Write an offline HTML report for a run batch summary.")
     parser.add_argument("--json", action="store_true", help="Print final snapshot as JSON.")
     args = parser.parse_args()
 
@@ -236,6 +245,23 @@ def main() -> None:
         return
 
     interventions = load_interventions(args.intervention_file) if args.intervention_file else []
+
+    if args.run_batch_jsons:
+        run_records = _load_run_records(args.run_batch_jsons)
+        batch_record = build_run_batch_record(run_records)
+        if args.save_run_batch_json:
+            write_json(args.save_run_batch_json, batch_record)
+        if args.save_run_batch_html:
+            write_html(args.save_run_batch_html, render_run_batch_html(batch_record))
+        if args.json:
+            print(json.dumps(batch_record, ensure_ascii=False, indent=2))
+            return
+        _print_run_batch(batch_record)
+        if args.save_run_batch_json:
+            print(f"\nSaved run batch JSON: {args.save_run_batch_json}")
+        if args.save_run_batch_html:
+            print(f"Saved run batch HTML: {args.save_run_batch_html}")
+        return
 
     if args.experiment_seeds:
         reports = run_experiment(
@@ -936,6 +962,47 @@ def _print_experiment(reports: list) -> None:
             f"{final.average_reputation:>7.3f} "
             f"{final.institutional_cohesion:>8.3f} "
             f"{codes}"
+        )
+
+
+def _load_run_records(value: str) -> list[dict]:
+    paths = [item.strip() for item in value.split(",") if item.strip()]
+    if not paths:
+        raise ValueError("--run-batch-jsons must contain at least one path")
+    records = []
+    for path in paths:
+        records.append(json.loads(Path(path).read_text(encoding="utf-8")))
+    return records
+
+
+def _print_run_batch(record: dict) -> None:
+    aggregate = record.get("aggregate", {})
+    deltas = aggregate.get("average_deltas", {})
+    print("Virtual society LLM batch")
+    print(
+        f"runs={record.get('run_count', 0)} "
+        f"calls={aggregate.get('total_cognition_calls', 0)} "
+        f"divergence={_signed_number(float(aggregate.get('behavior_divergence_rate', 0)) * 100)}% "
+        f"gate_acceptance={_signed_number(float(aggregate.get('counterfactual_acceptance_rate', 0)) * 100)}%"
+    )
+    print(
+        "average deltas | "
+        f"need={_signed_number(deltas.get('average_need', 0))} "
+        f"trust={_signed_number(deltas.get('average_trust', 0))} "
+        f"crises={_signed_number(deltas.get('crisis_events', 0))}"
+    )
+    print("seed calls blocked diverged gate richer need trust crises")
+    for run in record.get("runs", []):
+        print(
+            f"{run.get('seed', ''):>4} "
+            f"{run.get('cognition_calls', 0):>5} "
+            f"{run.get('policy_fallbacks', 0):>7} "
+            f"{float(run.get('behavior_divergence_rate', 0)) * 100:>7.0f}% "
+            f"{run.get('counterfactual_accepted', 0):>2}/{run.get('counterfactual_total', 0):<2} "
+            f"{run.get('richer_reason_count', 0):>6} "
+            f"{_signed_number((run.get('baseline_deltas') or {}).get('average_need', 0)):>6} "
+            f"{_signed_number((run.get('baseline_deltas') or {}).get('average_trust', 0)):>6} "
+            f"{_signed_number((run.get('baseline_deltas') or {}).get('crisis_events', 0)):>6}"
         )
 
 

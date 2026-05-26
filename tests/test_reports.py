@@ -525,6 +525,8 @@ class ReportTests(unittest.TestCase):
         self.assertIn("Settlement Map", html)
         self.assertIn("Agent life cards", html)
         self.assertIn("Daily Life", html)
+        self.assertIn("Agent Dossiers", html)
+        self.assertIn("Life Timeline", html)
         self.assertIn("Relationship Web", html)
         self.assertTrue(record["agents"][0]["recent_life_journal"])
         self.assertIn("Metrics", html)

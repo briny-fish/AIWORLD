@@ -354,6 +354,7 @@ def render_run_html(record: dict[str, Any]) -> str:
       {_metric_tile("Org Cohesion", final.get("institutional_cohesion"))}
     </section>
     {_world_dashboard_section(record)}
+    {_agent_dossiers_section(record)}
     {_story_cards_section(story_cards)}
     {_run_diagnosis_section(run_diagnosis)}
     <section class="band">
@@ -687,6 +688,41 @@ th { color: var(--muted); font-size: 12px; font-weight: 700; }
 .agent-life h3 { margin-top: 0; }
 .agent-life .role { color: var(--muted); font-size: 12px; }
 .agent-life .plan { color: var(--blue); font-weight: 700; }
+.agent-dossier-grid {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+}
+.agent-dossier {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fbfdfc;
+  padding: 10px 12px;
+}
+.agent-dossier summary {
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.dossier-meta {
+  color: var(--muted);
+  font-size: 12px;
+}
+.timeline {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+.timeline-item {
+  border-left: 3px solid var(--blue);
+  padding-left: 10px;
+}
+.pressure-tags {
+  color: var(--muted);
+  font-size: 12px;
+}
 .mini-bars {
   display: grid;
   grid-template-columns: 48px 1fr 42px;
@@ -1472,6 +1508,113 @@ def _relationship_list(
         + "".join(rows)
         + "</div>"
     )
+
+
+def _agent_dossiers_section(record: dict[str, Any]) -> str:
+    agents = record.get("agents") or []
+    if not agents:
+        return ""
+    relationship_links = record.get("relationship_links") or []
+    ranked = sorted(
+        agents,
+        key=lambda agent: (
+            float(agent.get("average_need", 1.0) or 1.0),
+            str(agent.get("name", "")),
+        ),
+    )
+    dossiers = [
+        _agent_dossier(agent, relationship_links)
+        for agent in ranked[:12]
+    ]
+    return (
+        "<section class=\"band\">"
+        "<h2>Agent Dossiers</h2>"
+        "<p>Expandable individual timelines built from validated world state, daily life, memory, and relationship evidence.</p>"
+        f"<div class=\"agent-dossier-grid\">{''.join(dossiers)}</div>"
+        "</section>"
+    )
+
+
+def _agent_dossier(
+    agent: dict[str, Any],
+    relationship_links: list[dict[str, Any]],
+) -> str:
+    name = str(agent.get("name", "Agent"))
+    role = str(agent.get("role", ""))
+    location_id = str(agent.get("location_id", ""))
+    need = agent.get("average_need", "")
+    trust = agent.get("average_trust", "")
+    return (
+        "<details class=\"agent-dossier\">"
+        "<summary>"
+        f"<span><strong>{escape(name)}</strong> <span class=\"dossier-meta\">{escape(role)} @ {escape(location_id)}</span></span>"
+        f"<span class=\"dossier-meta\">need {escape(str(need))} | trust {escape(str(trust))}</span>"
+        "</summary>"
+        f"{_life_timeline(agent)}"
+        f"{_agent_memory_panel(agent)}"
+        f"{_agent_relationship_panel(agent, relationship_links)}"
+        "</details>"
+    )
+
+
+def _life_timeline(agent: dict[str, Any]) -> str:
+    entries = list(agent.get("recent_life_journal") or [])[-5:]
+    if not entries:
+        return "<h3>Life Timeline</h3><p>No life journal entries yet.</p>"
+    rows = []
+    for entry in reversed(entries):
+        pressures = ", ".join(str(item) for item in entry.get("pressures", [])[:4])
+        rows.append(
+            "<div class=\"timeline-item\">"
+            f"<strong>Day {escape(str(entry.get('day', '')))} · {escape(str(entry.get('mood', 'steady')))}</strong>"
+            f"<p>{escape(str(entry.get('summary', '')))}</p>"
+            f"<div class=\"pressure-tags\">{escape(pressures)}</div>"
+            "</div>"
+        )
+    return "<h3>Life Timeline</h3><div class=\"timeline\">" + "".join(rows) + "</div>"
+
+
+def _agent_memory_panel(agent: dict[str, Any]) -> str:
+    memories = list(agent.get("recent_memory_stream") or [])[-4:]
+    if not memories:
+        return "<h3>Recent Memory</h3><p>No memory stream entries yet.</p>"
+    items = "".join(
+        "<li>"
+        f"day {escape(str(memory.get('day', '')))} · {escape(str(memory.get('kind', '')))}: "
+        f"{escape(_short_text(memory.get('text', ''), 180))}"
+        "</li>"
+        for memory in reversed(memories)
+    )
+    return f"<h3>Recent Memory</h3><ul>{items}</ul>"
+
+
+def _agent_relationship_panel(
+    agent: dict[str, Any],
+    relationship_links: list[dict[str, Any]],
+) -> str:
+    agent_id = str(agent.get("id", ""))
+    links = [
+        link
+        for link in relationship_links
+        if agent_id in {str(value) for value in link.get("agent_ids", [])}
+    ]
+    if not links:
+        return "<h3>Relationship Pressure</h3><p>No relationship evidence yet.</p>"
+    rows = []
+    for link in sorted(links, key=lambda item: float(item.get("average_trust", 1.0)))[:5]:
+        other_names = [
+            str(name)
+            for name, other_id in zip(link.get("agents", []), link.get("agent_ids", []))
+            if str(other_id) != agent_id
+        ]
+        state = "crisis" if link.get("crisis") else "open"
+        rows.append(
+            "<li>"
+            f"{escape(other_names[0] if other_names else 'unknown')} · "
+            f"trust {escape(str(link.get('average_trust', '')))} · {escape(state)}"
+            "</li>"
+        )
+    return "<h3>Relationship Pressure</h3><ul>" + "".join(rows) + "</ul>"
 
 
 def _run_diagnosis(record: dict[str, Any]) -> list[dict[str, str]]:

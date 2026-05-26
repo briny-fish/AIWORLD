@@ -6,7 +6,7 @@ from dataclasses import asdict
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs, unquote, urlparse
 
 from .health import assess_metrics
 from .history import HistoryRecorder
@@ -91,6 +91,38 @@ class SimulationService:
                 findings,
                 history=self.history_recorder.record(self.metrics_history),
             )
+
+    def agent_dossier(self, agent_id: str) -> dict[str, Any]:
+        with self._lock:
+            record = self.run_record()
+            agent = next(
+                (
+                    item
+                    for item in record["agents"]
+                    if str(item.get("id", "")) == agent_id
+                ),
+                None,
+            )
+            if agent is None:
+                raise ValueError(f"unknown agent id: {agent_id}")
+            relationship_links = [
+                item
+                for item in record.get("relationship_links", [])
+                if agent_id in {str(value) for value in item.get("agent_ids", [])}
+            ]
+            recent_events = [
+                event
+                for event in record.get("events", [])
+                if event.get("actor_id") == agent_id
+            ][-12:]
+            return {
+                "seed": self.seed,
+                "day": self.simulation.world.day,
+                "agent": agent,
+                "relationship_links": relationship_links,
+                "recent_events": recent_events,
+                "observer_recommendations": record.get("observer_recommendations", []),
+            }
 
     def step(
         self,
@@ -243,6 +275,12 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                         content_type="text/html; charset=utf-8",
                     )
                     return
+                if parsed.path.startswith("/agents/"):
+                    agent_id = unquote(parsed.path.removeprefix("/agents/"))
+                    if not agent_id:
+                        raise ValueError("agent id is required")
+                    self._send_json(service.agent_dossier(agent_id))
+                    return
                 if parsed.path == "/observer":
                     self._send_text(
                         render_observer_html(),
@@ -363,6 +401,7 @@ def _index() -> dict[str, Any]:
             "GET /history": "periodic history snapshots",
             "GET /report/run.json": "run report JSON",
             "GET /report/run.html": "run report HTML",
+            "GET /agents/{id}": "read-only agent dossier with life journal and relationships",
             "GET /observer": "interactive browser observer",
             "GET /observer3d": "Three.js 3D observer prototype",
             "POST /step": {"days": 1, "interventions": []},

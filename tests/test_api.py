@@ -35,6 +35,17 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(result["applied_interventions"][0]["day"], 1)
         self.assertTrue(any(event["kind"] == "intervention" for event in events))
 
+    def test_service_returns_agent_dossier(self) -> None:
+        service = SimulationService(seed=7, world_preset="generative_alpha")
+        service.step(days=3)
+
+        dossier = service.agent_dossier("a1")
+
+        self.assertEqual(dossier["agent"]["id"], "a1")
+        self.assertTrue(dossier["agent"]["recent_life_journal"])
+        self.assertTrue(dossier["relationship_links"])
+        self.assertEqual(dossier["day"], 3)
+
     def test_http_state_step_and_report_endpoints(self) -> None:
         service = SimulationService(seed=7, snapshot_interval_days=2)
         server = make_server(service, host="127.0.0.1", port=0)
@@ -45,6 +56,7 @@ class ApiTests(unittest.TestCase):
             health = _get_json(f"{base_url}/health")
             step = _post_json(f"{base_url}/step", {"days": 3})
             state = _get_json(f"{base_url}/state")
+            agent = _get_json(f"{base_url}/agents/a1")
             report_html = _get_text(f"{base_url}/report/run.html")
             observer_html = _get_text(f"{base_url}/observer")
             observer3d_html = _get_text(f"{base_url}/observer3d")
@@ -52,6 +64,8 @@ class ApiTests(unittest.TestCase):
             self.assertEqual(health["status"], "ok")
             self.assertEqual(step["current_day"], 3)
             self.assertEqual(state["world"]["day"], 3)
+            self.assertEqual(agent["agent"]["id"], "a1")
+            self.assertTrue(agent["agent"]["recent_life_journal"])
             self.assertIn("Virtual Society Run", report_html)
             self.assertIn("History", report_html)
             self.assertIn("Virtual Society Observer", observer_html)

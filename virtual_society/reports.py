@@ -12,6 +12,7 @@ from .health import HealthFinding, RunReport
 from .historical_scars import build_historical_scar_validation
 from .model import Metrics, WorldState
 from .observer_intent_evaluation import assess_observer_intents
+from .observer_recommendations import build_observer_recommendations
 from .reason_richness_evaluation import assess_reason_richness
 from .scar_diagnosis import assess_scar_bottlenecks
 from .social_evaluation import SocialFinding, assess_social_dynamics
@@ -70,6 +71,10 @@ def build_run_record(
         item.as_dict()
         for item in assess_scar_bottlenecks(world, cognition_trace or [])
     ]
+    observer_recommendations = [
+        item.as_dict()
+        for item in build_observer_recommendations(world, scar_diagnosis)
+    ]
     story_cards = _story_cards(
         social_chronicle=social_chronicle,
         cognition_trace=cognition_trace or [],
@@ -99,6 +104,7 @@ def build_run_record(
         "social_chronicle": social_chronicle,
         "observer_intents": observer_intents,
         "observer_memory": _observer_memory(world),
+        "observer_recommendations": observer_recommendations,
         "choice_tensions": choice_tensions,
         "reason_richness": reason_richness_items,
         "agents": [
@@ -308,6 +314,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     social_chronicle = record.get("social_chronicle")
     observer_intents = record.get("observer_intents", [])
     observer_memory = record.get("observer_memory", [])
+    observer_recommendations = record.get("observer_recommendations", [])
     historical_scar_validation = record.get("historical_scar_validation")
     scar_diagnosis = record.get("scar_diagnosis", [])
     historical_scars = record.get("historical_scars", {})
@@ -366,6 +373,7 @@ def render_run_html(record: dict[str, Any]) -> str:
     {_baseline_comparison_section(baseline_comparison)}
     {_history_section(history)}
     {_social_chronicle_section(social_chronicle)}
+    {_observer_recommendations_section(observer_recommendations)}
     {_observer_intent_section(observer_intents)}
     {_observer_memory_section(observer_memory)}
     {_scar_diagnosis_section(scar_diagnosis)}
@@ -1220,6 +1228,43 @@ def _evaluation_signal_table(signals: list[dict[str, Any]]) -> str:
             "</tr>"
         )
     return "<h3>Evaluation Signals</h3><table><thead><tr><th>Severity</th><th>Code</th><th>Description</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _observer_recommendations_section(items: list[dict[str, Any]]) -> str:
+    if not items:
+        return ""
+    return (
+        "<section class=\"band\">"
+        "<h2>Observer Intervention Suggestions</h2>"
+        "<p>Concrete observer actions derived from residual scar bottlenecks.</p>"
+        f"{_observer_recommendations_table(items)}"
+        "</section>"
+    )
+
+
+def _observer_recommendations_table(items: list[dict[str, Any]]) -> str:
+    rows = []
+    for item in items[:12]:
+        rows.append(
+            "<tr>"
+            f"<td>{escape(str(item.get('priority', '')))}</td>"
+            f"<td>{escape(str(item.get('title', '')))}</td>"
+            f"<td>{escape(str(item.get('rationale', '')))}</td>"
+            f"<td>{escape(str(item.get('expected_effect', '')))}</td>"
+            f"<td>{escape(_recommendation_intervention_text(item.get('intervention') or {}))}</td>"
+            "</tr>"
+        )
+    return "<table><thead><tr><th>Priority</th><th>Recommendation</th><th>Rationale</th><th>Expected effect</th><th>Intervention</th></tr></thead><tbody>" + "".join(rows) + "</tbody></table>"
+
+
+def _recommendation_intervention_text(intervention: dict[str, Any]) -> str:
+    if not intervention:
+        return ""
+    params = intervention.get("params") or {}
+    return (
+        f"day {intervention.get('day')}: {intervention.get('kind')} | "
+        f"{intervention.get('reason', '')} | {json.dumps(params, ensure_ascii=False, sort_keys=True)}"
+    )
 
 
 def _observer_intent_section(items: list[dict[str, Any]]) -> str:

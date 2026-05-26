@@ -102,6 +102,9 @@ def _relationship_bottlenecks(
                 evidence=evidence,
                 next_step=next_step,
                 metrics={
+                    "pair_key": pair_key,
+                    "agent_ids": [first.id, second.id],
+                    "agent_names": [first.name, second.name],
                     "started_day": started_day,
                     "days_open": days_open,
                     "average_trust": round(trust, 3),
@@ -198,6 +201,7 @@ def _route_bottlenecks(world: WorldState) -> list[ScarBottleneck]:
                 evidence=evidence,
                 next_step=next_step,
                 metrics={
+                    "route": route_key,
                     "started_day": start_day if start_day >= 0 else None,
                     "repair_need": round(repair_need, 3),
                     "estimated_cycles_remaining": cycles_remaining,

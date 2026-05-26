@@ -43,6 +43,11 @@ from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
 from .model import AgentProfile, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
+from .observer_recommendations import (
+    ObserverRecommendation,
+    build_observer_recommendations,
+    intervention_payloads,
+)
 from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
 from .reason_richness_evaluation import ReasonRichnessFinding, assess_reason_richness
 from .scar_diagnosis import ScarBottleneck, assess_scar_bottlenecks
@@ -84,6 +89,7 @@ __all__ = [
     "LLMCacheStats",
     "LLMCallCache",
     "ObserverIntentFinding",
+    "ObserverRecommendation",
     "OpenAICognition",
     "OpenAIDialogue",
     "OpenAIReflection",
@@ -119,11 +125,13 @@ __all__ = [
     "assess_choice_tensions",
     "assess_counterfactual_trace",
     "assess_observer_intents",
+    "build_observer_recommendations",
     "assess_reason_richness",
     "assess_scar_bottlenecks",
     "build_historical_scar_validation",
     "build_social_chronicle",
     "compare_plan_counterfactuals",
+    "intervention_payloads",
     "assess_dialogue_follow_through",
     "assess_generated_chains",
     "assess_reflection_follow_through",

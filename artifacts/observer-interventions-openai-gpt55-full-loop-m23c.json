@@ -1,0 +1,113 @@
+[
+  {
+    "day": 31,
+    "kind": "resource",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: 9 blocked routes are starved of workshop materials",
+    "params": {
+      "resource": "materials",
+      "amount": 5.7,
+      "location_id": "workshop"
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Bo and Dina relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a2",
+        "a4"
+      ],
+      "tone": "neutral",
+      "message": "Bo and Dina, meet once more so the repaired trust becomes public reconciliation."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Bo and Lio relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a2",
+        "a12"
+      ],
+      "tone": "neutral",
+      "message": "Bo and Lio, meet once more so the repaired trust becomes public reconciliation."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Chen and Faye relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a3",
+        "a6"
+      ],
+      "tone": "neutral",
+      "message": "Chen and Faye, meet once more so the repaired trust becomes public reconciliation."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Chen and Ivo relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a3",
+        "a9"
+      ],
+      "tone": "neutral",
+      "message": "Chen and Ivo, meet once more so the repaired trust becomes public reconciliation."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ivo and Kira relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a9",
+        "a11"
+      ],
+      "tone": "neutral",
+      "message": "Ivo and Kira, meet once more so the repaired trust becomes public reconciliation."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Eli relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a5"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Eli, meet directly and repair trust before this crisis hardens further."
+    }
+  },
+  {
+    "day": 31,
+    "kind": "broadcast",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Gale relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a7"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Gale, meet directly and repair trust before this crisis hardens further.",
+      "intent": "reconcile_relationships",
+      "strength": 0.16
+    }
+  }
+]

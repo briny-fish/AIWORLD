@@ -27,6 +27,7 @@ from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
 from .llm_cache import LLMCallCache
 from .model import WorldState
+from .observer_recommendations import intervention_payloads
 from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
 from .reason_richness_evaluation import assess_reason_richness
 from .reflection import HybridReflection, HybridReflectionConfig
@@ -67,7 +68,8 @@ def main() -> None:
     )
     parser.add_argument(
         "--intervention-file",
-        help="Path to a JSON list of scheduled observer interventions.",
+        action="append",
+        help="Path to a JSON list of scheduled observer interventions. May be repeated.",
     )
     parser.add_argument(
         "--experiment-seeds",
@@ -206,6 +208,14 @@ def main() -> None:
     parser.add_argument("--save-run-json", help="Write a JSON artifact for a single run.")
     parser.add_argument("--save-run-html", help="Write an offline HTML observer for a single run.")
     parser.add_argument(
+        "--save-observer-recommendations-json",
+        help="Write observer intervention recommendations derived from the run.",
+    )
+    parser.add_argument(
+        "--save-observer-intervention-file",
+        help="Write only recommended intervention payloads as a reusable JSON intervention file.",
+    )
+    parser.add_argument(
         "--snapshot-every",
         type=int,
         default=0,
@@ -248,7 +258,9 @@ def main() -> None:
         )
         return
 
-    interventions = load_interventions(args.intervention_file) if args.intervention_file else []
+    interventions = []
+    for intervention_file in args.intervention_file or []:
+        interventions.extend(load_interventions(intervention_file))
 
     if args.run_batch_jsons:
         run_records = _load_run_records(args.run_batch_jsons)
@@ -381,7 +393,14 @@ def main() -> None:
             baseline_world=baseline_world,
         )
     ]
-    if args.save_run_json or args.save_run_html:
+    should_build_run_record = (
+        args.save_run_json
+        or args.save_run_html
+        or args.save_observer_recommendations_json
+        or args.save_observer_intervention_file
+    )
+    run_record = None
+    if should_build_run_record:
         run_record = build_run_record(
             args.seed,
             metrics,
@@ -405,6 +424,14 @@ def main() -> None:
             write_json(args.save_run_json, run_record)
         if args.save_run_html:
             write_html(args.save_run_html, render_run_html(run_record))
+        recommendations = run_record.get("observer_recommendations", [])
+        if args.save_observer_recommendations_json:
+            write_json(args.save_observer_recommendations_json, recommendations)
+        if args.save_observer_intervention_file:
+            write_json(
+                args.save_observer_intervention_file,
+                intervention_payloads(recommendations),
+            )
     if args.save_cognition_trace_json:
         write_json(args.save_cognition_trace_json, cognition_trace)
     if args.save_reflection_trace_json:
@@ -489,6 +516,10 @@ def main() -> None:
         print(f"Saved reflection trace JSON: {args.save_reflection_trace_json}")
     if args.save_dialogue_trace_json:
         print(f"Saved dialogue trace JSON: {args.save_dialogue_trace_json}")
+    if args.save_observer_recommendations_json:
+        print(f"Saved observer recommendations JSON: {args.save_observer_recommendations_json}")
+    if args.save_observer_intervention_file:
+        print(f"Saved observer intervention file: {args.save_observer_intervention_file}")
     if args.save_snapshots_dir:
         print(f"Saved history snapshots: {args.save_snapshots_dir}")
 

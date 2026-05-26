@@ -559,8 +559,10 @@ class ReportTests(unittest.TestCase):
         html = render_run_html(record)
 
         self.assertIn("scar_diagnosis", record)
+        self.assertIn("observer_recommendations", record)
         self.assertIn("Historical Scars", html)
         self.assertIn("Residual Scar Diagnosis", html)
+        self.assertIn("Observer Intervention Suggestions", html)
         self.assertIn("Historical Scar Validation", html)
         self.assertIn("relationship_crises_persist", html)
         self.assertIn("blocked_routes_affect_paths", html)

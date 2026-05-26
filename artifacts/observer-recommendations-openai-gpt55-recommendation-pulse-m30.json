@@ -1,0 +1,212 @@
+[
+  {
+    "title": "Supply workshop materials for 5 blocked routes",
+    "priority": "high",
+    "rationale": "5 blocked routes are material-starved; workshop has 0.000 materials.",
+    "expected_effect": "Common repair crews can resume route repair cycles across multiple blocked routes.",
+    "intervention": {
+      "day": 36,
+      "kind": "resource",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: 5 blocked routes are starved of workshop materials",
+      "params": {
+        "resource": "materials",
+        "amount": 3.32,
+        "location_id": "workshop"
+      }
+    },
+    "evidence": [
+      "commons|east_orchard",
+      "commons|north_field",
+      "commons|woodlot",
+      "east_orchard|north_field",
+      "north_field|woodlot"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Ari and Chen",
+    "priority": "medium",
+    "rationale": "Ari and Chen remain in crisis with 0.043 trust still needed for reconciliation.",
+    "expected_effect": "Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.",
+    "intervention": {
+      "day": 36,
+      "kind": "mediation",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Ari and Chen relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a1",
+          "a3"
+        ],
+        "tone": "neutral",
+        "message": "Ari and Chen, meet directly and repair trust before this crisis hardens further."
+      }
+    },
+    "evidence": [
+      "started day 35; open 1 days",
+      "average trust 0.517; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Ari and Eli",
+    "priority": "medium",
+    "rationale": "Ari and Eli remain in crisis with 0.071 trust still needed for reconciliation.",
+    "expected_effect": "Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.",
+    "intervention": {
+      "day": 36,
+      "kind": "mediation",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Ari and Eli relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a1",
+          "a5"
+        ],
+        "tone": "neutral",
+        "message": "Ari and Eli, meet directly and repair trust before this crisis hardens further."
+      }
+    },
+    "evidence": [
+      "started day 32; open 4 days",
+      "average trust 0.489; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Ari and Ivo",
+    "priority": "medium",
+    "rationale": "Ari and Ivo remain in crisis with 0.095 trust still needed for reconciliation.",
+    "expected_effect": "Both agents receive a targeted memory that can bias social plans toward reconciliation.",
+    "intervention": {
+      "day": 36,
+      "kind": "broadcast",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Ari and Ivo relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a1",
+          "a9"
+        ],
+        "tone": "neutral",
+        "message": "Ari and Ivo, meet directly and repair trust before this crisis hardens further.",
+        "intent": "reconcile_relationships",
+        "strength": 0.16
+      }
+    },
+    "evidence": [
+      "started day 11; open 25 days",
+      "average trust 0.465; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Ari and Kira",
+    "priority": "medium",
+    "rationale": "Ari and Kira remain in crisis with 0.059 trust still needed for reconciliation.",
+    "expected_effect": "Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.",
+    "intervention": {
+      "day": 36,
+      "kind": "mediation",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Ari and Kira relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a1",
+          "a11"
+        ],
+        "tone": "neutral",
+        "message": "Ari and Kira, meet directly and repair trust before this crisis hardens further."
+      }
+    },
+    "evidence": [
+      "started day 33; open 3 days",
+      "average trust 0.501; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Bo and Chen",
+    "priority": "medium",
+    "rationale": "Bo and Chen remain in crisis with 0.099 trust still needed for reconciliation.",
+    "expected_effect": "Both agents receive a targeted memory that can bias social plans toward reconciliation.",
+    "intervention": {
+      "day": 36,
+      "kind": "broadcast",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Bo and Chen relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a2",
+          "a3"
+        ],
+        "tone": "neutral",
+        "message": "Bo and Chen, meet directly and repair trust before this crisis hardens further.",
+        "intent": "reconcile_relationships",
+        "strength": 0.16
+      }
+    },
+    "evidence": [
+      "started day 10; open 26 days",
+      "average trust 0.461; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 1"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Bo and Eli",
+    "priority": "medium",
+    "rationale": "Bo and Eli remain in crisis with 0.071 trust still needed for reconciliation.",
+    "expected_effect": "Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.",
+    "intervention": {
+      "day": 36,
+      "kind": "mediation",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Bo and Eli relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a2",
+          "a5"
+        ],
+        "tone": "neutral",
+        "message": "Bo and Eli, meet directly and repair trust before this crisis hardens further."
+      }
+    },
+    "evidence": [
+      "started day 32; open 4 days",
+      "average trust 0.489; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  },
+  {
+    "title": "Prompt direct reconciliation: Bo and Gale",
+    "priority": "medium",
+    "rationale": "Bo and Gale remain in crisis with 0.072 trust still needed for reconciliation.",
+    "expected_effect": "Simulation Core schedules a bounded mediated meeting and emits reconciliation if trust is already high enough.",
+    "intervention": {
+      "day": 36,
+      "kind": "mediation",
+      "actor_id": "The_Envoy",
+      "reason": "scar diagnosis: Bo and Gale relationship crisis needs direct repair",
+      "params": {
+        "target_agent_ids": [
+          "a2",
+          "a7"
+        ],
+        "tone": "neutral",
+        "message": "Bo and Gale, meet directly and repair trust before this crisis hardens further."
+      }
+    },
+    "evidence": [
+      "started day 31; open 5 days",
+      "average trust 0.488; repair threshold 0.560",
+      "direct contacts after crisis 0",
+      "generated social plans after crisis 0"
+    ]
+  }
+]

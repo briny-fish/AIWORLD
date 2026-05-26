@@ -208,6 +208,49 @@ class SimulationTests(unittest.TestCase):
         self.assertNotIn("a1|a2", simulation.world.relationship_crises)
         self.assertTrue(any(event.kind == "reconciliation" for event in simulation.world.event_log))
 
+    def test_observer_mediation_reconciles_ready_relationship_crisis(self) -> None:
+        simulation = Simulation(seed=7)
+        first = simulation.world.agents[0]
+        second = simulation.world.agents[1]
+        simulation.world.day = 6
+        simulation.world.relationship_crises["a1|a2"] = 3
+        first.relationships[second.id] = 0.39
+        second.relationships[first.id] = 0.39
+
+        simulation.apply_intervention(
+            Intervention(
+                day=6,
+                kind="mediation",
+                actor_id="The_Envoy",
+                reason="observer asked for a direct repair meeting",
+                params={
+                    "target_agent_ids": [first.id, second.id],
+                    "message": "Name the grievance and rebuild a working agreement.",
+                },
+            )
+        )
+
+        self.assertNotIn("a1|a2", simulation.world.relationship_crises)
+        self.assertGreater(first.relationships[second.id], 0.42)
+        self.assertTrue(any(event.kind == "mediation" for event in simulation.world.event_log))
+        self.assertTrue(any(event.kind == "reconciliation" for event in simulation.world.event_log))
+        self.assertTrue(
+            any(memory.kind == "mediation" for memory in first.memory_stream)
+        )
+
+    def test_observer_mediation_requires_two_known_targets(self) -> None:
+        simulation = Simulation(seed=7)
+        simulation.world.day = 2
+
+        with self.assertRaises(ValueError):
+            simulation.apply_intervention(
+                Intervention(
+                    day=2,
+                    kind="mediation",
+                    params={"target_agent_ids": ["a1", "missing"]},
+                )
+            )
+
     def test_experiment_returns_report_for_each_seed(self) -> None:
         reports = run_experiment(seeds=[1, 2, 3], days=30)
 

@@ -25,6 +25,10 @@ COMPACT_RULE_KEYS = {
     "organization_fracture_threshold",
 }
 
+OBSERVER_ONLY_RULE_KEYS = {
+    "observer_mediation_trust_gain",
+}
+
 
 @dataclass(frozen=True)
 class CognitionContext:
@@ -199,7 +203,11 @@ def _average(values: Any) -> float:
 
 
 def _rules_dict(world: WorldState, compact: bool) -> dict[str, Any]:
-    rules = asdict(world.rules)
+    rules = {
+        key: value
+        for key, value in asdict(world.rules).items()
+        if key not in OBSERVER_ONLY_RULE_KEYS
+    }
     if not compact:
         return rules
     return {

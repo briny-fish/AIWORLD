@@ -184,6 +184,7 @@ class WorldRules:
     relationship_crisis_threshold: float = 0.18
     relationship_repair_threshold: float = 0.42
     relationship_crisis_social_repair_bonus: float = 0.035
+    observer_mediation_trust_gain: float = 0.08
     memory_limit: int = 30
     memory_stream_limit: int = 120
     reflection_limit: int = 20

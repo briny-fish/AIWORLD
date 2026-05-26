@@ -1,0 +1,115 @@
+[
+  {
+    "day": 36,
+    "kind": "resource",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: 5 blocked routes are starved of workshop materials",
+    "params": {
+      "resource": "materials",
+      "amount": 3.32,
+      "location_id": "workshop"
+    }
+  },
+  {
+    "day": 36,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Chen relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a3"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Chen, meet directly and repair trust before this crisis hardens further."
+    }
+  },
+  {
+    "day": 36,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Eli relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a5"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Eli, meet directly and repair trust before this crisis hardens further."
+    }
+  },
+  {
+    "day": 36,
+    "kind": "broadcast",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Ivo relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a9"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Ivo, meet directly and repair trust before this crisis hardens further.",
+      "intent": "reconcile_relationships",
+      "strength": 0.16
+    }
+  },
+  {
+    "day": 36,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Ari and Kira relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a1",
+        "a11"
+      ],
+      "tone": "neutral",
+      "message": "Ari and Kira, meet directly and repair trust before this crisis hardens further."
+    }
+  },
+  {
+    "day": 36,
+    "kind": "broadcast",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Bo and Chen relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a2",
+        "a3"
+      ],
+      "tone": "neutral",
+      "message": "Bo and Chen, meet directly and repair trust before this crisis hardens further.",
+      "intent": "reconcile_relationships",
+      "strength": 0.16
+    }
+  },
+  {
+    "day": 36,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Bo and Eli relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a2",
+        "a5"
+      ],
+      "tone": "neutral",
+      "message": "Bo and Eli, meet directly and repair trust before this crisis hardens further."
+    }
+  },
+  {
+    "day": 36,
+    "kind": "mediation",
+    "actor_id": "The_Envoy",
+    "reason": "scar diagnosis: Bo and Gale relationship crisis needs direct repair",
+    "params": {
+      "target_agent_ids": [
+        "a2",
+        "a7"
+      ],
+      "tone": "neutral",
+      "message": "Bo and Gale, meet directly and repair trust before this crisis hardens further."
+    }
+  }
+]

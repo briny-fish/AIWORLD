@@ -189,6 +189,10 @@ class Simulation:
             self._apply_broadcast(intervention)
             return
 
+        if intervention.kind == "mediation":
+            self._apply_mediation(intervention)
+            return
+
         if intervention.kind == "organization":
             self._apply_organization_intervention(intervention)
             return
@@ -1892,6 +1896,75 @@ class Simulation:
         )
         for agent in recipients:
             self._remember(agent, event)
+
+    def _apply_mediation(self, intervention: Intervention) -> None:
+        target_ids = _string_list(
+            intervention.params.get("target_agent_ids")
+            or intervention.params.get("agent_ids")
+        )
+        target_ids = list(dict.fromkeys(target_ids))
+        if len(target_ids) != 2:
+            raise ValueError("Mediation requires exactly two target_agent_ids")
+
+        first = self._find_agent(target_ids[0])
+        second = self._find_agent(target_ids[1])
+        if first is None or second is None:
+            missing = [agent_id for agent_id in target_ids if self._find_agent(agent_id) is None]
+            raise ValueError(f"Unknown mediation target agents: {', '.join(missing)}")
+        if first.id == second.id:
+            raise ValueError("Mediation target agents must be distinct")
+
+        pair_key = _relationship_key(first.id, second.id)
+        active_crisis = pair_key in self.world.relationship_crises
+        base_gain = self.world.rules.observer_mediation_trust_gain
+        gain = base_gain if active_crisis else base_gain * 0.40
+        gain = _clamp(gain, 0.0, 0.15)
+        before = (
+            first.relationships.get(second.id, 0.50)
+            + second.relationships.get(first.id, 0.50)
+        ) / 2
+
+        first.relationships[second.id] = _clamp(
+            first.relationships.get(second.id, 0.50) + gain,
+            0.0,
+            1.0,
+        )
+        second.relationships[first.id] = _clamp(
+            second.relationships.get(first.id, 0.50) + gain,
+            0.0,
+            1.0,
+        )
+        first.needs.belonging += gain * 0.55
+        first.needs.meaning += gain * 0.20
+        second.needs.belonging += gain * 0.55
+        second.needs.meaning += gain * 0.20
+        first.needs.clamp()
+        second.needs.clamp()
+        after = (
+            first.relationships.get(second.id, 0.50)
+            + second.relationships.get(first.id, 0.50)
+        ) / 2
+
+        message = str(
+            intervention.params.get("message")
+            or "A mediated meeting asked both agents to repair trust."
+        )
+        event = self._record(
+            "mediation",
+            intervention.actor_id,
+            (
+                f"{intervention.actor_id} mediated {first.name} and {second.name}: "
+                f"{message}"
+            ),
+            {
+                "trust": after - before,
+                "active_crisis": 1.0 if active_crisis else 0.0,
+            },
+            remember_actor=False,
+        )
+        self._remember(first, event)
+        self._remember(second, event)
+        self._maybe_reconcile_relationship(first, second)
 
     def _broadcast_recipients(self, intervention: Intervention) -> list[Agent]:
         target_ids = set(_string_list(intervention.params.get("target_agent_ids")))

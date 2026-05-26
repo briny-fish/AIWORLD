@@ -22,6 +22,7 @@ SOCIAL_EVENT_KINDS = {
     "dialogue",
     "exchange",
     "market",
+    "mediation",
     "organization",
     "reconciliation",
     "route_reopened",
@@ -145,6 +146,7 @@ def _memory_tags(event: Event, agent: Agent) -> list[str]:
             "exchange",
             "social",
             "fracture",
+            "mediation",
             "reconciliation",
         }:
             tags.add(term)

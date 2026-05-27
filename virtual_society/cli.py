@@ -249,12 +249,18 @@ def main() -> None:
     if args.llm_cache_mode != "off" and not args.llm_cache_dir:
         raise SystemExit("--llm-cache-dir is required when --llm-cache-mode is not off")
     if args.serve:
+        cognition = _build_cognition(args)
+        reflection = _build_reflection(args)
+        dialogue = _build_dialogue(args)
         run_server(
             seed=args.seed,
             host=args.host,
             port=args.port,
             snapshot_interval_days=args.snapshot_every or 30,
             world_preset=args.world_preset,
+            cognition=cognition,
+            reflection=reflection,
+            dialogue=dialogue,
         )
         return
 

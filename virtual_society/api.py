@@ -32,12 +32,18 @@ class SimulationService:
         seed: int = 1,
         snapshot_interval_days: int = 30,
         world_preset: str = "base",
+        cognition: Any = None,
+        reflection: Any = None,
+        dialogue: Any = None,
     ) -> None:
         if snapshot_interval_days < 1:
             raise ValueError("snapshot_interval_days must be >= 1")
         self.seed = seed
         self.world_preset = world_preset
         self.snapshot_interval_days = snapshot_interval_days
+        self.cognition = cognition
+        self.reflection = reflection
+        self.dialogue = dialogue
         self._lock = threading.RLock()
         self._reset_locked(seed)
 
@@ -97,7 +103,43 @@ class SimulationService:
                 self.simulation.world,
                 findings,
                 history=self.history_recorder.record(self.metrics_history),
+                cognition_trace=_provider_trace(self.cognition),
+                counterfactual_evaluation=None,
+                reflection_trace=_provider_trace(self.reflection),
+                dialogue_trace=_provider_trace(self.dialogue),
+                llm_cache=_llm_cache_summary(
+                    self.cognition,
+                    self.reflection,
+                    self.dialogue,
+                ),
             )
+
+    def provider_status(self) -> dict[str, Any]:
+        with self._lock:
+            surfaces = {
+                "cognition": _provider_status("cognition", self.cognition),
+                "reflection": _provider_status("reflection", self.reflection),
+                "dialogue": _provider_status("dialogue", self.dialogue),
+            }
+            models = sorted(
+                {
+                    str(item.get("model"))
+                    for item in surfaces.values()
+                    if item.get("model")
+                }
+            )
+            return {
+                "kind": "provider_status",
+                "seed": self.seed,
+                "day": self.simulation.world.day,
+                "world_preset": self.world_preset,
+                "live_llm_enabled": any(
+                    item.get("mode") == "hybrid"
+                    for item in surfaces.values()
+                ),
+                "models": models,
+                "surfaces": surfaces,
+            }
 
     def agent_dossier(self, agent_id: str) -> dict[str, Any]:
         with self._lock:
@@ -209,7 +251,13 @@ class SimulationService:
 
     def _reset_locked(self, seed: int) -> None:
         self.seed = seed
-        self.simulation = Simulation(seed=seed, world_preset=self.world_preset)
+        self.simulation = Simulation(
+            seed=seed,
+            world_preset=self.world_preset,
+            cognition=self.cognition,
+            reflection=self.reflection,
+            dialogue=self.dialogue,
+        )
         self.metrics_history: list = []
         self.pending_interventions: list[Intervention] = []
         self.history_recorder = HistoryRecorder(
@@ -241,11 +289,17 @@ def run_server(
     port: int = 8765,
     snapshot_interval_days: int = 30,
     world_preset: str = "base",
+    cognition: Any = None,
+    reflection: Any = None,
+    dialogue: Any = None,
 ) -> None:
     service = SimulationService(
         seed=seed,
         snapshot_interval_days=snapshot_interval_days,
         world_preset=world_preset,
+        cognition=cognition,
+        reflection=reflection,
+        dialogue=dialogue,
     )
     server = make_server(service, host=host, port=port)
     print(f"Virtual society API listening on http://{host}:{server.server_port}")
@@ -284,6 +338,9 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                     return
                 if parsed.path == "/history":
                     self._send_json(service.history())
+                    return
+                if parsed.path == "/provider-status":
+                    self._send_json(service.provider_status())
                     return
                 if parsed.path == "/report/run.json":
                     self._send_json(service.run_record())
@@ -430,6 +487,102 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
     return Handler
 
 
+def _provider_status(surface: str, provider: Any) -> dict[str, Any]:
+    if provider is None:
+        return {
+            "surface": surface,
+            "mode": "rule",
+            "provider": "rule",
+            "model": "",
+            "stats": {},
+            "trace_length": 0,
+        }
+    primary = getattr(provider, "primary", provider)
+    stats = _dataclass_dict(getattr(provider, "stats", None))
+    config = _dataclass_dict(getattr(provider, "config", None))
+    return {
+        "surface": surface,
+        "mode": "hybrid" if primary is not provider else "direct",
+        "provider": provider.__class__.__name__,
+        "primary_provider": primary.__class__.__name__,
+        "model": str(getattr(primary, "model", "")),
+        "reasoning_effort": str(getattr(primary, "reasoning_effort", "")),
+        "stats": stats,
+        "config": config,
+        "trace_length": len(getattr(provider, "trace", []) or []),
+        "cache": _cache_status(primary),
+    }
+
+
+def _provider_trace(provider: Any) -> list[dict[str, Any]]:
+    trace = getattr(provider, "trace", None)
+    if not trace:
+        return []
+    return [
+        item.as_dict() if hasattr(item, "as_dict") else dict(item)
+        for item in trace
+    ]
+
+
+def _llm_cache_summary(*providers: Any) -> list[dict[str, Any]]:
+    items = []
+    for surface, provider in zip(("cognition", "reflection", "dialogue"), providers):
+        if provider is None:
+            continue
+        primary = getattr(provider, "primary", provider)
+        cache = getattr(primary, "cache", None)
+        if cache is None:
+            continue
+        stats = cache.stats
+        items.append(
+            {
+                "surface": surface,
+                "provider": cache.provider,
+                "mode": cache.mode,
+                "root_dir": str(cache.root_dir),
+                "model": getattr(primary, "model", ""),
+                "reasoning_effort": getattr(primary, "reasoning_effort", "") or "default",
+                "reads": stats.reads,
+                "hits": stats.hits,
+                "misses": stats.misses,
+                "writes": stats.writes,
+            }
+        )
+    return items
+
+
+def _cache_status(primary: Any) -> dict[str, Any]:
+    cache = getattr(primary, "cache", None)
+    if cache is None:
+        return {}
+    return {
+        "provider": cache.provider,
+        "mode": cache.mode,
+        "root_dir": str(cache.root_dir),
+        "stats": _dataclass_dict(cache.stats),
+    }
+
+
+def _dataclass_dict(value: Any) -> dict[str, Any]:
+    if value is None:
+        return {}
+    if hasattr(value, "__dataclass_fields__"):
+        return _jsonable(asdict(value))
+    if isinstance(value, dict):
+        return _jsonable(value)
+    return {}
+
+
+def _jsonable(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {str(key): _jsonable(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_jsonable(item) for item in value]
+    if isinstance(value, set):
+        return sorted(_jsonable(item) for item in value)
+    return value
+
+
 def _index() -> dict[str, Any]:
     return {
         "name": "Virtual Society API",
@@ -439,6 +592,7 @@ def _index() -> dict[str, Any]:
             "GET /metrics": "metrics recorded through API stepping",
             "GET /events?limit=50": "recent events",
             "GET /history": "periodic history snapshots",
+            "GET /provider-status": "live provider mode, model, and generated-call stats",
             "GET /report/run.json": "run report JSON",
             "GET /report/run.html": "run report HTML",
             "GET /agents": "read-only agent dossier index",

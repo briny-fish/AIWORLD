@@ -36,6 +36,13 @@ python -m virtual_society.cli --serve --seed 7 --snapshot-every 30
 
 返回周期性历史快照摘要。
 
+`GET /provider-status`
+
+Returns the live server provider mode. This is how observer UIs know whether
+the current local API service is rule-only, cached, or backed by a live
+OpenAI-compatible provider. The response includes model names, configured
+surfaces, call stats, trace length, and cache mode when available.
+
 `GET /report/run.json`
 
 导出当前运行的 JSON 报告。

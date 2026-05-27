@@ -4,8 +4,9 @@ import unittest
 from dataclasses import asdict
 from urllib.request import Request, urlopen
 
-from virtual_society import Simulation, SimulationService
+from virtual_society import HybridCognition, HybridCognitionConfig, Simulation, SimulationService
 from virtual_society.api import make_server
+from virtual_society.model import Action, Plan
 
 
 class ApiTests(unittest.TestCase):
@@ -60,6 +61,33 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(organization["kind"], "organization_dossier")
         self.assertEqual(organizations["kind"], "organization_dossier_index")
 
+    def test_service_exposes_live_provider_status_and_trace(self) -> None:
+        cognition = HybridCognition(
+            primary=_FixedProvider(),
+            config=HybridCognitionConfig(
+                agent_ids={"a1"},
+                every_days=1,
+                max_calls=1,
+                counterfactual_horizon_days=0,
+            ),
+        )
+        service = SimulationService(
+            seed=7,
+            world_preset="generative_alpha",
+            cognition=cognition,
+        )
+
+        before = service.provider_status()
+        service.step(days=1)
+        after = service.provider_status()
+        record = service.run_record()
+
+        self.assertTrue(before["live_llm_enabled"])
+        self.assertEqual(before["surfaces"]["cognition"]["model"], "test-model")
+        self.assertEqual(after["surfaces"]["cognition"]["stats"]["llm_attempts"], 1)
+        self.assertEqual(after["surfaces"]["cognition"]["trace_length"], 1)
+        self.assertEqual(len(record["cognition_trace"]), 1)
+
     def test_http_state_step_and_report_endpoints(self) -> None:
         service = SimulationService(seed=7, snapshot_interval_days=2)
         server = make_server(service, host="127.0.0.1", port=0)
@@ -70,6 +98,7 @@ class ApiTests(unittest.TestCase):
             health = _get_json(f"{base_url}/health")
             step = _post_json(f"{base_url}/step", {"days": 3})
             state = _get_json(f"{base_url}/state")
+            provider_status = _get_json(f"{base_url}/provider-status")
             agent = _get_json(f"{base_url}/agents/a1")
             agents = _get_json(f"{base_url}/agents")
             location = _get_json(f"{base_url}/locations/commons")
@@ -83,6 +112,8 @@ class ApiTests(unittest.TestCase):
             self.assertEqual(health["status"], "ok")
             self.assertEqual(step["current_day"], 3)
             self.assertEqual(state["world"]["day"], 3)
+            self.assertEqual(provider_status["kind"], "provider_status")
+            self.assertFalse(provider_status["live_llm_enabled"])
             self.assertEqual(agent["agent"]["id"], "a1")
             self.assertEqual(agent["version"], "agent-dossier-v1")
             self.assertIn("continuity", agent)
@@ -100,11 +131,14 @@ class ApiTests(unittest.TestCase):
             self.assertIn("Step 30 Days", observer_html)
             self.assertIn("World Pulse", observer_html)
             self.assertIn("Selected Agent", observer_html)
+            self.assertIn("/provider-status", observer_html)
+            self.assertIn("Provider", observer_html)
             self.assertIn("/agents/", observer_html)
             self.assertIn("observer_affordances", observer_html)
             self.assertIn("Virtual Society 3D Observer", observer3d_html)
             self.assertIn("three", observer3d_html)
             self.assertIn("WebGLRenderer", observer3d_html)
+            self.assertIn("/provider-status", observer3d_html)
             self.assertIn("/agents/", observer3d_html)
             self.assertIn("observer_affordances", observer3d_html)
             self.assertIn("Life Timeline", observer3d_html)
@@ -160,6 +194,20 @@ def _post_json(url: str, payload: dict) -> dict:
     )
     with urlopen(request, timeout=5) as response:
         return json.loads(response.read().decode("utf-8"))
+
+
+class _FixedProvider:
+    model = "test-model"
+    reasoning_effort = "test"
+
+    def propose_plan_with_baseline(self, agent, world, baseline_plan):
+        return Plan(
+            action=Action.REST,
+            priority=0.7,
+            reason="test provider selected rest",
+            target_id=None,
+            horizon_days=1,
+        )
 
 
 if __name__ == "__main__":

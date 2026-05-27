@@ -266,7 +266,7 @@ input {
     </section>
   </main>
   <script>
-const state = { snapshot: null, report: null, metrics: [], busy: false, selectedAgentId: null, selectedDossier: null };
+const state = { snapshot: null, report: null, metrics: [], providerStatus: null, busy: false, selectedAgentId: null, selectedDossier: null };
 
 const $ = (id) => document.getElementById(id);
 
@@ -283,15 +283,17 @@ async function api(path, options = {}) {
 }
 
 async function refresh() {
-  const [snapshot, metrics, events, report] = await Promise.all([
+  const [snapshot, metrics, events, report, providerStatus] = await Promise.all([
     api("/state"),
     api("/metrics"),
     api("/events?limit=36"),
-    api("/report/run.json")
+    api("/report/run.json"),
+    api("/provider-status").catch(() => null)
   ]);
   state.snapshot = snapshot;
   state.report = report;
   state.metrics = metrics.metrics;
+  state.providerStatus = providerStatus;
   state.selectedDossier = state.selectedAgentId
     ? await api(`/agents/${encodeURIComponent(state.selectedAgentId)}`).catch(() => null)
     : null;
@@ -324,7 +326,8 @@ function render(snapshot, metricsPayload, eventsPayload) {
     tile("Avg Need", final.average_need),
     tile("Trust", final.average_trust),
     tile("Reputation", final.average_reputation),
-    tile("Cohesion", final.institutional_cohesion)
+    tile("Cohesion", final.institutional_cohesion),
+    tile("Provider", providerLabel(state.providerStatus))
   ].join("");
   renderMap(snapshot.world);
   renderIntentTarget(snapshot.world.agents);
@@ -488,6 +491,7 @@ function renderWorldPulse(report) {
       <p>${(scars.relationship_crises || []).length} relationship scars, ${(scars.blocked_routes || []).length} blocked routes.</p>
       <ul class="small-list">${pulseItems}</ul>
     </div>
+    ${providerStatusHtml(state.providerStatus)}
     <div>
       <h2>Observer Next Moves</h2>
       ${recs}
@@ -677,6 +681,33 @@ function escapeHtml(value) {
 function shortText(value, limit) {
   const text = String(value || "").replace(/\\s+/g, " ").trim();
   return text.length <= limit ? text : `${text.slice(0, Math.max(0, limit - 3)).trim()}...`;
+}
+
+function providerLabel(status) {
+  if (!status) return "unknown";
+  if (!status.live_llm_enabled) return "rule";
+  return `API ${((status.models || [])[0] || "model")}`;
+}
+
+function providerStatusHtml(status) {
+  if (!status) {
+    return `<div class="pulse-card"><strong>Provider</strong><p class="muted">Provider status unavailable.</p></div>`;
+  }
+  const surfaces = Object.values(status.surfaces || {});
+  const rows = surfaces.map((surface) => {
+    const stats = surface.stats || {};
+    const attempts = stats.llm_attempts ?? 0;
+    const successes = stats.llm_successes ?? 0;
+    const failures = stats.llm_failures ?? 0;
+    return `<li>${escapeHtml(surface.surface)}: ${escapeHtml(surface.mode)} ${escapeHtml(surface.model || "")} calls ${escapeHtml(attempts)}/${escapeHtml(successes)} failures ${escapeHtml(failures)}</li>`;
+  }).join("");
+  return `
+    <div class="pulse-card">
+      <strong>Provider ${escapeHtml(providerLabel(status))}</strong>
+      <p>${status.live_llm_enabled ? "Live LLM provider is enabled for this server." : "Rule provider is active for this server."}</p>
+      <ul class="small-list">${rows}</ul>
+    </div>
+  `;
 }
 
 function observerAffordanceActions(dossier) {

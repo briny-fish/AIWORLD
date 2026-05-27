@@ -250,6 +250,7 @@ let selectedAgentId = null;
 let selectedDossier = null;
 let latestSnapshot = null;
 let latestEvents = [];
+let providerStatus = null;
 let busy = false;
 
 const ambient = new THREE.HemisphereLight(0xddeee8, 0x1a2422, 1.7);
@@ -326,13 +327,15 @@ async function api(path, options = {}) {
 }
 
 async function refresh() {
-  const [snapshot, metrics, events] = await Promise.all([
+  const [snapshot, metrics, events, provider] = await Promise.all([
     api("/state"),
     api("/metrics"),
-    api("/events?limit=42")
+    api("/events?limit=42"),
+    api("/provider-status").catch(() => null)
   ]);
   latestSnapshot = snapshot;
   latestEvents = events.events;
+  providerStatus = provider;
   selectedDossier = selectedAgentId
     ? await api(`/agents/${encodeURIComponent(selectedAgentId)}`).catch(() => null)
     : null;
@@ -366,7 +369,8 @@ function renderHud(snapshot, metricsPayload, eventsPayload) {
     tile("Avg Need", final.average_need),
     tile("Trust", final.average_trust),
     tile("Reputation", final.average_reputation),
-    tile("Cohesion", final.institutional_cohesion)
+    tile("Cohesion", final.institutional_cohesion),
+    tile("Provider", providerLabel(providerStatus))
   ].join("");
   document.getElementById("events").innerHTML = eventsPayload.events.slice().reverse().map((event) => `
     <div class="row">
@@ -779,6 +783,12 @@ function escapeHtml(value) {
 function shortText(value, limit) {
   const text = String(value || "").replace(/\\s+/g, " ").trim();
   return text.length <= limit ? text : `${text.slice(0, Math.max(0, limit - 3)).trim()}...`;
+}
+
+function providerLabel(status) {
+  if (!status) return "unknown";
+  if (!status.live_llm_enabled) return "rule";
+  return `API ${((status.models || [])[0] || "model")}`;
 }
 
 function observerAffordanceActions(dossier) {

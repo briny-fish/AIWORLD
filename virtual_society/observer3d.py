@@ -121,8 +121,27 @@ option { color: #17201f; }
   display: grid;
   gap: 6px;
   font-size: 13px;
+  max-height: 56vh;
+  overflow: auto;
 }
 .detail strong { font-size: 17px; }
+.selection-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.life-timeline { display: grid; gap: 8px; margin-top: 4px; }
+.life-entry {
+  border-left: 3px solid var(--blue);
+  padding-left: 10px;
+}
+.life-entry strong { display: block; font-size: 13px; }
+.relationship-chip {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
+  margin: 4px 4px 0 0;
+  font-size: 12px;
+}
+.relationship-chip.crisis { border-color: var(--red); color: var(--red); }
+.small-list { margin: 4px 0 0; padding-left: 18px; color: var(--muted); }
 .hint { margin-top: 8px; color: var(--muted); font-size: 12px; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 12px; margin-top: 10px; }
 .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
@@ -160,10 +179,12 @@ option { color: #17201f; }
     <div class="controls">
       <button id="step1">1 Day</button>
       <button id="step7">7 Days</button>
+      <button id="step30">30 Days</button>
       <button id="food">Food</button>
       <button id="hope">Broadcast</button>
       <button id="storm" class="danger">Storm</button>
       <button id="reset" class="danger">Reset</button>
+      <button id="resetAlpha" class="danger">Reset Alpha</button>
     </div>
     <div class="intent-controls" aria-label="Observer intent">
       <select id="intent">
@@ -178,7 +199,7 @@ option { color: #17201f; }
       </select>
       <button id="sendIntent">Send Intent</button>
     </div>
-    <div class="hint">Click an agent in the scene to inspect current needs, plan, reputation, and organizations.</div>
+    <div class="hint">Click an agent in the scene to inspect current needs, daily life, memories, relationships, and organizations.</div>
   </section>
   <section class="hud bottom-left hud-panel">
     <h2>Recent Events</h2>
@@ -226,6 +247,7 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 const agentObjects = new Map();
 let selectedAgentId = null;
+let selectedDossier = null;
 let latestSnapshot = null;
 let latestEvents = [];
 let busy = false;
@@ -311,6 +333,9 @@ async function refresh() {
   ]);
   latestSnapshot = snapshot;
   latestEvents = events.events;
+  selectedDossier = selectedAgentId
+    ? await api(`/agents/${encodeURIComponent(selectedAgentId)}`).catch(() => null)
+    : null;
   renderHud(snapshot, metrics, events);
   renderScene(snapshot, metrics, events);
 }
@@ -588,7 +613,7 @@ function renderDetail() {
     detail.innerHTML = `<span class="status">No agent selected.</span>`;
     return;
   }
-  const agent = latestSnapshot.world.agents.find((item) => item.id === selectedAgentId);
+  const agent = selectedDossier?.agent || latestSnapshot.world.agents.find((item) => item.id === selectedAgentId);
   if (!agent) {
     detail.innerHTML = `<span class="status">No agent selected.</span>`;
     return;
@@ -596,6 +621,27 @@ function renderDetail() {
   const plan = agent.active_plan ? `${agent.active_plan.action}: ${agent.active_plan.reason}` : "none";
   const profile = agent.profile || {};
   const reflection = latestReflection(agent);
+  const life = (agent.recent_life_journal || []).slice(-5).reverse();
+  const memories = (agent.recent_memory_stream || []).slice(-4).reverse();
+  const relationships = (selectedDossier?.relationship_links || [])
+    .sort((a, b) => Number(a.average_trust) - Number(b.average_trust))
+    .slice(0, 6);
+  const lifeHtml = life.length
+    ? life.map((item) => `<div class="life-entry">
+        <strong>Day ${escapeHtml(item.day)} · ${escapeHtml(item.mood)}</strong>
+        <span>${escapeHtml(item.summary)}</span>
+        <span class="status">${escapeHtml((item.pressures || []).join(", "))}</span>
+      </div>`).join("")
+    : `<span class="status">No life journal yet. Step the world to create daily life entries.</span>`;
+  const memoryHtml = memories.length
+    ? `<ul class="small-list">${memories.map((item) => `<li>day ${escapeHtml(item.day)} · ${escapeHtml(item.kind)}: ${escapeHtml(shortText(item.text || "", 140))}</li>`).join("")}</ul>`
+    : `<span class="status">No recent memory stream entries.</span>`;
+  const relationshipHtml = relationships.length
+    ? relationships.map((item) => {
+        const other = (item.agents || []).find((name, index) => (item.agent_ids || [])[index] !== agent.id) || "unknown";
+        return `<span class="relationship-chip ${item.crisis ? "crisis" : ""}">${escapeHtml(other)} · ${escapeHtml(item.average_trust)} · ${item.crisis ? "crisis" : "open"}</span>`;
+      }).join("")
+    : `<span class="status">No relationship evidence yet.</span>`;
   detail.innerHTML = `
     <strong>${escapeHtml(agent.name)}</strong>
     <span>${escapeHtml(agent.role)} | ${escapeHtml(agent.id)}</span>
@@ -606,7 +652,31 @@ function renderDetail() {
     <span>Plan ${escapeHtml(plan)}</span>
     <span>Reflection ${escapeHtml(reflection)}</span>
     <span>Organizations ${escapeHtml((agent.organization_ids || []).join(", "))}</span>
+    <div class="selection-actions">
+      <button id="selectedBroadcast3d">Broadcast Intent</button>
+      <button id="selectedMediation3d">Mediate Crisis</button>
+      <button id="selectedFood3d">Food at Location</button>
+    </div>
+    <h2>Life Timeline</h2>
+    <div class="life-timeline">${lifeHtml}</div>
+    <h2>Recent Memory</h2>
+    ${memoryHtml}
+    <h2>Relationship Pressure</h2>
+    <div>${relationshipHtml}</div>
   `;
+  document.getElementById("selectedBroadcast3d").addEventListener("click", () => act(sendObserverIntent));
+  document.getElementById("selectedMediation3d").addEventListener("click", () => act(sendSelectedMediation));
+  document.getElementById("selectedFood3d").addEventListener("click", () => act(() => addResourceAtSelectedLocation("food", 4)));
+}
+
+async function selectAgent(agentId) {
+  selectedAgentId = agentId;
+  selectedDossier = null;
+  renderScene(latestSnapshot);
+  renderIntentTarget(latestSnapshot.world.agents);
+  renderDetail();
+  selectedDossier = await api(`/agents/${encodeURIComponent(agentId)}`).catch(() => null);
+  renderDetail();
 }
 
 function onPointerDown(event) {
@@ -617,10 +687,7 @@ function onPointerDown(event) {
   const hits = raycaster.intersectObjects(agentGroup.children, false);
   const hit = hits.find((item) => item.object.userData.kind === "agent");
   if (hit) {
-    selectedAgentId = hit.object.userData.agentId;
-    renderScene(latestSnapshot);
-    renderIntentTarget(latestSnapshot.world.agents);
-    renderDetail();
+    selectAgent(hit.object.userData.agentId);
   }
 }
 
@@ -712,6 +779,11 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function shortText(value, limit) {
+  const text = String(value || "").replace(/\\s+/g, " ").trim();
+  return text.length <= limit ? text : `${text.slice(0, Math.max(0, limit - 3)).trim()}...`;
+}
+
 function selectedTargetIds() {
   if (document.getElementById("intentTarget").value !== "selected") return [];
   return selectedAgentId ? [selectedAgentId] : [];
@@ -759,12 +831,57 @@ function sendObserverIntent() {
   });
 }
 
+function sendSelectedMediation() {
+  if (!selectedDossier?.agent) return sendObserverIntent();
+  const crisis = (selectedDossier.relationship_links || []).find((item) => item.crisis);
+  if (!crisis) return sendObserverIntent();
+  const actorId = observerActorId();
+  return api("/step", {
+    method: "POST",
+    body: JSON.stringify({
+      days: 1,
+      interventions: [{
+        kind: "mediation",
+        actor_id: actorId,
+        reason: `${actorId} 3D mediated ${crisis.pair}`,
+        params: {
+          target_agent_ids: crisis.agent_ids,
+          message: "Name the grievance and rebuild a practical agreement."
+        }
+      }]
+    })
+  });
+}
+
+function addResourceAtSelectedLocation(resource, amount) {
+  const agent = selectedDossier?.agent;
+  const actorId = observerActorId();
+  return api("/step", {
+    method: "POST",
+    body: JSON.stringify({
+      days: 1,
+      interventions: [{
+        kind: "resource",
+        actor_id: actorId,
+        reason: `${actorId} 3D supported ${agent?.name || "selected agent"}`,
+        params: {
+          resource,
+          amount,
+          location_id: agent?.location_id || "commons"
+        }
+      }]
+    })
+  });
+}
+
 document.getElementById("step1").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1 }) })));
 document.getElementById("step7").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 7 }) })));
+document.getElementById("step30").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 30 }) })));
 document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", actor_id: observerActorId(), reason: `${observerActorId()} 3D food aid`, params: { resource: "food", amount: 5 } }] }) })));
 document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", actor_id: observerActorId(), reason: `${observerActorId()} 3D encouragement`, params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
 document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", actor_id: observerActorId(), reason: `${observerActorId()} 3D stress test`, params: { name: "storm", severity: 0.35 } }] }) })));
 document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7 }) })));
+document.getElementById("resetAlpha").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7, world_preset: "generative_alpha" }) })));
 document.getElementById("sendIntent").addEventListener("click", () => act(sendObserverIntent));
 const savedObserverName = localStorage.getItem("virtualSocietyObserverName");
 if (savedObserverName) document.getElementById("observerName").value = savedObserverName;

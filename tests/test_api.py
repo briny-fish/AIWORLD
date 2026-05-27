@@ -77,6 +77,10 @@ class ApiTests(unittest.TestCase):
             self.assertIn("Virtual Society 3D Observer", observer3d_html)
             self.assertIn("three", observer3d_html)
             self.assertIn("WebGLRenderer", observer3d_html)
+            self.assertIn("/agents/", observer3d_html)
+            self.assertIn("Life Timeline", observer3d_html)
+            self.assertIn("Food at Location", observer3d_html)
+            self.assertIn("30 Days", observer3d_html)
         finally:
             server.shutdown()
             server.server_close()

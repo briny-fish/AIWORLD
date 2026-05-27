@@ -16,6 +16,12 @@ from .observer3d import render_observer3d_html
 from .observer import render_observer_html
 from .reports import build_run_record, render_run_html
 from .simulation import Simulation
+from .world_dossiers import (
+    build_location_dossier,
+    build_location_dossiers,
+    build_organization_dossier,
+    build_organization_dossiers,
+)
 
 
 class SimulationService:
@@ -112,6 +118,30 @@ class SimulationService:
                 seed=self.seed,
                 observer_recommendations=record.get("observer_recommendations", []),
             )
+
+    def location_dossier(self, location_id: str) -> dict[str, Any]:
+        with self._lock:
+            return build_location_dossier(
+                self.simulation.world,
+                location_id,
+                seed=self.seed,
+            )
+
+    def location_dossiers(self) -> dict[str, Any]:
+        with self._lock:
+            return build_location_dossiers(self.simulation.world, seed=self.seed)
+
+    def organization_dossier(self, organization_id: str) -> dict[str, Any]:
+        with self._lock:
+            return build_organization_dossier(
+                self.simulation.world,
+                organization_id,
+                seed=self.seed,
+            )
+
+    def organization_dossiers(self) -> dict[str, Any]:
+        with self._lock:
+            return build_organization_dossiers(self.simulation.world, seed=self.seed)
 
     def step(
         self,
@@ -273,6 +303,24 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                         raise ValueError("agent id is required")
                     self._send_json(service.agent_dossier(agent_id))
                     return
+                if parsed.path == "/locations":
+                    self._send_json(service.location_dossiers())
+                    return
+                if parsed.path.startswith("/locations/"):
+                    location_id = unquote(parsed.path.removeprefix("/locations/"))
+                    if not location_id:
+                        raise ValueError("location id is required")
+                    self._send_json(service.location_dossier(location_id))
+                    return
+                if parsed.path == "/organizations":
+                    self._send_json(service.organization_dossiers())
+                    return
+                if parsed.path.startswith("/organizations/"):
+                    organization_id = unquote(parsed.path.removeprefix("/organizations/"))
+                    if not organization_id:
+                        raise ValueError("organization id is required")
+                    self._send_json(service.organization_dossier(organization_id))
+                    return
                 if parsed.path == "/observer":
                     self._send_text(
                         render_observer_html(),
@@ -395,6 +443,10 @@ def _index() -> dict[str, Any]:
             "GET /report/run.html": "run report HTML",
             "GET /agents": "read-only agent dossier index",
             "GET /agents/{id}": "read-only agent dossier with life journal and relationships",
+            "GET /locations": "read-only location dossier index",
+            "GET /locations/{id}": "read-only location dossier with route and affordance data",
+            "GET /organizations": "read-only organization dossier index",
+            "GET /organizations/{id}": "read-only organization dossier with member and affordance data",
             "GET /observer": "interactive browser observer",
             "GET /observer3d": "Three.js 3D observer prototype",
             "POST /step": {"days": 1, "interventions": []},

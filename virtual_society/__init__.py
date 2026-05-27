@@ -76,6 +76,13 @@ from .reflection_evaluation import assess_reflection_follow_through
 from .simulation import Simulation
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import ChronicleEntry, build_social_chronicle
+from .world_dossiers import (
+    WORLD_OBJECT_DOSSIER_VERSION,
+    build_location_dossier,
+    build_location_dossiers,
+    build_organization_dossier,
+    build_organization_dossiers,
+)
 
 __all__ = [
     "Intervention",
@@ -84,6 +91,7 @@ __all__ = [
     "PlanProbeResult",
     "PLAN_PROMPT_VERSION",
     "AGENT_DOSSIER_VERSION",
+    "WORLD_OBJECT_DOSSIER_VERSION",
     "AgentProfile",
     "CounterfactualAssessment",
     "CounterfactualBucket",
@@ -132,6 +140,10 @@ __all__ = [
     "build_agent_record",
     "build_relationship_links",
     "build_dialogue_context",
+    "build_location_dossier",
+    "build_location_dossiers",
+    "build_organization_dossier",
+    "build_organization_dossiers",
     "build_reflection_context",
     "assess_cognition_impacts",
     "assess_cognition_outcomes",

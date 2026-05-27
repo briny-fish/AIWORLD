@@ -41,6 +41,10 @@ class ApiTests(unittest.TestCase):
 
         dossier = service.agent_dossier("a1")
         index = service.agent_dossiers()
+        location = service.location_dossier("commons")
+        locations = service.location_dossiers()
+        organization = service.organization_dossier("common_council")
+        organizations = service.organization_dossiers()
 
         self.assertEqual(dossier["kind"], "agent_dossier")
         self.assertIn("continuity", dossier)
@@ -51,6 +55,10 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(dossier["day"], 3)
         self.assertEqual(index["kind"], "agent_dossier_index")
         self.assertEqual(len(index["agents"]), 12)
+        self.assertEqual(location["kind"], "location_dossier")
+        self.assertEqual(locations["kind"], "location_dossier_index")
+        self.assertEqual(organization["kind"], "organization_dossier")
+        self.assertEqual(organizations["kind"], "organization_dossier_index")
 
     def test_http_state_step_and_report_endpoints(self) -> None:
         service = SimulationService(seed=7, snapshot_interval_days=2)
@@ -64,6 +72,10 @@ class ApiTests(unittest.TestCase):
             state = _get_json(f"{base_url}/state")
             agent = _get_json(f"{base_url}/agents/a1")
             agents = _get_json(f"{base_url}/agents")
+            location = _get_json(f"{base_url}/locations/commons")
+            locations = _get_json(f"{base_url}/locations")
+            organization = _get_json(f"{base_url}/organizations/common_council")
+            organizations = _get_json(f"{base_url}/organizations")
             report_html = _get_text(f"{base_url}/report/run.html")
             observer_html = _get_text(f"{base_url}/observer")
             observer3d_html = _get_text(f"{base_url}/observer3d")
@@ -77,6 +89,10 @@ class ApiTests(unittest.TestCase):
             self.assertTrue(agent["agent"]["recent_life_journal"])
             self.assertEqual(agents["kind"], "agent_dossier_index")
             self.assertTrue(agents["agents"])
+            self.assertEqual(location["version"], "world-object-dossier-v1")
+            self.assertEqual(locations["kind"], "location_dossier_index")
+            self.assertEqual(organization["kind"], "organization_dossier")
+            self.assertEqual(organizations["kind"], "organization_dossier_index")
             self.assertIn("Virtual Society Run", report_html)
             self.assertIn("History", report_html)
             self.assertIn("Virtual Society Observer", observer_html)

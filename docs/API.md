@@ -57,6 +57,27 @@ journal, recent memory, relationship pressure, relevant recommendations, and
 bounded observer affordances. Clients must still apply changes through
 structured interventions and `/step`; the dossier is read-only.
 
+`GET /locations`
+
+Returns the `world-object-dossier-v1` index for all locations, including
+condition state, resident count, connected route state, recent evidence, and
+bounded observer affordances.
+
+`GET /locations/{id}`
+
+Returns one location dossier. Location affordances currently include bounded
+food/material support and repair-focused broadcasts where damage or blocked
+routes make that relevant.
+
+`GET /organizations`
+
+Returns the `world-object-dossier-v1` index for all organizations.
+
+`GET /organizations/{id}`
+
+Returns one organization dossier with members, cohesion/fracture state, home
+location inventory gaps, recent evidence, and bounded coordination affordances.
+
 `GET /observer`
 
 打开同源交互式观察器页面。观察器会调用当前 API 服务读取状态、推进时间和提交干预。

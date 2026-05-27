@@ -8,6 +8,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
+from .agent_dossiers import build_agent_dossier, build_agent_dossiers
 from .health import assess_metrics
 from .history import HistoryRecorder
 from .interventions import Intervention
@@ -95,34 +96,22 @@ class SimulationService:
     def agent_dossier(self, agent_id: str) -> dict[str, Any]:
         with self._lock:
             record = self.run_record()
-            agent = next(
-                (
-                    item
-                    for item in record["agents"]
-                    if str(item.get("id", "")) == agent_id
-                ),
-                None,
+            return build_agent_dossier(
+                self.simulation.world,
+                agent_id,
+                seed=self.seed,
+                relationship_links=record.get("relationship_links", []),
+                observer_recommendations=record.get("observer_recommendations", []),
             )
-            if agent is None:
-                raise ValueError(f"unknown agent id: {agent_id}")
-            relationship_links = [
-                item
-                for item in record.get("relationship_links", [])
-                if agent_id in {str(value) for value in item.get("agent_ids", [])}
-            ]
-            recent_events = [
-                event
-                for event in record.get("events", [])
-                if event.get("actor_id") == agent_id
-            ][-12:]
-            return {
-                "seed": self.seed,
-                "day": self.simulation.world.day,
-                "agent": agent,
-                "relationship_links": relationship_links,
-                "recent_events": recent_events,
-                "observer_recommendations": record.get("observer_recommendations", []),
-            }
+
+    def agent_dossiers(self) -> dict[str, Any]:
+        with self._lock:
+            record = self.run_record()
+            return build_agent_dossiers(
+                self.simulation.world,
+                seed=self.seed,
+                observer_recommendations=record.get("observer_recommendations", []),
+            )
 
     def step(
         self,
@@ -275,6 +264,9 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                         content_type="text/html; charset=utf-8",
                     )
                     return
+                if parsed.path == "/agents":
+                    self._send_json(service.agent_dossiers())
+                    return
                 if parsed.path.startswith("/agents/"):
                     agent_id = unquote(parsed.path.removeprefix("/agents/"))
                     if not agent_id:
@@ -401,6 +393,7 @@ def _index() -> dict[str, Any]:
             "GET /history": "periodic history snapshots",
             "GET /report/run.json": "run report JSON",
             "GET /report/run.html": "run report HTML",
+            "GET /agents": "read-only agent dossier index",
             "GET /agents/{id}": "read-only agent dossier with life journal and relationships",
             "GET /observer": "interactive browser observer",
             "GET /observer3d": "Three.js 3D observer prototype",

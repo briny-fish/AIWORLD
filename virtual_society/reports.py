@@ -7,6 +7,7 @@ from html import escape
 from pathlib import Path
 from typing import Any
 
+from .agent_dossiers import build_agent_record, build_relationship_links
 from .choice_tension_evaluation import assess_choice_tensions
 from .health import HealthFinding, RunReport
 from .historical_scars import build_historical_scar_validation
@@ -83,6 +84,8 @@ def build_run_record(
         reason_richness=reason_richness_items,
         baseline_comparison=baseline_comparison,
     )
+    relationship_links = build_relationship_links(world)
+    agent_records = [build_agent_record(agent) for agent in world.agents]
     record = {
         "kind": "run",
         "generated_at": _now(),
@@ -98,7 +101,7 @@ def build_run_record(
             for key, value in world.route_loads.items()
         },
         "historical_scars": _historical_scars(world),
-        "relationship_links": _relationship_links(world),
+        "relationship_links": relationship_links,
         "historical_scar_validation": build_historical_scar_validation(world, history),
         "scar_diagnosis": scar_diagnosis,
         "story_cards": story_cards,
@@ -108,32 +111,7 @@ def build_run_record(
         "observer_recommendations": observer_recommendations,
         "choice_tensions": choice_tensions,
         "reason_richness": reason_richness_items,
-        "agents": [
-            {
-                "id": agent.id,
-                "name": agent.name,
-                "role": agent.role,
-                "location_id": agent.location_id,
-                "profile": asdict(agent.profile),
-                "needs": asdict(agent.needs),
-                "average_need": round(agent.needs.average(), 3),
-                "average_trust": _average(agent.relationships.values()),
-                "reputation": round(agent.reputation, 3),
-                "organization_ids": list(agent.organization_ids),
-                "active_plan": _plan_dict(agent.active_plan),
-                "recent_memories": agent.memories[-5:],
-                "recent_memory_stream": [
-                    asdict(memory)
-                    for memory in agent.memory_stream[-5:]
-                ],
-                "recent_reflections": agent.reflections[-3:],
-                "recent_life_journal": [
-                    asdict(item)
-                    for item in agent.life_journal[-5:]
-                ],
-            }
-            for agent in world.agents
-        ],
+        "agents": agent_records,
         "organizations": [
             {
                 "id": organization.id,
@@ -2048,46 +2026,6 @@ def _historical_scars(world: WorldState) -> dict[str, Any]:
     }
 
 
-def _relationship_links(world: WorldState) -> list[dict[str, Any]]:
-    agents_by_id = {agent.id: agent for agent in world.agents}
-    links = []
-    seen_pairs: set[str] = set()
-    for agent in world.agents:
-        for other_id, trust in agent.relationships.items():
-            other = agents_by_id.get(other_id)
-            if other is None:
-                continue
-            pair_key = _agent_pair_key(agent.id, other.id)
-            if pair_key in seen_pairs:
-                continue
-            seen_pairs.add(pair_key)
-            reciprocal = other.relationships.get(agent.id, trust)
-            crisis_day = world.relationship_crises.get(pair_key)
-            links.append(
-                {
-                    "pair": pair_key,
-                    "agent_ids": pair_key.split("|"),
-                    "agents": [
-                        agents_by_id[agent_id].name
-                        if agent_id in agents_by_id
-                        else agent_id
-                        for agent_id in pair_key.split("|")
-                    ],
-                    "average_trust": round((float(trust) + float(reciprocal)) / 2, 3),
-                    "crisis": crisis_day is not None,
-                    "started_day": crisis_day,
-                }
-            )
-    return sorted(
-        links,
-        key=lambda item: (
-            not bool(item["crisis"]),
-            float(item["average_trust"]),
-            str(item["pair"]),
-        ),
-    )
-
-
 def _observer_memory(world: WorldState) -> list[dict[str, Any]]:
     agent_ids = {agent.id for agent in world.agents}
     organization_ids = {organization.id for organization in world.organizations}
@@ -3000,39 +2938,9 @@ def _experiment_summary(reports: list[dict[str, Any]]) -> str:
     return f"{critical} critical · {warning} warning"
 
 
-def _average(values: Any) -> float:
-    items = list(values)
-    if not items:
-        return 0.0
-    return round(sum(items) / len(items), 3)
-
-
 def _route_key(first_location_id: str, second_location_id: str) -> str:
     left, right = sorted([first_location_id, second_location_id])
     return f"{left}|{right}"
-
-
-def _agent_pair_key(first_agent_id: str, second_agent_id: str) -> str:
-    left, right = sorted([first_agent_id, second_agent_id], key=_agent_sort_key)
-    return f"{left}|{right}"
-
-
-def _agent_sort_key(agent_id: str) -> tuple[str, int | str]:
-    if len(agent_id) > 1 and agent_id[0].isalpha() and agent_id[1:].isdigit():
-        return (agent_id[0], int(agent_id[1:]))
-    return (agent_id, agent_id)
-
-
-def _plan_dict(plan: Any) -> dict[str, Any] | None:
-    if plan is None:
-        return None
-    return {
-        "action": plan.action.value,
-        "priority": plan.priority,
-        "reason": plan.reason,
-        "target_id": plan.target_id,
-        "horizon_days": plan.horizon_days,
-    }
 
 
 def _now() -> str:

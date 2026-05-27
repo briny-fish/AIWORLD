@@ -1,5 +1,12 @@
 """Virtual society simulation core."""
 
+from .agent_dossiers import (
+    AGENT_DOSSIER_VERSION,
+    build_agent_dossier,
+    build_agent_dossiers,
+    build_agent_record,
+    build_relationship_links,
+)
 from .codex_cli_provider import CodexCliCognition, CodexCliDialogue, CodexCliReflection
 from .choice_tension_evaluation import ChoiceTensionFinding, assess_choice_tensions
 from .cognition import RuleBasedCognition
@@ -76,6 +83,7 @@ __all__ = [
     "PlanCounterfactualComparison",
     "PlanProbeResult",
     "PLAN_PROMPT_VERSION",
+    "AGENT_DOSSIER_VERSION",
     "AgentProfile",
     "CounterfactualAssessment",
     "CounterfactualBucket",
@@ -119,6 +127,10 @@ __all__ = [
     "SimulationService",
     "Simulation",
     "build_cognition_context",
+    "build_agent_dossier",
+    "build_agent_dossiers",
+    "build_agent_record",
+    "build_relationship_links",
     "build_dialogue_context",
     "build_reflection_context",
     "assess_cognition_impacts",

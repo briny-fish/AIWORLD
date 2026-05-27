@@ -44,6 +44,19 @@ python -m virtual_society.cli --serve --seed 7 --snapshot-every 30
 
 导出当前运行的离线 HTML 报告。
 
+`GET /agents`
+
+Returns the `agent-dossier-v1` index for all current individuals. This is the
+shared product contract for observer UIs, story surfaces, and future roleplay
+or LLM layers.
+
+`GET /agents/{id}`
+
+Returns one `agent-dossier-v1` record with identity continuity, recent life
+journal, recent memory, relationship pressure, relevant recommendations, and
+bounded observer affordances. Clients must still apply changes through
+structured interventions and `/step`; the dossier is read-only.
+
 `GET /observer`
 
 打开同源交互式观察器页面。观察器会调用当前 API 服务读取状态、推进时间和提交干预。

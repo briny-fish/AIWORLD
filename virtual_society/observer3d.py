@@ -642,6 +642,7 @@ function renderDetail() {
         return `<span class="relationship-chip ${item.crisis ? "crisis" : ""}">${escapeHtml(other)} · ${escapeHtml(item.average_trust)} · ${item.crisis ? "crisis" : "open"}</span>`;
       }).join("")
     : `<span class="status">No relationship evidence yet.</span>`;
+  const actionsHtml = observerAffordanceActions(selectedDossier);
   detail.innerHTML = `
     <strong>${escapeHtml(agent.name)}</strong>
     <span>${escapeHtml(agent.role)} | ${escapeHtml(agent.id)}</span>
@@ -653,9 +654,7 @@ function renderDetail() {
     <span>Reflection ${escapeHtml(reflection)}</span>
     <span>Organizations ${escapeHtml((agent.organization_ids || []).join(", "))}</span>
     <div class="selection-actions">
-      <button id="selectedBroadcast3d">Broadcast Intent</button>
-      <button id="selectedMediation3d">Mediate Crisis</button>
-      <button id="selectedFood3d">Food at Location</button>
+      ${actionsHtml}
     </div>
     <h2>Life Timeline</h2>
     <div class="life-timeline">${lifeHtml}</div>
@@ -664,9 +663,7 @@ function renderDetail() {
     <h2>Relationship Pressure</h2>
     <div>${relationshipHtml}</div>
   `;
-  document.getElementById("selectedBroadcast3d").addEventListener("click", () => act(sendObserverIntent));
-  document.getElementById("selectedMediation3d").addEventListener("click", () => act(sendSelectedMediation));
-  document.getElementById("selectedFood3d").addEventListener("click", () => act(() => addResourceAtSelectedLocation("food", 4)));
+  bindObserverAffordanceActions(detail, selectedDossier);
 }
 
 async function selectAgent(agentId) {
@@ -782,6 +779,52 @@ function escapeHtml(value) {
 function shortText(value, limit) {
   const text = String(value || "").replace(/\\s+/g, " ").trim();
   return text.length <= limit ? text : `${text.slice(0, Math.max(0, limit - 3)).trim()}...`;
+}
+
+function observerAffordanceActions(dossier) {
+  const affordances = dossier?.observer_affordances || [];
+  if (!affordances.length) {
+    return `
+      <button data-fallback-action="broadcast">Broadcast Intent</button>
+      <button data-fallback-action="mediation">Mediate Crisis</button>
+      <button data-fallback-action="food">Food at Location</button>
+    `;
+  }
+  return affordances.map((item) => `
+    <button data-affordance-id="${escapeHtml(item.id)}" title="${escapeHtml(item.description || item.label || "")}">
+      ${escapeHtml(item.label || item.id)}
+    </button>
+  `).join("");
+}
+
+function bindObserverAffordanceActions(root, dossier) {
+  root.querySelectorAll("[data-affordance-id]").forEach((button) => {
+    button.addEventListener("click", () => act(() => applyObserverAffordance(dossier, button.dataset.affordanceId)));
+  });
+  root.querySelectorAll("[data-fallback-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const action = button.dataset.fallbackAction;
+      if (action === "mediation") return act(sendSelectedMediation);
+      if (action === "food") return act(() => addResourceAtSelectedLocation("food", 4));
+      return act(sendObserverIntent);
+    });
+  });
+}
+
+function applyObserverAffordance(dossier, affordanceId) {
+  const affordance = (dossier?.observer_affordances || []).find((item) => item.id === affordanceId);
+  if (!affordance?.intervention) return sendObserverIntent();
+  const actorId = observerActorId();
+  const intervention = JSON.parse(JSON.stringify(affordance.intervention));
+  intervention.actor_id = actorId;
+  intervention.reason = `${actorId} 3D ${affordance.label || affordance.id}`;
+  return api("/step", {
+    method: "POST",
+    body: JSON.stringify({
+      days: 1,
+      interventions: [intervention]
+    })
+  });
 }
 
 function selectedTargetIds() {

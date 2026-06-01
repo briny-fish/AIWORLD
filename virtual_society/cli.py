@@ -26,6 +26,7 @@ from .hybrid_cognition import HybridCognition, HybridCognitionConfig
 from .interventions import load_interventions
 from .llm_contract import build_cognition_context, render_plan_prompt
 from .llm_cache import LLMCallCache
+from .luanti_export import build_luanti_scene
 from .model import WorldState
 from .observer_recommendations import intervention_payloads
 from .openai_provider import OpenAICognition, OpenAIDialogue, OpenAIReflection
@@ -45,6 +46,7 @@ from .reports import (
 )
 from .simulation import Simulation
 from .social_evaluation import assess_social_dynamics
+from .world_client_protocol import build_world_client_frame
 
 
 def main() -> None:
@@ -207,6 +209,14 @@ def main() -> None:
     )
     parser.add_argument("--save-run-json", help="Write a JSON artifact for a single run.")
     parser.add_argument("--save-run-html", help="Write an offline HTML observer for a single run.")
+    parser.add_argument(
+        "--save-world-client-frame-json",
+        help="Write the final world-client-v1 frame for external renderers.",
+    )
+    parser.add_argument(
+        "--save-luanti-scene-json",
+        help="Write a static luanti-scene-v1 package generated from world-client-v1.",
+    )
     parser.add_argument(
         "--save-observer-recommendations-json",
         help="Write observer intervention recommendations derived from the run.",
@@ -446,6 +456,17 @@ def main() -> None:
         write_json(args.save_dialogue_trace_json, dialogue_trace)
     if args.save_snapshots_dir and history_recorder is not None:
         write_snapshot_files(args.save_snapshots_dir, history_recorder.snapshots)
+    world_client_frame = None
+    if args.save_world_client_frame_json or args.save_luanti_scene_json:
+        world_client_frame = build_world_client_frame(
+            simulation.world,
+            seed=args.seed,
+            world_preset=args.world_preset,
+        )
+        if args.save_world_client_frame_json:
+            write_json(args.save_world_client_frame_json, world_client_frame)
+        if args.save_luanti_scene_json:
+            write_json(args.save_luanti_scene_json, build_luanti_scene(world_client_frame))
 
     if args.json:
         payload = simulation.snapshot()
@@ -516,6 +537,10 @@ def main() -> None:
         print(f"\nSaved run JSON: {args.save_run_json}")
     if args.save_run_html:
         print(f"Saved run HTML: {args.save_run_html}")
+    if args.save_world_client_frame_json:
+        print(f"Saved world client frame JSON: {args.save_world_client_frame_json}")
+    if args.save_luanti_scene_json:
+        print(f"Saved Luanti scene JSON: {args.save_luanti_scene_json}")
     if args.save_cognition_trace_json:
         print(f"Saved cognition trace JSON: {args.save_cognition_trace_json}")
     if args.save_reflection_trace_json:

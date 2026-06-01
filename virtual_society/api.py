@@ -18,6 +18,7 @@ from .observer import render_observer_html
 from .reports import build_run_record, render_run_html
 from .simulation import Simulation
 from .social_timeline import build_agent_social_history, build_social_feed
+from .world_client_protocol import build_world_client_frame
 from .world_dossiers import (
     build_location_dossier,
     build_location_dossiers,
@@ -154,6 +155,17 @@ class SimulationService:
                 "models": models,
                 "surfaces": surfaces,
             }
+
+    def world_client_frame(self) -> dict[str, Any]:
+        with self._lock:
+            record = self.run_record()
+            return build_world_client_frame(
+                self.simulation.world,
+                seed=self.seed,
+                world_preset=self.world_preset,
+                provider_status=self.provider_status(),
+                social_feed=record.get("social_feed"),
+            )
 
     def agent_dossier(self, agent_id: str) -> dict[str, Any]:
         with self._lock:
@@ -388,6 +400,9 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                 if parsed.path == "/social-feed":
                     limit = int(query.get("limit", ["50"])[0])
                     self._send_json(service.social_feed(limit=limit))
+                    return
+                if parsed.path == "/client/world-frame":
+                    self._send_json(service.world_client_frame())
                     return
                 if parsed.path == "/report/run.json":
                     self._send_json(service.run_record())
@@ -650,6 +665,7 @@ def _index() -> dict[str, Any]:
             "GET /social-feed?limit=50": "readable social feed with dialogue and influence hints",
             "GET /history": "periodic history snapshots",
             "GET /provider-status": "live provider mode, model, and generated-call stats",
+            "GET /client/world-frame": "world-client-v1 frame for external renderers",
             "GET /report/run.json": "run report JSON",
             "GET /report/run.html": "run report HTML",
             "GET /agents": "read-only agent dossier index",

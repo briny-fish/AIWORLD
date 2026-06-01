@@ -48,6 +48,7 @@ from .hybrid_cognition import (
 from .interventions import Intervention
 from .llm_cache import LLMCacheRecord, LLMCacheStats, LLMCallCache
 from .llm_contract import PLAN_PROMPT_VERSION, build_cognition_context, parse_plan_response, render_plan_prompt
+from .luanti_export import LUANTI_SCENE_VERSION, build_luanti_scene
 from .model import AgentProfile, LifeEpisode, MemoryItem, Plan
 from .observer_intent_evaluation import ObserverIntentFinding, assess_observer_intents
 from .observer_recommendations import (
@@ -89,6 +90,10 @@ from .world_dossiers import (
     build_organization_dossier,
     build_organization_dossiers,
 )
+from .world_client_protocol import (
+    WORLD_CLIENT_PROTOCOL_VERSION,
+    build_world_client_frame,
+)
 
 __all__ = [
     "Intervention",
@@ -98,6 +103,8 @@ __all__ = [
     "PLAN_PROMPT_VERSION",
     "AGENT_DOSSIER_VERSION",
     "WORLD_OBJECT_DOSSIER_VERSION",
+    "WORLD_CLIENT_PROTOCOL_VERSION",
+    "LUANTI_SCENE_VERSION",
     "SOCIAL_TIMELINE_VERSION",
     "AgentProfile",
     "CounterfactualAssessment",
@@ -151,6 +158,8 @@ __all__ = [
     "build_location_dossiers",
     "build_organization_dossier",
     "build_organization_dossiers",
+    "build_world_client_frame",
+    "build_luanti_scene",
     "build_reflection_context",
     "assess_cognition_impacts",
     "assess_cognition_outcomes",

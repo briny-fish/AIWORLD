@@ -57,6 +57,8 @@ Acceptance:
 
 ## M42: World Client Protocol v1
 
+Status: implemented as ADR-0043.
+
 Goal: define the stable read contract that any 3D, voxel, or web client can
 consume.
 
@@ -108,6 +110,8 @@ Acceptance:
   data.
 
 ## M43: External Client Proof of Concept
+
+Status: started as ADR-0044 with a static Luanti scene export and mod skeleton.
 
 Goal: prove that an existing world runtime can visualize our society without
 owning the social simulation.
@@ -174,4 +178,3 @@ Possible outcomes:
 4. Refactor the existing 3D observer to consume the frame where practical.
 5. Build the M43 Luanti adapter skeleton and scene export.
 6. Run the M44 decision gate based on actual usability, not preference.
-

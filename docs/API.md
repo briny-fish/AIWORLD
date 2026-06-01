@@ -169,6 +169,23 @@ agents.
 }
 ```
 
+## World Client Endpoint
+
+M42 adds a versioned read contract for external 3D, game-engine, or voxel
+clients:
+
+`GET /client/world-frame`
+
+Returns `world-client-v1`: a render-ready snapshot with locations, routes,
+agents, organizations, resources, metrics, recent social feed entries, provider
+status, visual hints, inspect URLs, and bounded affordances. Clients may render
+this frame directly, but state changes still must use `/step`, `/interventions`,
+or `/reset`.
+
+The frame uses a simple cartesian coordinate system with `y` as the up axis.
+This keeps the Python Simulation Core authoritative while letting Web 3D,
+Godot, Unity, or Luanti-style clients visualize the same world.
+
 ## Design Rules
 
 ## Social Timeline Endpoints

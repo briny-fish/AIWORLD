@@ -25,6 +25,8 @@ class AgentDossierTests(unittest.TestCase):
         self.assertTrue(dossier["continuity"]["identity"]["long_term_goals"])
         self.assertTrue(dossier["continuity"]["latest_life_episode"])
         self.assertTrue(dossier["continuity"]["latest_memory"])
+        self.assertIn("social_history", dossier)
+        self.assertIn("influence_chains", dossier)
         self.assertEqual(
             dossier["continuity"]["social_state"]["relationship_crisis_count"],
             1,

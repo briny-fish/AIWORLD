@@ -186,6 +186,31 @@ input {
 .event-row { display: grid; grid-template-columns: 42px 92px 1fr; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
 .scar-row { grid-template-columns: 100px 1fr 120px; }
 .event-row span, .org-row span { overflow-wrap: anywhere; }
+.social-feed { display: grid; gap: 8px; }
+.social-entry {
+  border-left: 4px solid var(--blue);
+  padding: 0 0 8px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.social-entry.generated { border-left-color: var(--green); }
+.social-entry.crisis { border-left-color: var(--red); }
+.social-entry strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
+.entry-meta { color: var(--muted); font-size: 12px; margin-top: 3px; overflow-wrap: anywhere; }
+.source-pill {
+  display: inline-block;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 7px;
+  margin: 2px 4px 0 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.chain-card {
+  border-left: 4px solid var(--violet);
+  padding: 0 0 8px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.chain-card strong { display: block; font-size: 13px; overflow-wrap: anywhere; }
 .muted { color: var(--muted); }
 .small-list { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 13px; }
 .chart { width: 100%; height: 180px; border: 1px solid var(--line); background: #fbfdfc; display: block; }
@@ -242,6 +267,10 @@ input {
           <h2>Selected Agent</h2>
           <div id="selectedAgent"></div>
         </div>
+        <div class="band">
+          <h2>Social Feed</h2>
+          <div id="socialFeed" class="social-feed"></div>
+        </div>
       </div>
       <div class="band">
         <h2>Organizations</h2>
@@ -266,7 +295,7 @@ input {
     </section>
   </main>
   <script>
-const state = { snapshot: null, report: null, metrics: [], providerStatus: null, busy: false, selectedAgentId: null, selectedDossier: null };
+const state = { snapshot: null, report: null, metrics: [], providerStatus: null, socialFeed: null, busy: false, selectedAgentId: null, selectedDossier: null };
 
 const $ = (id) => document.getElementById(id);
 
@@ -283,21 +312,35 @@ async function api(path, options = {}) {
 }
 
 async function refresh() {
-  const [snapshot, metrics, events, report, providerStatus] = await Promise.all([
+  const [snapshot, metrics, events, report, providerStatus, socialFeed] = await Promise.all([
     api("/state"),
     api("/metrics"),
     api("/events?limit=36"),
     api("/report/run.json"),
-    api("/provider-status").catch(() => null)
+    api("/provider-status").catch(() => null),
+    api("/social-feed?limit=36").catch(() => null)
   ]);
   state.snapshot = snapshot;
   state.report = report;
   state.metrics = metrics.metrics;
   state.providerStatus = providerStatus;
+  state.socialFeed = socialFeed;
   state.selectedDossier = state.selectedAgentId
-    ? await api(`/agents/${encodeURIComponent(state.selectedAgentId)}`).catch(() => null)
+    ? await loadAgentDossier(state.selectedAgentId)
     : null;
   render(snapshot, metrics, events);
+}
+
+async function loadAgentDossier(agentId) {
+  const encoded = encodeURIComponent(agentId);
+  const [dossier, socialHistory] = await Promise.all([
+    api(`/agents/${encoded}`).catch(() => null),
+    api(`/agents/${encoded}/social-history?limit=20`).catch(() => null)
+  ]);
+  if (dossier && socialHistory) {
+    dossier.social_history = socialHistory;
+  }
+  return dossier;
 }
 
 async function act(action) {
@@ -333,6 +376,7 @@ function render(snapshot, metricsPayload, eventsPayload) {
   renderIntentTarget(snapshot.world.agents);
   renderWorldPulse(state.report);
   renderSelectedAgent(state.selectedDossier);
+  renderSocialFeed(state.socialFeed);
   renderOrganizations(snapshot.world.organizations);
   renderLocations(snapshot.world.locations || []);
   renderScars(snapshot.world);
@@ -550,8 +594,83 @@ function renderSelectedAgent(dossier) {
     ${memoryHtml}
     <h2>Relationship Pressure</h2>
     <div>${relationshipHtml}</div>
+    <h2>Conversation History</h2>
+    ${conversationHistoryHtml(dossier.social_history)}
+    <h2>Influence Chain</h2>
+    ${influenceChainHtml(dossier.influence_chains || dossier.social_history?.influence_chains || [])}
   `;
   bindObserverAffordanceActions($("selectedAgent"), dossier);
+}
+
+function renderSocialFeed(feed) {
+  const entries = (feed?.entries || []).slice().reverse();
+  if (!entries.length) {
+    $("socialFeed").innerHTML = `<span class="muted">No social events yet. Step the simulation or send an observer intent.</span>`;
+    return;
+  }
+  $("socialFeed").innerHTML = entries.slice(0, 12).map((entry) => socialEntryHtml(entry)).join("");
+}
+
+function socialEntryHtml(entry) {
+  const participants = (entry.participants || []).join(", ") || entry.actor_name || entry.actor_id || "society";
+  const generated = entry.source === "generated_llm_or_cache";
+  const crisis = ["relationship_crisis", "institutional_crisis", "organization_fracture"].includes(entry.kind);
+  const classes = ["social-entry", generated ? "generated" : "", crisis ? "crisis" : ""].filter(Boolean).join(" ");
+  const chain = entry.has_generated_chain ? `<span class="source-pill">chain</span>` : "";
+  const grounded = entry.memory_grounded ? `<span class="source-pill">memory refs ${escapeHtml((entry.memory_refs || []).join(", "))}</span>` : "";
+  return `
+    <div class="${classes}">
+      <strong>Day ${escapeHtml(entry.day)} | ${escapeHtml(entry.kind)} | ${escapeHtml(participants)}</strong>
+      <p>${escapeHtml(shortText(entry.summary || "", 210))}</p>
+      <div class="entry-meta">
+        <span class="source-pill">${escapeHtml(sourceLabel(entry.source))}</span>
+        <span class="source-pill">${escapeHtml(entry.focus || "social")}</span>
+        ${grounded}
+        ${chain}
+      </div>
+    </div>
+  `;
+}
+
+function conversationHistoryHtml(history) {
+  const entries = (history?.entries || []).slice().reverse();
+  if (!entries.length) {
+    return `<span class="muted">No selected-agent conversation history yet.</span>`;
+  }
+  return `<div class="social-feed">${entries.slice(0, 8).map((entry) => socialEntryHtml(entry)).join("")}</div>`;
+}
+
+function influenceChainHtml(chains) {
+  const items = (chains || []).slice().reverse();
+  if (!items.length) {
+    return `<span class="muted">No readable influence chain yet. Generated dialogue, observer intent, reflection, or later plans will appear here when linked.</span>`;
+  }
+  return `<div class="social-feed">${items.slice(0, 5).map((chain) => `
+    <div class="chain-card">
+      <strong>Day ${escapeHtml(chain.source_day)} | ${escapeHtml(chain.source_kind || chain.kind)} | ${escapeHtml(chain.signal || "chain")}</strong>
+      <p>${escapeHtml(shortText(chain.summary || chain.source_text || "", 230))}</p>
+      <div class="entry-meta">
+        <span class="source-pill">${escapeHtml(sourceLabel(chain.source))}</span>
+        <span class="source-pill">memory ${(chain.memory_evidence || []).length}</span>
+        <span class="source-pill">reflection ${(chain.reflection_evidence || []).length}</span>
+        <span class="source-pill">plan ${(chain.plan_evidence || []).length}</span>
+      </div>
+      ${evidenceListHtml(chain)}
+    </div>
+  `).join("")}</div>`;
+}
+
+function evidenceListHtml(chain) {
+  const firstMemory = (chain.memory_evidence || [])[0];
+  const firstReflection = (chain.reflection_evidence || [])[0];
+  const firstPlan = (chain.plan_evidence || [])[0];
+  const rows = [
+    firstMemory ? `memory: ${firstMemory.agent_name || firstMemory.agent_id}: ${firstMemory.text || ""}` : "",
+    firstReflection ? `reflection: ${firstReflection.agent_name || firstReflection.agent_id}: ${firstReflection.text || ""}` : "",
+    firstPlan ? `plan: ${firstPlan.agent_name || firstPlan.agent_id}: ${firstPlan.text || ""}` : ""
+  ].filter(Boolean);
+  if (!rows.length) return "";
+  return `<ul class="small-list">${rows.map((row) => `<li>${escapeHtml(shortText(row, 150))}</li>`).join("")}</ul>`;
 }
 
 function renderOrganizations(organizations) {
@@ -687,6 +806,17 @@ function providerLabel(status) {
   if (!status) return "unknown";
   if (!status.live_llm_enabled) return "rule";
   return `API ${((status.models || [])[0] || "model")}`;
+}
+
+function sourceLabel(source) {
+  const labels = {
+    generated_llm_or_cache: "LLM/cached",
+    provider_fallback: "provider fallback",
+    rule_or_untraced: "rule/untraced",
+    rule_fallback: "rule fallback",
+    simulation: "simulation"
+  };
+  return labels[source] || source || "simulation";
 }
 
 function providerStatusHtml(status) {
@@ -864,7 +994,7 @@ async function selectAgent(agentId) {
   renderMap(state.snapshot.world);
   renderIntentTarget(state.snapshot.world.agents);
   renderSelectedAgent(null);
-  state.selectedDossier = await api(`/agents/${encodeURIComponent(agentId)}`).catch(() => null);
+  state.selectedDossier = await loadAgentDossier(agentId);
   renderSelectedAgent(state.selectedDossier);
 }
 

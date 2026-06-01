@@ -4,6 +4,7 @@ from dataclasses import asdict
 from typing import Any
 
 from .model import Agent, Event, Plan, WorldState
+from .social_timeline import build_agent_social_history, build_influence_chains
 
 
 AGENT_DOSSIER_VERSION = "agent-dossier-v1"
@@ -84,6 +85,8 @@ def build_agent_dossiers(
     *,
     seed: int | None = None,
     observer_recommendations: list[dict[str, Any]] | None = None,
+    dialogue_trace: list[dict[str, Any]] | None = None,
+    generated_chains: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     relationship_links = build_relationship_links(world)
     recommendations = observer_recommendations or []
@@ -99,6 +102,8 @@ def build_agent_dossiers(
                 seed=seed,
                 relationship_links=relationship_links,
                 observer_recommendations=recommendations,
+                dialogue_trace=dialogue_trace,
+                generated_chains=generated_chains,
             )
             for agent in world.agents
         ],
@@ -112,6 +117,8 @@ def build_agent_dossier(
     seed: int | None = None,
     relationship_links: list[dict[str, Any]] | None = None,
     observer_recommendations: list[dict[str, Any]] | None = None,
+    dialogue_trace: list[dict[str, Any]] | None = None,
+    generated_chains: list[dict[str, Any]] | None = None,
     recent_event_limit: int = 12,
 ) -> dict[str, Any]:
     agent = _find_agent(world, agent_id)
@@ -128,6 +135,13 @@ def build_agent_dossier(
         for event in _agent_recent_events(world.event_log, agent_id, recent_event_limit)
     ]
     recommendations = list(observer_recommendations or [])
+    social_history = build_agent_social_history(
+        world,
+        agent_id,
+        dialogue_trace=dialogue_trace or [],
+        generated_chains=generated_chains or [],
+        limit=20,
+    )
     return {
         "kind": "agent_dossier",
         "version": AGENT_DOSSIER_VERSION,
@@ -137,6 +151,13 @@ def build_agent_dossier(
         "continuity": _continuity(agent, links),
         "relationship_links": links,
         "recent_events": recent_events,
+        "social_history": social_history,
+        "influence_chains": build_influence_chains(
+            world,
+            generated_chains=generated_chains or [],
+            agent_id=agent_id,
+            limit=10,
+        )["chains"],
         "relevant_observer_recommendations": [
             item
             for item in recommendations

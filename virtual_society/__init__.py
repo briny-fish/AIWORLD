@@ -76,6 +76,12 @@ from .reflection_evaluation import assess_reflection_follow_through
 from .simulation import Simulation
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import ChronicleEntry, build_social_chronicle
+from .social_timeline import (
+    SOCIAL_TIMELINE_VERSION,
+    build_agent_social_history,
+    build_influence_chains,
+    build_social_feed,
+)
 from .world_dossiers import (
     WORLD_OBJECT_DOSSIER_VERSION,
     build_location_dossier,
@@ -92,6 +98,7 @@ __all__ = [
     "PLAN_PROMPT_VERSION",
     "AGENT_DOSSIER_VERSION",
     "WORLD_OBJECT_DOSSIER_VERSION",
+    "SOCIAL_TIMELINE_VERSION",
     "AgentProfile",
     "CounterfactualAssessment",
     "CounterfactualBucket",
@@ -155,6 +162,9 @@ __all__ = [
     "assess_scar_bottlenecks",
     "build_historical_scar_validation",
     "build_social_chronicle",
+    "build_agent_social_history",
+    "build_influence_chains",
+    "build_social_feed",
     "compare_plan_counterfactuals",
     "intervention_payloads",
     "assess_dialogue_follow_through",

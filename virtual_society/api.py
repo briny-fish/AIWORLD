@@ -9,6 +9,7 @@ from typing import Any
 from urllib.parse import parse_qs, unquote, urlparse
 
 from .agent_dossiers import build_agent_dossier, build_agent_dossiers
+from .generative_chain_evaluation import assess_generated_chains
 from .health import assess_metrics
 from .history import HistoryRecorder
 from .interventions import Intervention
@@ -16,6 +17,7 @@ from .observer3d import render_observer3d_html
 from .observer import render_observer_html
 from .reports import build_run_record, render_run_html
 from .simulation import Simulation
+from .social_timeline import build_agent_social_history, build_social_feed
 from .world_dossiers import (
     build_location_dossier,
     build_location_dossiers,
@@ -97,16 +99,28 @@ class SimulationService:
     def run_record(self) -> dict[str, Any]:
         with self._lock:
             findings = assess_metrics(self.metrics_history)
+            cognition_trace = _provider_trace(self.cognition)
+            reflection_trace = _provider_trace(self.reflection)
+            dialogue_trace = _provider_trace(self.dialogue)
+            generated_chains = [
+                item.as_dict()
+                for item in assess_generated_chains(
+                    self.simulation.world,
+                    dialogue_trace,
+                    reflection_trace,
+                )
+            ]
             return build_run_record(
                 self.seed,
                 self.metrics_history,
                 self.simulation.world,
                 findings,
                 history=self.history_recorder.record(self.metrics_history),
-                cognition_trace=_provider_trace(self.cognition),
+                cognition_trace=cognition_trace,
                 counterfactual_evaluation=None,
-                reflection_trace=_provider_trace(self.reflection),
-                dialogue_trace=_provider_trace(self.dialogue),
+                reflection_trace=reflection_trace,
+                dialogue_trace=dialogue_trace,
+                generated_chains=generated_chains,
                 llm_cache=_llm_cache_summary(
                     self.cognition,
                     self.reflection,
@@ -150,6 +164,8 @@ class SimulationService:
                 seed=self.seed,
                 relationship_links=record.get("relationship_links", []),
                 observer_recommendations=record.get("observer_recommendations", []),
+                dialogue_trace=record.get("dialogue_trace", []),
+                generated_chains=record.get("generated_chains", []),
             )
 
     def agent_dossiers(self) -> dict[str, Any]:
@@ -159,7 +175,34 @@ class SimulationService:
                 self.simulation.world,
                 seed=self.seed,
                 observer_recommendations=record.get("observer_recommendations", []),
+                dialogue_trace=record.get("dialogue_trace", []),
+                generated_chains=record.get("generated_chains", []),
             )
+
+    def social_feed(self, limit: int = 50) -> dict[str, Any]:
+        with self._lock:
+            record = self.run_record()
+            payload = build_social_feed(
+                self.simulation.world,
+                dialogue_trace=record.get("dialogue_trace", []),
+                generated_chains=record.get("generated_chains", []),
+                limit=limit,
+            )
+            payload["seed"] = self.seed
+            return payload
+
+    def agent_social_history(self, agent_id: str, limit: int = 20) -> dict[str, Any]:
+        with self._lock:
+            record = self.run_record()
+            payload = build_agent_social_history(
+                self.simulation.world,
+                agent_id,
+                dialogue_trace=record.get("dialogue_trace", []),
+                generated_chains=record.get("generated_chains", []),
+                limit=limit,
+            )
+            payload["seed"] = self.seed
+            return payload
 
     def location_dossier(self, location_id: str) -> dict[str, Any]:
         with self._lock:
@@ -342,6 +385,10 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                 if parsed.path == "/provider-status":
                     self._send_json(service.provider_status())
                     return
+                if parsed.path == "/social-feed":
+                    limit = int(query.get("limit", ["50"])[0])
+                    self._send_json(service.social_feed(limit=limit))
+                    return
                 if parsed.path == "/report/run.json":
                     self._send_json(service.run_record())
                     return
@@ -353,6 +400,15 @@ def _handler_class(service: SimulationService) -> type[BaseHTTPRequestHandler]:
                     return
                 if parsed.path == "/agents":
                     self._send_json(service.agent_dossiers())
+                    return
+                if parsed.path.startswith("/agents/") and parsed.path.endswith("/social-history"):
+                    agent_id = unquote(
+                        parsed.path.removeprefix("/agents/").removesuffix("/social-history")
+                    ).rstrip("/")
+                    if not agent_id:
+                        raise ValueError("agent id is required")
+                    limit = int(query.get("limit", ["20"])[0])
+                    self._send_json(service.agent_social_history(agent_id, limit=limit))
                     return
                 if parsed.path.startswith("/agents/"):
                     agent_id = unquote(parsed.path.removeprefix("/agents/"))
@@ -591,12 +647,14 @@ def _index() -> dict[str, Any]:
             "GET /state": "current simulation snapshot",
             "GET /metrics": "metrics recorded through API stepping",
             "GET /events?limit=50": "recent events",
+            "GET /social-feed?limit=50": "readable social feed with dialogue and influence hints",
             "GET /history": "periodic history snapshots",
             "GET /provider-status": "live provider mode, model, and generated-call stats",
             "GET /report/run.json": "run report JSON",
             "GET /report/run.html": "run report HTML",
             "GET /agents": "read-only agent dossier index",
             "GET /agents/{id}": "read-only agent dossier with life journal and relationships",
+            "GET /agents/{id}/social-history": "selected agent conversation history and influence chains",
             "GET /locations": "read-only location dossier index",
             "GET /locations/{id}": "read-only location dossier with route and affordance data",
             "GET /organizations": "read-only organization dossier index",

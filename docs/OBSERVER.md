@@ -1,5 +1,12 @@
 # Observer
 
+M41 adds social legibility to the live observer:
+
+- global Social Feed from `/social-feed`;
+- selected-agent Conversation History from `/agents/{id}/social-history`;
+- selected-agent Influence Chain linking dialogue or observer intent to memory,
+  reflection, and later planning evidence when the simulation has recorded it.
+
 M10a 提供一个同源 Web 观察器，挂在本地 API 的 `/observer`。
 
 启动服务：

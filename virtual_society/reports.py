@@ -18,6 +18,7 @@ from .reason_richness_evaluation import assess_reason_richness
 from .scar_diagnosis import assess_scar_bottlenecks
 from .social_evaluation import SocialFinding, assess_social_dynamics
 from .social_chronicle import build_social_chronicle
+from .social_timeline import build_influence_chains, build_social_feed
 
 
 COMPARISON_METRICS = [
@@ -76,10 +77,12 @@ def build_run_record(
         item.as_dict()
         for item in build_observer_recommendations(world, scar_diagnosis)
     ]
+    dialogue_trace_items = dialogue_trace or []
+    generated_chain_items = generated_chains or []
     story_cards = _story_cards(
         social_chronicle=social_chronicle,
         cognition_trace=cognition_trace or [],
-        generated_chains=generated_chains or [],
+        generated_chains=generated_chain_items,
         counterfactual_evaluation=counterfactual_evaluation,
         reason_richness=reason_richness_items,
         baseline_comparison=baseline_comparison,
@@ -106,6 +109,17 @@ def build_run_record(
         "scar_diagnosis": scar_diagnosis,
         "story_cards": story_cards,
         "social_chronicle": social_chronicle,
+        "social_feed": build_social_feed(
+            world,
+            dialogue_trace=dialogue_trace_items,
+            generated_chains=generated_chain_items,
+            limit=120,
+        ),
+        "influence_chains": build_influence_chains(
+            world,
+            generated_chains=generated_chain_items,
+            limit=20,
+        ),
         "observer_intents": observer_intents,
         "observer_memory": _observer_memory(world),
         "observer_recommendations": observer_recommendations,

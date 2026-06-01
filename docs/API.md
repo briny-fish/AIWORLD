@@ -171,6 +171,22 @@ agents.
 
 ## Design Rules
 
+## Social Timeline Endpoints
+
+M41 adds read-only social legibility endpoints:
+
+`GET /social-feed?limit=50`
+
+Returns `social-timeline-v1`: a readable social feed built from dialogue,
+observer intent, relationship pressure, reflection, organization events, and
+generated-chain evidence where available.
+
+`GET /agents/{id}/social-history?limit=20`
+
+Returns selected-agent conversation history and influence chains. This is the
+read path for showing how dialogue, observer intent, memory, reflection, and
+later plans connect for one individual.
+
 - API 只通过 `Intervention` 和 `step` 影响世界。
 - 外部系统不能直接写 `WorldState`。
 - 3D 客户端、Web 观察器和未来 LLM 对话层都应通过这套协议接入。

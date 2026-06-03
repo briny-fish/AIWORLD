@@ -202,7 +202,7 @@ option { color: #17201f; }
     <div class="hint">Click an agent in the scene to inspect current needs, daily life, memories, relationships, and organizations.</div>
   </section>
   <section class="hud bottom-left hud-panel">
-    <h2>Recent Events</h2>
+    <h2>Social Feed</h2>
     <div id="events" class="list"></div>
   </section>
   <section class="hud bottom-right hud-panel">
@@ -248,9 +248,8 @@ const pointer = new THREE.Vector2();
 const agentObjects = new Map();
 let selectedAgentId = null;
 let selectedDossier = null;
-let latestSnapshot = null;
-let latestEvents = [];
-let providerStatus = null;
+let latestFrame = null;
+let latestSocialFeed = [];
 let busy = false;
 
 const ambient = new THREE.HemisphereLight(0xddeee8, 0x1a2422, 1.7);
@@ -327,20 +326,14 @@ async function api(path, options = {}) {
 }
 
 async function refresh() {
-  const [snapshot, metrics, events, provider] = await Promise.all([
-    api("/state"),
-    api("/metrics"),
-    api("/events?limit=42"),
-    api("/provider-status").catch(() => null)
-  ]);
-  latestSnapshot = snapshot;
-  latestEvents = events.events;
-  providerStatus = provider;
+  const frame = await api("/client/world-frame");
+  latestFrame = frame;
+  latestSocialFeed = frame.social_feed || [];
   selectedDossier = selectedAgentId
     ? await api(`/agents/${encodeURIComponent(selectedAgentId)}`).catch(() => null)
     : null;
-  renderHud(snapshot, metrics, events);
-  renderScene(snapshot, metrics, events);
+  renderHud(frame);
+  renderScene(frame);
 }
 
 async function act(task) {
@@ -358,28 +351,30 @@ async function act(task) {
   }
 }
 
-function renderHud(snapshot, metricsPayload, eventsPayload) {
-  const final = metricsPayload.final_metrics || snapshot.metrics;
-  setStatus(`Day ${snapshot.world.day} | seed ${snapshot.seed}`);
+function renderHud(frame) {
+  const metrics = frame.metrics || {};
+  const resources = frame.resources || {};
+  setStatus(`Day ${frame.day} | seed ${frame.seed} | ${frame.version}`);
   document.getElementById("metrics").innerHTML = [
-    tile("Population", final.population),
-    tile("Food", final.food),
-    tile("Materials", final.materials),
-    tile("Shelter", final.shelter),
-    tile("Avg Need", final.average_need),
-    tile("Trust", final.average_trust),
-    tile("Reputation", final.average_reputation),
-    tile("Cohesion", final.institutional_cohesion),
-    tile("Provider", providerLabel(providerStatus))
+    tile("Population", metrics.population),
+    tile("Food", resources.food),
+    tile("Materials", resources.materials),
+    tile("Shelter", resources.shelter),
+    tile("Avg Need", metrics.average_need),
+    tile("Trust", metrics.average_trust),
+    tile("Reputation", metrics.average_reputation),
+    tile("Cohesion", metrics.institutional_cohesion),
+    tile("Provider", providerLabel(frame.provider)),
+    tile("Protocol", frame.version)
   ].join("");
-  document.getElementById("events").innerHTML = eventsPayload.events.slice().reverse().map((event) => `
+  document.getElementById("events").innerHTML = latestSocialFeed.slice().reverse().map((event) => `
     <div class="row">
       <span>${event.day}</span>
       <span>${escapeHtml(event.kind)}</span>
-      <span>${escapeHtml(event.description)}</span>
+      <span>${escapeHtml(event.summary || event.title || event.description || "")}</span>
     </div>
   `).join("");
-  renderIntentTarget(snapshot.world.agents);
+  renderIntentTarget(frame.agents || []);
   renderDetail();
 }
 
@@ -392,7 +387,8 @@ function renderIntentTarget(agents) {
   target.options[0].textContent = selected ? selected.name : "Selected Agent";
 }
 
-function renderScene(snapshot) {
+function renderScene(frame) {
+  if (!frame) return;
   clearGroup(agentGroup);
   clearGroup(locationGroup);
   clearGroup(routeGroup);
@@ -401,28 +397,17 @@ function renderScene(snapshot) {
   clearGroup(eventGroup);
   agentObjects.clear();
 
-  const agents = snapshot.world.agents;
-  const organizations = snapshot.world.organizations || [];
-  const locationPositions = renderLocations3d(snapshot.world.locations || []);
-  renderRoutes3d(snapshot.world.locations || [], locationPositions, snapshot.world.route_loads || {});
-  const locationBuckets = new Map();
-  const locationCounts = new Map();
-  agents.forEach((agent) => {
-    const locationId = agent.location_id || "commons";
-    locationCounts.set(locationId, (locationCounts.get(locationId) || 0) + 1);
-  });
+  const agents = frame.agents || [];
+  const organizations = frame.organizations || [];
+  const locationPositions = renderLocations3d(frame.locations || []);
+  renderRoutes3d(frame.routes || []);
   agents.forEach((agent, index) => {
-    const locationId = agent.location_id || "commons";
-    const bucketIndex = locationBuckets.get(locationId) || 0;
-    locationBuckets.set(locationId, bucketIndex + 1);
-    const bucketCount = Math.max(1, locationCounts.get(locationId) || 1);
-    const base = locationPositions.get(locationId) || locationPositions.get("commons") || new THREE.Vector3(0, 0, 0);
-    const angle = (Math.PI * 2 * bucketIndex) / bucketCount - Math.PI / 2;
-    const offsetRadius = (locationId === "commons" ? 2.7 : 1.35) + Math.min(1.2, Math.max(0, bucketCount - 2) * 0.28);
-    const position = base.clone().add(new THREE.Vector3(Math.cos(angle) * offsetRadius, 0, Math.sin(angle) * offsetRadius));
-    const need = averageNeed(agent.needs);
+    const base = locationPositions.get(agent.location_id) || locationPositions.get("commons") || new THREE.Vector3(0, 0, 0);
+    const position = vectorFromFrame(agent.position, base);
+    const need = Number(agent.average_need ?? averageNeed(agent.needs || {}));
+    const visual = agent.visual || {};
     const material = new THREE.MeshStandardMaterial({
-      color: colorForNeed(need),
+      color: colorValue(visual.color, colorForNeed(need)),
       roughness: 0.58,
       metalness: 0.05,
       emissive: selectedAgentId === agent.id ? 0x244461 : 0x000000,
@@ -454,7 +439,7 @@ function renderScene(snapshot) {
     agentGroup.add(platform);
 
     const ring = new THREE.Mesh(
-      new THREE.TorusGeometry(0.8 + agent.reputation * 0.22, 0.035, 8, 36),
+      new THREE.TorusGeometry(0.8 + Number(agent.reputation || 0) * 0.22, 0.035, 8, 36),
       new THREE.MeshStandardMaterial({ color: 0x6aa3d8, roughness: 0.5, emissive: 0x0c2539, emissiveIntensity: 0.25 })
     );
     ring.position.copy(position).add(new THREE.Vector3(0, 0.22, 0));
@@ -462,40 +447,32 @@ function renderScene(snapshot) {
     agentGroup.add(ring);
 
     const label = makeLabel(agent.name);
-    label.position.copy(position).add(new THREE.Vector3(0, 2.65 + (bucketIndex % 2) * 0.25, 0));
+    label.position.copy(position).add(new THREE.Vector3(0, 2.65 + (index % 2) * 0.25, 0));
     agentGroup.add(label);
-    agentObjects.set(agent.id, { body, head, ring, label, agent, angle, baseY: body.position.y });
+    agentObjects.set(agent.id, { body, head, ring, label, agent, angle: index, baseY: body.position.y });
   });
 
-  renderOrganizations3d(organizations);
-  renderResources(snapshot.world.resources);
-  renderEventMarkers(latestEvents);
+  renderOrganizations3d(organizations, locationPositions);
+  renderResources(frame.resources || {});
+  renderEventMarkers(latestSocialFeed);
 }
 
 function renderLocations3d(locations) {
   const fallback = [
-    { id: "commons", name: "Commons", kind: "civic", condition: 0.66 },
-    { id: "north_field", name: "North Field", kind: "farm", condition: 0.62 },
-    { id: "woodlot", name: "Woodlot", kind: "wildland", condition: 0.58 },
-    { id: "workshop", name: "Workshop", kind: "production", condition: 0.60 },
-    { id: "shelter_house", name: "Shelter House", kind: "dwelling", condition: 0.64 }
+    { id: "commons", name: "Commons", kind: "civic", condition: 0.66, position: {x: 0, y: 0, z: 0} }
   ];
   const items = locations.length ? locations : fallback;
-  const positions = new Map([
-    ["commons", new THREE.Vector3(0, 0, 0)],
-    ["north_field", new THREE.Vector3(-8.4, 0, -5.8)],
-    ["woodlot", new THREE.Vector3(8.4, 0, -5.6)],
-    ["workshop", new THREE.Vector3(-7.6, 0, 6.6)],
-    ["shelter_house", new THREE.Vector3(7.6, 0, 6.8)]
-  ]);
+  const positions = new Map();
   items.forEach((location, index) => {
-    const position = positions.get(location.id) || new THREE.Vector3(Math.cos(index) * 10, 0, Math.sin(index) * 10);
+    const fallbackPosition = new THREE.Vector3(Math.cos(index) * 10, 0, Math.sin(index) * 10);
+    const position = vectorFromFrame(location.position, fallbackPosition);
     positions.set(location.id, position);
     const condition = Number(location.condition ?? 0.6);
+    const visual = location.visual || {};
     const marker = new THREE.Mesh(
       new THREE.CylinderGeometry(1.55, 1.8, 0.18 + condition * 0.24, 48),
       new THREE.MeshStandardMaterial({
-        color: colorForLocation(location.kind),
+        color: colorValue(visual.color, colorForLocation(location.kind)),
         roughness: 0.78,
         transparent: true,
         opacity: 0.42 + condition * 0.25,
@@ -510,59 +487,61 @@ function renderLocations3d(locations) {
     const production = location.production || {};
     const specialty = Object.entries(production).sort((a, b) => Number(b[1]) - Number(a[1]))[0];
     const specialtyText = specialty ? ` ${specialty[0]}x${Number(specialty[1]).toFixed(1)}` : "";
-    const label = makeLabel(`${location.name || location.id}${specialtyText} F${Number(resources.food || 0).toFixed(1)} M${Number(resources.materials || 0).toFixed(1)}`);
+    const label = makeLabel(`${location.name || location.id}${specialtyText} R${Number(location.resident_count || 0)} F${Number(resources.food || 0).toFixed(1)} M${Number(resources.materials || 0).toFixed(1)}`);
     label.position.copy(position).add(new THREE.Vector3(0, 0.85, 0));
     locationGroup.add(label);
   });
   return positions;
 }
 
-function renderRoutes3d(locations, positions, routeLoads) {
-  const seen = new Set();
-  locations.forEach((location) => {
-    (location.connected_location_ids || []).forEach((targetId) => {
-      const sourceId = location.id;
-      const key = routeKey(sourceId, targetId);
-      if (seen.has(key)) return;
-      seen.add(key);
-      const start = positions.get(sourceId);
-      const end = positions.get(targetId);
-      if (!start || !end) return;
-      const load = Number(routeLoads[key] || 0);
-      const radius = 0.035 + Math.min(load, 7) * 0.012;
-      const color = load > 4 ? 0xd49b4a : 0x436f76;
-      const material = new THREE.MeshStandardMaterial({
-        color,
-        roughness: 0.74,
-        transparent: true,
-        opacity: 0.34 + Math.min(load, 6) * 0.06,
-        emissive: load > 4 ? 0x3a2106 : 0x071b1d,
-        emissiveIntensity: load > 4 ? 0.22 : 0.08
-      });
-      const from = start.clone().add(new THREE.Vector3(0, 0.1, 0));
-      const to = end.clone().add(new THREE.Vector3(0, 0.1, 0));
-      const midpoint = from.clone().add(to).multiplyScalar(0.5);
-      const direction = to.clone().sub(from);
-      const length = direction.length();
-      const route = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 12), material);
-      route.position.copy(midpoint);
-      route.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-      routeGroup.add(route);
+function renderRoutes3d(routes) {
+  routes.forEach((route) => {
+    const points = route.points || [];
+    if (points.length < 2) return;
+    const start = vectorFromFrame(points[0], new THREE.Vector3(0, 0, 0));
+    const end = vectorFromFrame(points[points.length - 1], new THREE.Vector3(0, 0, 0));
+    const load = Number(route.load || 0);
+    const radius = Number(route.visual?.width || (0.035 + Math.min(load, 7) * 0.012));
+    const color = colorValue(route.visual?.color, route.blocked ? 0xd16d6d : (load > 4 ? 0xd49b4a : 0x436f76));
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      roughness: 0.74,
+      transparent: true,
+      opacity: route.blocked ? 0.78 : 0.34 + Math.min(load, 6) * 0.06,
+      emissive: route.blocked ? 0x3b0909 : (load > 4 ? 0x3a2106 : 0x071b1d),
+      emissiveIntensity: route.blocked ? 0.36 : (load > 4 ? 0.22 : 0.08)
     });
+    const from = start.clone().add(new THREE.Vector3(0, 0.1, 0));
+    const to = end.clone().add(new THREE.Vector3(0, 0.1, 0));
+    const midpoint = from.clone().add(to).multiplyScalar(0.5);
+    const direction = to.clone().sub(from);
+    const length = direction.length();
+    const routeMesh = new THREE.Mesh(new THREE.CylinderGeometry(radius, radius, length, 12), material);
+    routeMesh.position.copy(midpoint);
+    routeMesh.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
+    routeGroup.add(routeMesh);
+    if (route.blocked) {
+      const barrier = new THREE.Mesh(
+        new THREE.BoxGeometry(0.42, 1.5, 1.9),
+        new THREE.MeshStandardMaterial({ color: 0xa33232, roughness: 0.58, emissive: 0x330606, emissiveIntensity: 0.35 })
+      );
+      barrier.position.copy(midpoint).add(new THREE.Vector3(0, 0.9, 0));
+      barrier.lookAt(to);
+      barrier.castShadow = true;
+      routeGroup.add(barrier);
+    }
   });
 }
 
-function routeKey(firstLocationId, secondLocationId) {
-  return [firstLocationId, secondLocationId].sort().join("|");
-}
-
-function renderOrganizations3d(organizations) {
+function renderOrganizations3d(organizations, locationPositions) {
   organizations.forEach((organization, index) => {
-    const radius = 4.2 + index * 2.1;
+    const home = locationPositions.get(organization.home_location_id) || new THREE.Vector3(0, 0, 0);
+    const radius = 1.9 + Math.min(index, 3) * 0.32;
+    const visual = organization.visual || {};
     const ring = new THREE.Mesh(
       new THREE.TorusGeometry(radius, 0.035 + organization.cohesion * 0.035, 8, 96),
       new THREE.MeshStandardMaterial({
-        color: 0x6aa3d8,
+        color: colorValue(visual.color, organization.fractured ? 0xd16d6d : 0x6aa3d8),
         roughness: 0.55,
         transparent: true,
         opacity: 0.28 + organization.cohesion * 0.18,
@@ -570,9 +549,12 @@ function renderOrganizations3d(organizations) {
         emissiveIntensity: 0.2
       })
     );
-    ring.position.y = 0.08 + index * 0.035;
+    ring.position.copy(home).add(new THREE.Vector3(0, 0.08 + index * 0.035, 0));
     ring.rotation.x = Math.PI / 2;
     organizationGroup.add(ring);
+    const label = makeLabel(organization.name || organization.id);
+    label.position.copy(home).add(new THREE.Vector3(0, 1.6 + index * 0.15, 0));
+    organizationGroup.add(label);
   });
 }
 
@@ -598,7 +580,8 @@ function renderResources(resources) {
 }
 
 function renderEventMarkers(events) {
-  const important = events.filter((event) => ["disaster", "hunger_crisis", "institutional_crisis", "organization", "broadcast", "intervention"].includes(event.kind)).slice(-10);
+  const importantKinds = ["disaster", "hunger_crisis", "institutional_crisis", "organization", "broadcast", "intervention", "dialogue", "observer_intent", "relationship"];
+  const important = events.filter((event) => importantKinds.includes(String(event.kind || ""))).slice(-10);
   important.forEach((event, index) => {
     const angle = (Math.PI * 2 * index) / Math.max(important.length, 1);
     const marker = new THREE.Mesh(
@@ -613,11 +596,11 @@ function renderEventMarkers(events) {
 
 function renderDetail() {
   const detail = document.getElementById("detail");
-  if (!latestSnapshot || !selectedAgentId) {
+  if (!latestFrame || !selectedAgentId) {
     detail.innerHTML = `<span class="status">No agent selected.</span>`;
     return;
   }
-  const agent = selectedDossier?.agent || latestSnapshot.world.agents.find((item) => item.id === selectedAgentId);
+  const agent = selectedDossier?.agent || (latestFrame.agents || []).find((item) => item.id === selectedAgentId);
   if (!agent) {
     detail.innerHTML = `<span class="status">No agent selected.</span>`;
     return;
@@ -627,23 +610,27 @@ function renderDetail() {
   const reflection = latestReflection(agent);
   const life = (agent.recent_life_journal || []).slice(-5).reverse();
   const memories = (agent.recent_memory_stream || []).slice(-4).reverse();
+  const fallbackMemory = !memories.length && agent.recent_memory
+    ? [{day: latestFrame.day, kind: "memory", text: agent.recent_memory}]
+    : [];
+  const memoryItems = memories.length ? memories : fallbackMemory;
   const relationships = (selectedDossier?.relationship_links || [])
     .sort((a, b) => Number(a.average_trust) - Number(b.average_trust))
     .slice(0, 6);
   const lifeHtml = life.length
     ? life.map((item) => `<div class="life-entry">
-        <strong>Day ${escapeHtml(item.day)} · ${escapeHtml(item.mood)}</strong>
+        <strong>Day ${escapeHtml(item.day)} | ${escapeHtml(item.mood)}</strong>
         <span>${escapeHtml(item.summary)}</span>
         <span class="status">${escapeHtml((item.pressures || []).join(", "))}</span>
       </div>`).join("")
     : `<span class="status">No life journal yet. Step the world to create daily life entries.</span>`;
-  const memoryHtml = memories.length
-    ? `<ul class="small-list">${memories.map((item) => `<li>day ${escapeHtml(item.day)} · ${escapeHtml(item.kind)}: ${escapeHtml(shortText(item.text || "", 140))}</li>`).join("")}</ul>`
+  const memoryHtml = memoryItems.length
+    ? `<ul class="small-list">${memoryItems.map((item) => `<li>day ${escapeHtml(item.day)} | ${escapeHtml(item.kind)}: ${escapeHtml(shortText(item.text || "", 140))}</li>`).join("")}</ul>`
     : `<span class="status">No recent memory stream entries.</span>`;
   const relationshipHtml = relationships.length
     ? relationships.map((item) => {
         const other = (item.agents || []).find((name, index) => (item.agent_ids || [])[index] !== agent.id) || "unknown";
-        return `<span class="relationship-chip ${item.crisis ? "crisis" : ""}">${escapeHtml(other)} · ${escapeHtml(item.average_trust)} · ${item.crisis ? "crisis" : "open"}</span>`;
+        return `<span class="relationship-chip ${item.crisis ? "crisis" : ""}">${escapeHtml(other)} | ${escapeHtml(item.average_trust)} | ${item.crisis ? "crisis" : "open"}</span>`;
       }).join("")
     : `<span class="status">No relationship evidence yet.</span>`;
   const actionsHtml = observerAffordanceActions(selectedDossier);
@@ -673,8 +660,8 @@ function renderDetail() {
 async function selectAgent(agentId) {
   selectedAgentId = agentId;
   selectedDossier = null;
-  renderScene(latestSnapshot);
-  renderIntentTarget(latestSnapshot.world.agents);
+  renderScene(latestFrame);
+  renderIntentTarget(latestFrame?.agents || []);
   renderDetail();
   selectedDossier = await api(`/agents/${encodeURIComponent(agentId)}`).catch(() => null);
   renderDetail();
@@ -696,16 +683,37 @@ function tile(label, value) {
   return `<div class="metric"><label>${escapeHtml(label)}</label><strong>${escapeHtml(String(value))}</strong></div>`;
 }
 
+function vectorFromFrame(position, fallback) {
+  if (!position) return fallback.clone();
+  return new THREE.Vector3(
+    Number(position.x || 0),
+    Number(position.y || 0),
+    Number(position.z || 0)
+  );
+}
+
 function averageNeed(needs) {
-  return (needs.food + needs.energy + needs.safety + needs.belonging + needs.meaning) / 5;
+  return (
+    Number(needs.food || 0) +
+    Number(needs.energy || 0) +
+    Number(needs.safety || 0) +
+    Number(needs.belonging || 0) +
+    Number(needs.meaning || 0)
+  ) / 5;
 }
 
 function latestReflection(agent) {
+  if (agent.latest_reflection) return agent.latest_reflection;
   const reflections = agent.reflections || [];
   if (reflections.length) return reflections[reflections.length - 1];
+  if (agent.recent_memory) return agent.recent_memory;
   const memories = agent.memory_stream || [];
   if (memories.length) return memories[memories.length - 1].text || "";
   return "";
+}
+
+function colorValue(value, fallback) {
+  return value || fallback;
 }
 
 function colorForNeed(need) {
@@ -933,8 +941,8 @@ document.getElementById("step30").addEventListener("click", () => act(() => api(
 document.getElementById("food").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "resource", actor_id: observerActorId(), reason: `${observerActorId()} 3D food aid`, params: { resource: "food", amount: 5 } }] }) })));
 document.getElementById("hope").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "broadcast", actor_id: observerActorId(), reason: `${observerActorId()} 3D encouragement`, params: { tone: "hope", strength: 0.06, message: "Hold together." } }] }) })));
 document.getElementById("storm").addEventListener("click", () => act(() => api("/step", { method: "POST", body: JSON.stringify({ days: 1, interventions: [{ kind: "disaster", actor_id: observerActorId(), reason: `${observerActorId()} 3D stress test`, params: { name: "storm", severity: 0.35 } }] }) })));
-document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7 }) })));
-document.getElementById("resetAlpha").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestSnapshot?.seed || 7, world_preset: "generative_alpha" }) })));
+document.getElementById("reset").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestFrame?.seed || 7 }) })));
+document.getElementById("resetAlpha").addEventListener("click", () => act(() => api("/reset", { method: "POST", body: JSON.stringify({ seed: latestFrame?.seed || 7, world_preset: "generative_alpha" }) })));
 document.getElementById("sendIntent").addEventListener("click", () => act(sendObserverIntent));
 const savedObserverName = localStorage.getItem("virtualSocietyObserverName");
 if (savedObserverName) document.getElementById("observerName").value = savedObserverName;

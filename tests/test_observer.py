@@ -31,6 +31,13 @@ class ObserverTests(unittest.TestCase):
         self.assertIn("observerActorId", html)
         self.assertIn("actor_id", html)
 
+    def test_3d_observer_consumes_world_client_frame(self) -> None:
+        html = render_observer3d_html()
+
+        self.assertIn("/client/world-frame", html)
+        self.assertIn("latestFrame", html)
+        self.assertIn("renderRoutes3d(frame.routes", html)
+
 
 if __name__ == "__main__":
     unittest.main()

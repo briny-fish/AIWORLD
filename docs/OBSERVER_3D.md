@@ -1,5 +1,12 @@
 # 3D Observer
 
+M45 update: `/observer3d` now consumes `GET /client/world-frame` instead of
+reconstructing the scene from `/state`. Locations, routes, blocked-route
+markers, agent positions, organization markers, provider status, and social
+feed entries all come from `world-client-v1`. This makes the browser 3D page a
+reference implementation for future Luanti, Godot, Unity, or other world
+clients.
+
 M10b 提供一个 Three.js 3D 观察器原型，挂在本地 API 的 `/observer3d`。
 
 启动服务：

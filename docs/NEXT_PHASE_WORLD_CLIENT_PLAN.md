@@ -57,7 +57,8 @@ Acceptance:
 
 ## M42: World Client Protocol v1
 
-Status: implemented as ADR-0043.
+Status: implemented as ADR-0043, with the built-in 3D observer migrated to the
+same protocol in ADR-0045.
 
 Goal: define the stable read contract that any 3D, voxel, or web client can
 consume.

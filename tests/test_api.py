@@ -156,7 +156,7 @@ class ApiTests(unittest.TestCase):
             self.assertIn("Virtual Society 3D Observer", observer3d_html)
             self.assertIn("three", observer3d_html)
             self.assertIn("WebGLRenderer", observer3d_html)
-            self.assertIn("/provider-status", observer3d_html)
+            self.assertIn("/client/world-frame", observer3d_html)
             self.assertIn("/agents/", observer3d_html)
             self.assertIn("observer_affordances", observer3d_html)
             self.assertIn("Life Timeline", observer3d_html)

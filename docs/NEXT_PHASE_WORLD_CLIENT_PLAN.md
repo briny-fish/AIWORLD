@@ -6,14 +6,17 @@ through conversation, memory, influence, and spatial presence.
 
 ## North Star
 
-The final product should feel like a living virtual world, not a dashboard of
-settlement rules. The user should be able to answer:
+The final product should feel like a 3D open virtual world with many NPCs who
+have their own thoughts, memories, relationships, and goals. It should not feel
+like a dashboard of settlement rules or an omniscient causal replay system. The
+user should be able to answer:
 
 - Who talked to whom?
 - What did they say?
 - What did they remember?
-- Whose behavior changed because of it?
+- What local changes did my presence or actions seem to influence?
 - Which world objects or relationships carry lasting history?
+- How do nearby NPCs perceive me as a character in the world?
 - Can an external 3D or voxel client show the same society without owning the
   simulation state?
 
